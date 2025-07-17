@@ -160,12 +160,12 @@ module.exports = function (app) {
     });
 
     // 地址列表查询（支持分页和模糊搜索）
-    app.get('/api/location/list', function (req, res) {
+    app.get('/location/list', function (req, res) {
         location.getLocationList(req, res); // 调用查询地址列表函数
     });
 
     // 地址明细查询
-    app.get('/api/location/detail', function (req, res) {
-        location.getLocationInfo(req, res); // 调用查询地址明细函数
+    app.get('/location/detail', function (req, res) {
+        location.getLocationDetail(req, res); // 调用查询地址明细函数
     });
 }

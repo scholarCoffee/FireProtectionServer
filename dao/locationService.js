@@ -3,6 +3,7 @@ const Location = dbmodel.Location;
 
 // 地址列表查询（支持分页和模糊搜索）
 exports.getLocationList = async (req, res) => {
+    console.log('地址列表查询:', req.query);
     try {
         const { 
             page = 1, 
@@ -10,7 +11,7 @@ exports.getLocationList = async (req, res) => {
             keyword = '', 
             type = '', 
             safeLevelId = '' 
-        } = req.query;
+        } = req.query
 
         // 构建查询条件
         let query = {};
@@ -79,8 +80,7 @@ exports.getLocationList = async (req, res) => {
 // 地址明细查询
 exports.getLocationDetail = async (req, res) => {
     try {
-        const { addressId } = req.query;
-        
+        const { addressId } = req.query
         if (!addressId) {
             return res.send({ 
                 code: 400, 
