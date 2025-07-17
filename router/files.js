@@ -1,7 +1,7 @@
-var multer = require('multer');
-var mkdir = require('../dao/mkdir.js'); // 引入创建目录模块
+const multer = require('multer');
+const mkdir = require('../dao/mkdir.js'); // 引入创建目录模块
 
-var storage = multer.diskStorage({
+const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         const { url } = req.body || {}; // 解构获取请求体中的数据
         mkdir.mkdirs('../data/' + url, err => {
@@ -21,7 +21,7 @@ var storage = multer.diskStorage({
     }
 });
 
-var upload = multer({ storage: storage });
+const upload = multer({ storage: storage });
 
 module.exports = function (app) {
     // 上传文件接口

@@ -1,0 +1,694 @@
+[
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc603a"
+      },
+      "addressId": "123456",
+      "addressName": "江苏省苏州市工业园区东方之门",
+      "addressExt": "江苏省苏州市工业园区东方之门北座负一楼303号",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 1,
+      "safeLevelId": 1,
+      "safeLevelName": "优秀",
+      "safeLevelDesc": "该单位安全设施完备，符合消防安全标准。",
+      "phoneList": [
+        {
+          "phone": "0512-12345678",
+          "name": "张三",
+          "type": 1
+        },
+        {
+          "phone": "0512-87654321",
+          "name": "李四",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "东门",
+          "type": 1
+        },
+        {
+          "name": "南门",
+          "type": 2
+        },
+        {
+          "name": "西门",
+          "type": 3
+        },
+        {
+          "name": "北门",
+          "type": 4
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T08:30:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T08:30:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc603b"
+      },
+      "addressId": "654321",
+      "addressName": "江苏省苏州市姑苏区虎丘山风景区",
+      "addressExt": "江苏省苏州市姑苏区虎丘山风景区南门",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 2,
+      "safeLevelId": 2,
+      "safeLevelName": "良好",
+      "safeLevelDesc": "该单位安全设施较为完备，符合消防安全标准。",
+      "phoneList": [
+        {
+          "phone": "0512-23456789",
+          "name": "王五",
+          "type": 1
+        },
+        {
+          "phone": "0512-98765432",
+          "name": "赵六",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "南门",
+          "type": 1
+        },
+        {
+          "name": "西门",
+          "type": 2
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T09:15:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T09:15:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc603c"
+      },
+      "addressId": "789012",
+      "addressName": "江苏省苏州市姑苏区平江路历史街区",
+      "addressExt": "江苏省苏州市姑苏区平江路历史街区东段",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 3,
+      "safeLevelId": 3,
+      "safeLevelName": "一般",
+      "safeLevelDesc": "该单位安全设施一般，需加强消防安全管理。",
+      "phoneList": [
+        {
+          "phone": "0512-34567890",
+          "name": "孙七",
+          "type": 1
+        },
+        {
+          "phone": "0512-09876543",
+          "name": "周八",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "东门",
+          "type": 1
+        },
+        {
+          "name": "北门",
+          "type": 2
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T10:00:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T10:00:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc603d"
+      },
+      "addressId": "345678",
+      "addressName": "江苏省苏州市姑苏区金鸡湖景区",
+      "addressExt": "江苏省苏州市姑苏区金鸡湖景区西侧",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 1,
+      "safeLevelId": 1,
+      "safeLevelName": "优秀",
+      "safeLevelDesc": "该单位安全设施完备，符合消防安全标准。",
+      "phoneList": [
+        {
+          "phone": "0512-45678901",
+          "name": "钱九",
+          "type": 1
+        },
+        {
+          "phone": "0512-10987654",
+          "name": "吴十",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "西门",
+          "type": 1
+        },
+        {
+          "name": "南门",
+          "type": 2
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T10:45:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T10:45:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc603e"
+      },
+      "addressId": "456789",
+      "addressName": "江苏省苏州市姑苏区拙政园",
+      "addressExt": "江苏省苏州市姑苏区拙政园东侧",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 2,
+      "safeLevelId": 2,
+      "safeLevelName": "良好",
+      "safeLevelDesc": "该单位安全设施较为完备，符合消防安全标准。",
+      "phoneList": [
+        {
+          "phone": "0512-56789012",
+          "name": "郑十一",
+          "type": 1
+        },
+        {
+          "phone": "0512-21098765",
+          "name": "冯十二",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "东门",
+          "type": 1
+        },
+        {
+          "name": "北门",
+          "type": 2
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T11:30:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T11:30:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc603f"
+      },
+      "addressId": "567890",
+      "addressName": "江苏省苏州市姑苏区狮子林",
+      "addressExt": "江苏省苏州市姑苏区狮子林南侧",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 3,
+      "safeLevelId": 3,
+      "safeLevelName": "一般",
+      "safeLevelDesc": "该单位安全设施一般，需加强消防安全管理。",
+      "phoneList": [
+        {
+          "phone": "0512-67890123",
+          "name": "陈十三",
+          "type": 1
+        },
+        {
+          "phone": "0512-32109876",
+          "name": "杨十四",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "南门",
+          "type": 1
+        },
+        {
+          "name": "西门",
+          "type": 2
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T12:15:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T12:15:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc6040"
+      },
+      "addressId": "678901",
+      "addressName": "江苏省苏州市姑苏区寒山寺",
+      "addressExt": "江苏省苏州市姑苏区寒山寺北侧",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 1,
+      "safeLevelId": 4,
+      "safeLevelName": "较差",
+      "safeLevelDesc": "该单位安全设施较差，需立即整改。较差原因：消防设施老旧，存在安全隐患。",
+      "phoneList": [
+        {
+          "phone": "0512-78901234",
+          "name": "赵十五",
+          "type": 1
+        },
+        {
+          "phone": "0512-43210987",
+          "name": "钱十六",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "北门",
+          "type": 1
+        },
+        {
+          "name": "东门",
+          "type": 2
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T13:00:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T13:00:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc6041"
+      },
+      "addressId": "789012",
+      "addressName": "江苏省苏州市姑苏区网师园",
+      "addressExt": "江苏省苏州市姑苏区网师园西侧",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 1,
+      "safeLevelId": 1,
+      "safeLevelName": "良好",
+      "safeLevelDesc": "该单位安全设施较为完备，符合消防安全标准。",
+      "phoneList": [
+        {
+          "phone": "0512-89012345",
+          "name": "孙十七",
+          "type": 1
+        },
+        {
+          "phone": "0512-54321098",
+          "name": "周十八",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "西门",
+          "type": 1
+        },
+        {
+          "name": "南门",
+          "type": 2
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T13:45:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T13:45:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc6042"
+      },
+      "addressId": "890123",
+      "addressName": "江苏省苏州市姑苏区留园",
+      "addressExt": "江苏省苏州市姑苏区留园东侧",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 1,
+      "safeLevelId": 1,
+      "safeLevelName": "良好",
+      "safeLevelDesc": "该单位安全设施较为完备，符合消防安全标准。",
+      "phoneList": [
+        {
+          "phone": "0512-90123456",
+          "name": "郑十九",
+          "type": 1
+        },
+        {
+          "phone": "0512-65432109",
+          "name": "冯二十",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "东门",
+          "type": 1
+        },
+        {
+          "name": "北门",
+          "type": 2
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T14:30:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T14:30:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc6043"
+      },
+      "addressId": "901234",
+      "addressName": "江苏省苏州市工业园区独墅湖高教区",
+      "addressExt": "江苏省苏州市工业园区独墅湖高教区文景路8号",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 2,
+      "safeLevelId": 1,
+      "safeLevelName": "优秀",
+      "safeLevelDesc": "该单位安全设施完备，符合消防安全标准。",
+      "phoneList": [
+        {
+          "phone": "0512-91234567",
+          "name": "刘二十一",
+          "type": 1
+        },
+        {
+          "phone": "0512-76543210",
+          "name": "张二十二",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "东门",
+          "type": 1
+        },
+        {
+          "name": "南门",
+          "type": 2
+        },
+        {
+          "name": "西门",
+          "type": 3
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T15:15:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T15:15:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc6044"
+      },
+      "addressId": "012345",
+      "addressName": "江苏省苏州市吴中区木渎古镇",
+      "addressExt": "江苏省苏州市吴中区木渎古镇山塘街",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 3,
+      "safeLevelId": 2,
+      "safeLevelName": "良好",
+      "safeLevelDesc": "该单位安全设施较为完备，符合消防安全标准。",
+      "phoneList": [
+        {
+          "phone": "0512-02345678",
+          "name": "李二十三",
+          "type": 1
+        },
+        {
+          "phone": "0512-87654321",
+          "name": "王二十四",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "东门",
+          "type": 1
+        },
+        {
+          "name": "南门",
+          "type": 2
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T16:00:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T16:00:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc6045"
+      },
+      "addressId": "123789",
+      "addressName": "江苏省苏州市相城区阳澄湖度假区",
+      "addressExt": "江苏省苏州市相城区阳澄湖度假区阳澄湖大道",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 1,
+      "safeLevelId": 1,
+      "safeLevelName": "优秀",
+      "safeLevelDesc": "该单位安全设施完备，符合消防安全标准。",
+      "phoneList": [
+        {
+          "phone": "0512-13456789",
+          "name": "陈二十五",
+          "type": 1
+        },
+        {
+          "phone": "0512-98765432",
+          "name": "赵二十六",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "东门",
+          "type": 1
+        },
+        {
+          "name": "南门",
+          "type": 2
+        },
+        {
+          "name": "西门",
+          "type": 3
+        },
+        {
+          "name": "北门",
+          "type": 4
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T16:45:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T16:45:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc6046"
+      },
+      "addressId": "234567",
+      "addressName": "江苏省苏州市高新区科技城",
+      "addressExt": "江苏省苏州市高新区科技城锦峰路8号",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 2,
+      "safeLevelId": 1,
+      "safeLevelName": "优秀",
+      "safeLevelDesc": "该单位安全设施完备，符合消防安全标准。",
+      "phoneList": [
+        {
+          "phone": "0512-24567890",
+          "name": "孙二十七",
+          "type": 1
+        },
+        {
+          "phone": "0512-09876543",
+          "name": "周二十八",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "东门",
+          "type": 1
+        },
+        {
+          "name": "南门",
+          "type": 2
+        },
+        {
+          "name": "西门",
+          "type": 3
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T17:30:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T17:30:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc6047"
+      },
+      "addressId": "345678",
+      "addressName": "江苏省苏州市吴江区同里古镇",
+      "addressExt": "江苏省苏州市吴江区同里古镇中川路",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 3,
+      "safeLevelId": 2,
+      "safeLevelName": "良好",
+      "safeLevelDesc": "该单位安全设施较为完备，符合消防安全标准。",
+      "phoneList": [
+        {
+          "phone": "0512-35678901",
+          "name": "钱二十九",
+          "type": 1
+        },
+        {
+          "phone": "0512-10987654",
+          "name": "吴三十",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "东门",
+          "type": 1
+        },
+        {
+          "name": "南门",
+          "type": 2
+        },
+        {
+          "name": "西门",
+          "type": 3
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T18:15:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T18:15:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc6048"
+      },
+      "addressId": "456789",
+      "addressName": "江苏省苏州市工业园区星湖街商业区",
+      "addressExt": "江苏省苏州市工业园区星湖街商业区星湖街328号",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 3,
+      "safeLevelId": 3,
+      "safeLevelName": "一般",
+      "safeLevelDesc": "该单位安全设施一般，需加强消防安全管理。",
+      "phoneList": [
+        {
+          "phone": "0512-46789012",
+          "name": "郑三十一",
+          "type": 1
+        },
+        {
+          "phone": "0512-21098765",
+          "name": "冯三十二",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "东门",
+          "type": 1
+        },
+        {
+          "name": "南门",
+          "type": 2
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T19:00:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T19:00:00.000Z"
+      }
+    },
+    {
+      "_id": {
+        "$oid": "65f3d731a63046e5b2cc6049"
+      },
+      "addressId": "567890",
+      "addressName": "江苏省苏州市姑苏区观前街商业区",
+      "addressExt": "江苏省苏州市姑苏区观前街商业区观前街",
+      "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
+      "type": 3,
+      "safeLevelId": 2,
+      "safeLevelName": "良好",
+      "safeLevelDesc": "该单位安全设施较为完备，符合消防安全标准。",
+      "phoneList": [
+        {
+          "phone": "0512-57890123",
+          "name": "陈三十三",
+          "type": 1
+        },
+        {
+          "phone": "0512-32109876",
+          "name": "杨三十四",
+          "type": 2
+        }
+      ],
+      "enterGateList": [
+        {
+          "name": "东门",
+          "type": 1
+        },
+        {
+          "name": "南门",
+          "type": 2
+        },
+        {
+          "name": "西门",
+          "type": 3
+        },
+        {
+          "name": "北门",
+          "type": 4
+        }
+      ],
+      "createTime": {
+        "$date": "2024-01-15T19:45:00.000Z"
+      },
+      "updateTime": {
+        "$date": "2024-01-15T19:45:00.000Z"
+      }
+    }
+  ]

@@ -1,11 +1,12 @@
 const signUp = require('../server/signUp.js'); // 引入注册模块
 const signIn = require('../server/signIn.js'); // 引入登录模块
 const search = require('../server/search.js'); // 引入搜索模块
-const user = require('../server/userdetail.js'); // 引入用户详情模块
+const user = require('../server/userDetail.js'); // 引入用户详情模块
 const friend = require('../server/friend.js'); // 引入好友模块
 const index = require('../server/index.js'); // 引入首页模块
 const chat = require('../server/chat.js'); // 引入聊天模块
 const group = require('../server/group.js'); // 引入群模块
+const location = require('../server/location.js'); // 引入地址模块
 
 module.exports = function (app) {
     // 注册页面
@@ -156,5 +157,15 @@ module.exports = function (app) {
     // 修改群信息
     app.post('/group/updateGroup', function (req, res) {
         group.updateGroup(req, res); // 调用修改群信息函数
+    });
+
+    // 地址列表查询（支持分页和模糊搜索）
+    app.get('/api/location/list', function (req, res) {
+        location.getLocationList(req, res); // 调用查询地址列表函数
+    });
+
+    // 地址明细查询
+    app.get('/api/location/detail', function (req, res) {
+        location.getLocationInfo(req, res); // 调用查询地址明细函数
     });
 }
