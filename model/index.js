@@ -5,14 +5,13 @@ const Schema = mongoose.Schema;
 
 // 定义 UserInfo 的 Schema
 const UserSchema = new Schema({
-    name: { type: String, required: true }, // 用户名
-    pwd: { type: String, required: true }, // 密码
-    email: { type: String, required: true, unique: true }, // 邮箱
-    sex: { type: String, default: 'asexual' }, // 性别
-    birth: { type: Date }, // 生日
-    phone: { type: Number }, // 手机号
-    explain: { type: String }, // 个人说明
-    imgurl: { type: String, default: '/user/user.png' }, // 头像地址
+    nickName: { type: String, required: true }, // 昵称
+    signature: { type: String, required: true }, // 签名
+    id: { type: String, require: true }, // id标签
+    encryptedData: { type: String, required: true }, // 微信加密数据
+    permissionStatus:{ type: Number, default: 1 }, // 权限实体
+    code: { type: String }, // 微信code
+    avatarUrl: { type: String }, // 头像地址
     register: { type: Date, default: Date.now }, // 注册时间
     updateTime: { type: Date, default: Date.now } // 更新时间
 });
