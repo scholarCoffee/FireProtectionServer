@@ -98,9 +98,8 @@ module.exports = {
     },
 
     getGroupInMsg: async function(data, res) {
-        const { uid } = data // 解构获取请求体中的数据
         try {
-            let group = await groupService.getOnlyGroup(uid) // 获取用户列表
+            let group = await groupService.getOnlyGroup(data) // 获取用户列表
             for(let i = 0; i < group.length; i++) {
                 let result = await groupService.getOneGroupMsg({ gid: group[i].id})
                 if (result) {

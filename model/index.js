@@ -40,8 +40,7 @@ const MessageSchema = new Schema({
 const GroupSchema = new Schema({
     userID: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 创建者ID
     name: { type: String, required: true }, // 群名称
-    markname: { type: String, default: '' }, // 群备注名
-    imgurl: { type: String, default: '/group/group.png' }, // 群头像地址
+    imgUrl: { type: String, default: '/group/group.png' }, // 群头像地址
     time: { type: Date, default: Date.now }, // 创建时间
     notice: { type: String, default: '' }, // 群公告
     updateTime: { type: Date, default: Date.now } // 更新时间
