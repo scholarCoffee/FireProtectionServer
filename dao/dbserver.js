@@ -9,24 +9,8 @@ const locationService = require('./locationService.js');
 // 导出所有服务方法
 module.exports = {
     // 用户相关服务
-    buildUser: userService.buildUser,
-    countUserValue: userService.countUserValue,
-    updateUserPwd: userService.updateUserPwd,
-    userMatch: userService.userMatch,
-    searchUser: userService.searchUser,
     userDetail: userService.userDetail,
     userUpdate: userService.userUpdate,
-
-    // 好友相关服务
-    isFriend: friendService.isFriend,
-    updateMarkName: friendService.updateMarkName,
-    getMarkName: friendService.getMarkName,
-    buildFriend: friendService.buildFriend,
-    updateFriendLastTime: friendService.updateFriendLastTime,
-    applyFriend: friendService.applyFriend,
-    updateFriendState: friendService.updateFriendState,
-    deleteFriend: friendService.deleteFriend,
-    getOnlyUsers: friendService.getOnlyUsers,
 
     // 消息相关服务
     insertMsg: messageService.insertMsg,
@@ -36,15 +20,8 @@ module.exports = {
     getSelfMsg: messageService.getSelfMsg,
 
     // 群组相关服务
-    searchGroup: groupService.searchGroup,
-    isInGroup: groupService.isInGroup,
-    isInGroupByFriend: groupService.isInGroupByFriend,
-    createGroup: groupService.createGroup,
-    getGroupDetail: groupService.getGroupDetail,
-    addGroupUser: groupService.addGroupUser,
-    deleteGroupUser: groupService.deleteGroupUser,
-    deleteGroup: groupService.deleteGroup,
-    updateGroup: groupService.updateGroup,
+    getGroupList: groupService.getGroupList,
+    getLastGroupMsg: groupService.getLastGroupMsg,
     insertGroupMsg: groupService.insertGroupMsg,
     getOnlyGroup: groupService.getOnlyGroup,
     getOneGroupMsg: groupService.getOneGroupMsg,
@@ -114,7 +91,7 @@ module.exports = {
                     }
                     group[i].msg = result.message // 将消息内容添加到用户列表中
                     // console.log('result:', result)
-                    group[i].username = result.userID && result.userID.name // 将用户名称添加到用户列表中
+                    group[i].username = result.userId && result.userId.name // 将用户名称添加到用户列表中
                     let readGroupTip = await groupService.unreadGroupMsg({  uid: uid, gid: group[i].id })
                     group[i].tip = readGroupTip
                 }

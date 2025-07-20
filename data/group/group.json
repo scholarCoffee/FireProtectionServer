@@ -2,8 +2,8 @@
   "_id": {
     "$oid": "507f1f77bcf86cd799439011"
   },
-  "userID": {
-    "$oid": "507f1f77bcf86cd799439012"
+  "userId": {
+    "$oid": "687a6f59e83419906c0699e0"
   },
   "name": "消防作战",
   "imgUrl": "/group/default-group.png",

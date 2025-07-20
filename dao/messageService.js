@@ -4,7 +4,7 @@ var Message = dbmodel.model('Message'); // 引入消息模型
 // 添加一对一消息
 exports.insertMsg = function(uid, fid, msg, type, res) {
     let data = {
-        'userID': uid, // 用户ID
+        'userId': uid, // 用户ID
         'friendID': fid, // 好友ID
         'message': msg, // 消息内容
         'types': type, // 消息类型
@@ -39,10 +39,10 @@ exports.getOneMsg = function(data, res) {
         const { uid, fid } = data // 解构获取请求体中的数据
         return resolve(Message.findOne({}).where({
             $or: [{
-                'userID': uid, // 用户ID
+                'userId': uid, // 用户ID
                 'friendID': fid // 好友ID
             }, {
-                'userID': fid, // 用户ID
+                'userId': fid, // 用户ID
                 'friendID': uid // 好友ID
             }]
         }).sort({ 'time': -1 }) // 按时间排序
@@ -73,7 +73,7 @@ exports.unreadSelfMsg = function(data, res) {
     return new Promise((resolve) => {
         const { uid, fid } = data // 解构获取请求体中的数据
         let wherestr = {
-            'userID': fid, // 用户ID
+            'userId': fid, // 用户ID
             'friendID': uid, // 好友ID
             'state': 1 // 消息状态 
         }
@@ -103,7 +103,7 @@ exports.unreadSelfMsg = function(data, res) {
 exports.updateMsg = function(data, res) {
     const { uid, fid } = data // 解构获取请求体中的数据
     let wherestr = {
-        'userID': fid, // 用户ID
+        'userId': fid, // 用户ID
         'friendID': uid, // 好友ID
         'state': 1 // 消息状态 
     }
@@ -139,16 +139,16 @@ exports.getSelfMsg = function (data, res) {
     Message.find({})
     .where({
         $or: [{
-            'userID': uid, // 用户ID
+            'userId': uid, // 用户ID
             'friendID': fid // 好友ID
         }, {
-            'userID': fid, // 用户ID
+            'userId': fid, // 用户ID
             'friendID': uid // 好友ID
         }]
     })
     .sort({ 'time': -1 }) // 按时间排序
     .skip(skipNum) // 跳过指定数量
-    .populate('userID') // 关联查询用户信息
+    .populate('userId') // 关联查询用户信息
     .limit(pageSize) // 限制返回数量
     .exec()
     .then(result => {
@@ -159,9 +159,9 @@ exports.getSelfMsg = function (data, res) {
                 message: item.message, // 消息内容
                 time: item.time, // 消息时间
                 types: item.types, // 消息类型
-                fromId: item.userID._id, // 发送者ID
+                fromId: item.userId._id, // 发送者ID
                 userId: item.friendID, // 用户ID
-                imgurl: item.userID.imgurl, // 发送者头像
+                imgurl: item.userId.imgurl, // 发送者头像
             }
         })
         res.send({

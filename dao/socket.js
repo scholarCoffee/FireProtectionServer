@@ -45,27 +45,27 @@ module.exports = function(io) {
 
         socket.on('groupMsgServer', data => {
             console.log('发送群组消息：', JSON.stringify(data))
-            const { msg, userID, groupID, name, imgurl } = data
+            const { msg, userId, groupId, name, imgurl } = data
             // 插入群组消息
             dbServer.insertGroupMsg({
-                groupID: groupID,
-                userID: userID,
+                groupId: groupId,
+                userId: userId,
                 message: msg.message,
                 types: msg.types,
                 state: 1
             })
-            dbServer.updateGroupMessageLastTime({ groupID: groupID }) // 更新最后一条消息时间
-            socket.to(groupID).emit('groupMsgFront', {
+            dbServer.updateGroupMessageLastTime({ groupId: groupId }) // 更新最后一条消息时间
+            socket.to(groupId).emit('groupMsgFront', {
                 msg: msg,
-                userID: userID,
-                groupID: groupID,
+                userId: userId,
+                groupId: groupId,
                 name: name,
                 imgurl: imgurl
             }) // 发送给其他客户端
             socket.emit('groupMsgFront', {
                 msg: msg,
-                userID: userID,
-                groupID: groupID,
+                userId: userId,
+                groupId: groupId,
                 name: name,
                 imgurl: imgurl
             }) // 发送给自己

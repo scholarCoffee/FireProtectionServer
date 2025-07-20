@@ -6,7 +6,7 @@ var Message = dbmodel.model('Message'); // 引入消息模型
 exports.isFriend = function (uid, fid, res) {
     Friend.findOne({
         $or: [
-            { 'userID': uid, 'friendID': fid, 'state': 0 }, // 用户ID和好友ID
+            { 'userId': uid, 'friendID': fid, 'state': 0 }, // 用户ID和好友ID
         ]
     })
     .then(result => {
@@ -35,7 +35,7 @@ exports.isFriend = function (uid, fid, res) {
 exports.updateMarkName = function (data, res) {
     const { uid, fid, name } = data // 解构获取请求体中的数据
     let wherestr = {
-        'userID': uid, // 用户ID
+        'userId': uid, // 用户ID
         'friendID': fid // 好友ID
     }
     let updatestr = {
@@ -60,7 +60,7 @@ exports.updateMarkName = function (data, res) {
 exports.getMarkName = function (data, res) {
     const { uid, fid } = data // 解构获取请求体中的数据
     let wherestr = {
-        'userID': uid, // 用户ID
+        'userId': uid, // 用户ID
         'friendID': fid // 好友ID
     }
     let out = {
@@ -84,7 +84,7 @@ exports.getMarkName = function (data, res) {
 // 添加好友表
 exports.buildFriend = function (uid, fid, state, res) {
     let data = {
-        'userID': uid, // 用户ID
+        'userId': uid, // 用户ID
         'friendID': fid, // 好友ID
         'state': state, // 好友状态
         'time': new Date(), // 添加时间
@@ -106,10 +106,10 @@ exports.updateFriendLastTime = function (data, res) {
     const { uid, fid } = data // 解构获取请求体中的数据
     let wherestr = {
         $or: [{
-            'userID': uid, // 用户ID
+            'userId': uid, // 用户ID
             'friendID': fid // 好友ID
         }, {
-            'userID': fid, // 用户ID
+            'userId': fid, // 用户ID
             'friendID': uid // 好友ID 
         }]
     }
@@ -131,7 +131,7 @@ exports.updateFriendLastTime = function (data, res) {
 exports.applyFriend = function (data, res) {
     // 判断是否已经申请过
     let wherestr = {
-        'userID': data.uid, // 用户ID
+        'userId': data.uid, // 用户ID
         'friendID': data.fid, // 好友ID
     }
     Friend.countDocuments(wherestr) // 查询好友申请表是否有记录
@@ -159,10 +159,10 @@ exports.updateFriendState = function (data, res) {
     const { uid, fid } = data // 解构获取请求体中的数据
     let wherestr = {
         $or: [{
-            'userID': uid, // 用户ID
+            'userId': uid, // 用户ID
             'friendID': fid // 好友ID
         }, {
-            'userID': fid, // 用户ID
+            'userId': fid, // 用户ID
             'friendID': uid // 好友ID
         }]
     }
@@ -182,10 +182,10 @@ exports.deleteFriend = function (data, res) {
     const { uid, fid } = data // 解构获取请求体中的数据
     let wherestr = {
         $or: [{
-            'userID': uid, // 用户ID
+            'userId': uid, // 用户ID
             'friendID': fid // 好友ID
         }, {
-            'userID': fid, // 用户ID
+            'userId': fid, // 用户ID
             'friendID': uid // 好友ID
         }]
     }
@@ -205,7 +205,7 @@ exports.getOnlyUsers = function(data, res) {
     return new Promise((resolve) => {
         const { uid, state } = data // 解构获取请求体中的数据
         return resolve(Friend.find({}).where({
-            'userID': uid, // 用户ID
+            'userId': uid, // 用户ID
             'state': state // 好友状态
         })
         .populate('friendID')

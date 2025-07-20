@@ -18,8 +18,8 @@ const UserSchema = new Schema({
 
 // 好友表
 const FriendSchema = new Schema({
-    userID: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 用户ID
-    friendID: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 好友ID
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 用户ID
+    friendId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 好友ID
     markname: { type: String }, // 好友昵称
     state: { type: Number, required: true }, // 好友状态 0-已为好友 1-申请中 2-申请发送对方，对方未同意
     time: { type: Date, default: Date.now }, // 生成时间
@@ -28,8 +28,8 @@ const FriendSchema = new Schema({
 
 // 一对一消息表
 const MessageSchema = new Schema({
-    userID: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 用户ID
-    friendID: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 好友ID
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 用户ID
+    friendId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 好友ID
     message: { type: String, required: true }, // 消息内容
     types: { type: Number, default: 0 }, // 消息类型 0-文本 1-图片 2-音频连接 3-位置
     time: { type: Date, default: Date.now }, // 发送时间
@@ -38,7 +38,7 @@ const MessageSchema = new Schema({
 
 // 群表
 const GroupSchema = new Schema({
-    userID: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 创建者ID
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 创建者ID
     name: { type: String, required: true }, // 群名称
     imgUrl: { type: String, default: '/group/group.png' }, // 群头像地址
     time: { type: Date, default: Date.now }, // 创建时间
@@ -48,19 +48,18 @@ const GroupSchema = new Schema({
 
 // 群成员表
 const GroupUserSchema = new Schema({
-    groupID: { type: Schema.Types.ObjectId, ref: 'Group', required: true }, // 群ID
-    userID: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 用户ID
+    groupId: { type: Schema.Types.ObjectId, ref: 'Group', required: true }, // 群ID
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 用户ID
     name: { type: String }, // 群内昵称
     state: { type: Number, default: 1 }, // 消息状态 0-已读 1-未读
     time: { type: Date, default: Date.now }, // 加入时间
-    lastTime: { type: Date, default: Date.now }, // 最后一次聊天时间
-    shield: { type: Number, default: 0 } // 是否屏蔽 0-不屏蔽 1-屏蔽
+    lastTime: { type: Date, default: Date.now } // 最后一次聊天时间
 });
 
 // 群消息表
 const GroupMessageSchema = new Schema({
-    groupID: { type: Schema.Types.ObjectId, ref: 'Group', required: true }, // 群ID
-    userID: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 用户ID
+    groupId: { type: Schema.Types.ObjectId, ref: 'Group', required: true }, // 群ID
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 用户ID
     message: { type: String, required: true }, // 消息内容
     types: { type: Number, default: 0 }, // 消息类型 0-文本 1-图片 2-音频连接 3-位置
     time: { type: Date, default: Date.now } // 发送时间
