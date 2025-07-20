@@ -44,8 +44,10 @@ const getOneGroupMsg = async function(data, res) {
         query.where({
             'groupId': groupId // 群ID
         })
-        .sort({ 'time': -1 }) // 按时间排序
+        .populate('groupId')
         .populate('userId') // 关联用户ID
+        .sort({ 'time': -1 }) // 按时间排序
+        .exec()
         .then(result => {
             console.log('查询群消息成功！', result); // 打印成功信息
             if (result) {
@@ -58,9 +60,10 @@ const getOneGroupMsg = async function(data, res) {
                 }
             } else {
                 result ? result : result = {
-                    message: '',
+                    message: '暂无消息',
                     types: 0,
-                    time: new Date()
+                    lastTime: new Date(),
+                    tip: 0
                 }
             }
             resolve({
