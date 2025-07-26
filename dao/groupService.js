@@ -37,38 +37,43 @@ const checkInGroup = function(data, uid) {
 }
 
 // 获取单个群消息
-const getOneGroupMsg = async function(data, res) {
+const getOneGroupMsg = async function(data) {
     return new Promise((resolve, reject) => {
-        const { groupId } = data // 解构获取请求体中的数据
+        const { _id } = data // 解构获取请求体中的数据
         let query = GroupMessage.findOne({})
         query.where({
-            'groupId': groupId // 群ID
+            'groupId': _id // 群ID
         })
+        .populate('userId')
         .populate('groupId')
-        .populate('userId') // 关联用户ID
         .sort({ 'time': -1 }) // 按时间排序
         .exec()
         .then(result => {
-            console.log('查询群消息成功！', result); // 打印成功信息
+            console.log('查询群消息成功:', result); // 打印成功信息
             if (result) {
-                if (result.types == 1) {
+                if (result.types == 0) {
+                    result.message = result.message
+                } else if (result.types == 1) {
                     result.message = '[图片]'
                 } else if (result.types == 2) {
                     result.message = '[音频]'
                 } else if (result.types == 3) {
                     result.message = '[位置]'
                 }
-            } else {
-                result ? result : result = {
-                    message: '暂无消息',
-                    types: 0,
-                    lastTime: new Date(),
-                    tip: 0
-                }
             }
             resolve({
-                ...data,
-                groupMessageInfo: result
+                groupMessageInfo: {
+                    message: result.message,
+                    sendMsgName: result.userId.nickName,
+                    sendMsgAvatar: result.userId.avatarUrl,
+                    sendMsgId: result.userId._id,
+                    groupId: result.groupId._id,
+                    groupName: result.groupId.name,
+                    groupAvatar: result.groupId.imgUrl,
+                    types: result.types,
+                    lastTime: result.time,
+                    tip: 1
+                }
             })
         })
     })
@@ -176,10 +181,8 @@ exports.getOnlyGroup = function(data, res) {
 
 // 按要求获取群消息
 exports.getLastGroupMsg = async function(data, res) {
-    const { groupList } = data // 解构获取请求体中的数据
-    const result = await Promise.all(groupList.map(async item => {
-        return await getOneGroupMsg(item)    
-    }))
+    const { groupInfo } = data // 解构获取请求体中的数据
+    const result = await getOneGroupMsg(groupInfo)
     console.log('查询群消息成功！', result); // 打印成功信息
     try {
         if (res) {
@@ -292,11 +295,11 @@ exports.unreadGroupMsg = function(data, res) {
 
 // 分页获取群聊天数据
 exports.getGroupMsg = function (data, res) {
-    const { nowPage, pageSize, uid, gid } = data // 解构获取请求体中的数据
+    const { nowPage, pageSize, userId, groupId } = data // 解构获取请求体中的数据
     const skipNum = (nowPage - 1) * pageSize // 计算跳过的数量
     GroupMessage.find({})
     .where({
-        'groupId': gid // 群ID
+        'groupId': groupId // 群ID
     })
     .sort({ 'time': -1 }) // 按时间排序
     .skip(skipNum) // 跳过指定数量
@@ -304,17 +307,17 @@ exports.getGroupMsg = function (data, res) {
     .limit(pageSize) // 限制返回数量
     .exec()
     .then(result => {
-        // console.log('聊天消息', result)
+        console.log('聊天消息', result)
         const data = result.map(item => {
             return {
                 id: item._id, // 消息ID
                 message: item.message, // 消息内容
                 time: item.time, // 消息时间
                 types: item.types, // 消息类型
-                fromId: item.userId._id, // 发送者ID
+                fromId: item.userId._id, // 发送者ID - 修复：使用实际发送者的ID
                 groupId: item.groupId, // 群ID
-                name: item.userId.name, // 发送者名称
-                imgurl: item.userId.imgurl, // 发送者头像
+                name: item.userId.nickName, // 发送者名称 - 修复：使用 User Schema 中的 nickName 字段
+                avatarUrl: item.userId.avatarUrl, // 发送者头像 - 修复：使用 User Schema 中的 avatarUrl 字段
             }
         })
         res.send({
@@ -323,7 +326,7 @@ exports.getGroupMsg = function (data, res) {
             data: data // 返回查询到的消息数据
         }) // 返回成功信息给前端
         // 更新消息状态为已读
-        this.updateGroupMsg({ uid: uid, gid: gid }) // 调用更新消息状态函数
+        this.updateGroupMsg({ uid: userId, gid: groupId }) // 修复：使用正确的参数名
     })
     .then(result => {
         // console.log('更新成功！', result); // 打印成功信息

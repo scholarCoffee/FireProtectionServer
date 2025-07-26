@@ -11,16 +11,16 @@ module.exports = function(io) {
             }
         })
 
-        socket.on('msgServer', (msg, fromid, toid) => {
-            console.log('发送消息：', msg)
-            console.log('发送用户：', fromid)
-            console.log('接收用户：', toid)
-            dbServer.updateFriendLastTime({ uid: fromid, fid: toid })
-            dbServer.insertMsg(fromid, toid, msg.message, msg.types)
-            if (users[toid]) {
-                socket.to(users[toid]).emit('msgFront', msg, fromid) // 发送给其他客户端
+        socket.on('msgServer', ({messageInfo, fromId, toId}) => {
+            console.log('发送消息：', messageInfo)
+            console.log('发送用户：', fromId)
+            console.log('接收用户：', toId)
+            dbServer.updateFriendLastTime({ uid: fromId, fid: toId })
+            dbServer.insertMsg(fromId, toId, messageInfo.message, messageInfo.types)
+            if (users[toId]) {
+                socket.to(users[toId]).emit('msgFront', messageInfo, fromId) // 发送给其他客户端
             }
-            socket.emit('msgFront', msg, toid) // 发送给自己
+            socket.emit('msgFront', messageInfo, toId) // 发送给自己
         })
 
         socket.on('disconnecting', () => {
@@ -45,29 +45,33 @@ module.exports = function(io) {
 
         socket.on('groupMsgServer', data => {
             console.log('发送群组消息：', JSON.stringify(data))
-            const { msg, userId, groupId, name, imgurl } = data
+            const { messageInfo, userId, groupId, nickName, avatarUrl } = data
             // 插入群组消息
             dbServer.insertGroupMsg({
                 groupId: groupId,
                 userId: userId,
-                message: msg.message,
-                types: msg.types,
+                message: messageInfo.message,
+                types: messageInfo.types,
                 state: 1
             })
-            dbServer.updateGroupMessageLastTime({ groupId: groupId }) // 更新最后一条消息时间
+            dbServer.updateGroupMessageLastTime({ 
+                groupId: groupId,
+                userId: userId,
+                name: nickName,
+            }) // 更新最后一条消息时间
             socket.to(groupId).emit('groupMsgFront', {
-                msg: msg,
+                messageInfo: messageInfo,
                 userId: userId,
                 groupId: groupId,
-                name: name,
-                imgurl: imgurl
+                nickName: nickName,
+                avatarUrl: avatarUrl
             }) // 发送给其他客户端
             socket.emit('groupMsgFront', {
-                msg: msg,
+                messageInfo: messageInfo,
                 userId: userId,
                 groupId: groupId,
-                name: name,
-                imgurl: imgurl
+                nickName: nickName,
+                avatarUrl: avatarUrl
             }) // 发送给自己
         })
 

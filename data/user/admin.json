@@ -1,19 +1,40 @@
-{
+[
+  {
     "_id": {
       "$oid": "687a6f59e83419906c0699e0"
     },
-    "nickName": "admin",
-    "signature": "a1b2c3d4e5f6789012345678901234567890abcd",
-    "id": "admin_123",
+    "nickName": "管理员",
+    "signature": "系统管理员，负责平台整体运营管理",
+    "id": "admin_001",
     "encryptedData": "admin_encrypted_data_placeholder_for_testing_environment_only_do_not_use_in_production",
     "permissionStatus": 1,
     "code": "admin_login_code_2024_01_15",
-    "avatarUrl": "/static/icons/chat/person-avatar.png",
+    "avatarUrl": "/data/user/person-avatar.png",
     "register": {
       "$date": "2024-01-15T10:30:00.000Z"
     },
     "updateTime": {
-      "$date": "2024-01-15T10:30:00.000Z"
+      "$date": "2025-07-26T23:43:31.331Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "687a6f59e83419906c0699f3"
+    },
+    "nickName": "测试用户-小北",
+    "signature": "消防作战测试用户，专注于安全防护",
+    "id": "test_user_001",
+    "encryptedData": "test_user_encrypted_data_placeholder_for_testing_environment_only_do_not_use_in_production",
+    "permissionStatus": 2,
+    "code": "test_user_login_code_2024_01_16",
+    "avatarUrl": "/data/user/person-avatar.png",
+    "register": {
+      "$date": "2024-01-16T14:20:00.000Z"
+    },
+    "updateTime": {
+      "$date": "2025-07-26T23:43:31.331Z"
     },
     "__v": 0
   }
+]

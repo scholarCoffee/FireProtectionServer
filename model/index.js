@@ -51,7 +51,6 @@ const GroupUserSchema = new Schema({
     groupId: { type: Schema.Types.ObjectId, ref: 'Group', required: true }, // 群ID
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 用户ID
     name: { type: String }, // 群内昵称
-    state: { type: Number, default: 1 }, // 消息状态 0-已读 1-未读
     time: { type: Date, default: Date.now }, // 加入时间
     lastTime: { type: Date, default: Date.now } // 最后一次聊天时间
 });
@@ -62,6 +61,7 @@ const GroupMessageSchema = new Schema({
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 用户ID
     message: { type: String, required: true }, // 消息内容
     types: { type: Number, default: 0 }, // 消息类型 0-文本 1-图片 2-音频连接 3-位置
+    state: { type: Number, default: 1 }, // 消息状态 0-已读 1-未读
     time: { type: Date, default: Date.now } // 发送时间
 });
 
