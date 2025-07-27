@@ -45,19 +45,21 @@ module.exports = function(io) {
 
         socket.on('groupMsgServer', data => {
             console.log('发送群组消息：', JSON.stringify(data))
-            const { messageInfo, userId, groupId, nickName, avatarUrl } = data
+            const { messageInfo, userId, groupId, nickName, avatarUrl, time } = data
             // 插入群组消息
             dbServer.insertGroupMsg({
                 groupId: groupId,
                 userId: userId,
                 message: messageInfo.message,
                 types: messageInfo.types,
+                time: time,
                 state: 1
             })
             dbServer.updateGroupMessageLastTime({ 
                 groupId: groupId,
                 userId: userId,
                 name: nickName,
+                time: time
             }) // 更新最后一条消息时间
             socket.to(groupId).emit('groupMsgFront', {
                 messageInfo: messageInfo,
@@ -75,8 +77,20 @@ module.exports = function(io) {
             }) // 发送给自己
         })
 
-        socket.on('leaveChatRoomServer', (uid, fid) => {
-            socket.emit('leaveChatRoomFront', uid, fid) // 发送离开聊天室的消息
+        /**
+         * 离开聊天室
+         * @param {*} userId 用户ID
+         * @param {*} fromId 发送者ID
+         * @param {*} type 聊天类型 0-好友 1-群组
+         */
+        socket.on('leaveChatRoomServer', (userId, fromId, type) => {
+            // 离开聊天室
+            console.log('离开聊天室：', userId, fromId, type)
+            // 1. 更新聊天记录的未读数量
+            if (type == 1) {
+                dbServer.updateGroupMsg({ userId: userId, groupId: fromId })
+            }
+            socket.emit('leaveChatRoomFront', userId, fromId, type) // 发送离开聊天室的消息
         })
     })
 }

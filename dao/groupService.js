@@ -4,13 +4,13 @@ const GroupUser = dbmodel.model('GroupUser'); // 引入群成员模型
 const GroupMessage = dbmodel.model('GroupMessage'); // 引入群消息模型
 
 // 检查是否在群内
-const checkInGroup = function(data, uid) {
+const checkInGroup = function(data, userId) {
     return new Promise((resolve, reject) => {
-        console.log('检查是否在群内', data, uid); // 打印成功信息
+        console.log('检查是否在群内', data, userId); // 打印成功信息
         const { _id } = data // 解构获取请求体中的数据
         GroupUser.find({
             'groupId': _id, // 群ID
-            'userId': uid // 用户ID
+            'userId': userId // 用户ID
         })
         .then(result => {
             if (result.length > 0) {
@@ -20,13 +20,12 @@ const checkInGroup = function(data, uid) {
                 console.log('不在群内'); // 打印成功信息
                 return GroupUser.create({
                     'groupId': _id, // 群ID
-                    'userId': uid, // 用户ID
-                    'state': 1 // 消息状态
+                    'userId': userId // 用户ID
                 })
             }
         })
         .then(result => {
-            console.log('创建群成员成功', result); // 打印成功信息
+            console.log('创建群成员成功'); // 打印成功信息
             resolve()
         })
         .catch(err => {
@@ -71,18 +70,16 @@ const getOneGroupMsg = async function(data) {
                     groupName: result.groupId.name,
                     groupAvatar: result.groupId.imgUrl,
                     types: result.types,
-                    lastTime: result.time,
-                    tip: 1
+                    lastTime: result.time
                 }
             })
         })
     })
 }   
 
-exports.getOneGroupMsg = getOneGroupMsg
 // 获取群列表
 exports.getGroupList = function(data, res) {
-    const { permissionStatus, uid } = data // 解构获取请求体中的数据
+    const { permissionStatus, userId } = data // 解构获取请求体中的数据
     const id = permissionStatus == 1 ? '687a6f59e83419906c0699e0' : uid
     let query = Group.find({})
     query.where({
@@ -94,7 +91,7 @@ exports.getGroupList = function(data, res) {
         console.log('查询群列表成功', result); // 打印成功信息
         // 判断当前群聊表数组中每个群里是否存在当前用户
         const query = result.map(item => {
-            return checkInGroup(item, uid)
+            return checkInGroup(item, userId)
         })
         await Promise.all(query)
         if (res) {
@@ -181,9 +178,11 @@ exports.getOnlyGroup = function(data, res) {
 
 // 按要求获取群消息
 exports.getLastGroupMsg = async function(data, res) {
-    const { groupInfo } = data // 解构获取请求体中的数据
+    const { groupInfo, userId } = data // 解构获取请求体中的数据
     const result = await getOneGroupMsg(groupInfo)
-    console.log('查询群消息成功！', result); // 打印成功信息
+    const unreadCount = await unreadGroupMsg({ groupId: groupInfo.groupId, userId: userId })
+    result.groupMessageInfo.tip = unreadCount
+    console.log('最终群消息成功：', result); // 打印成功信息
     try {
         if (res) {
             res.send({
@@ -205,12 +204,13 @@ exports.getLastGroupMsg = async function(data, res) {
 }
 // 更新群消息时间
 exports.updateGroupMessageLastTime = function(data, res) {
-    const { groupId } = data // 解构获取请求体中的数据
+    const { groupId, userId, name, time } = data // 解构获取请求体中的数据
     let wherestr = {
-        'groupId': groupId // 群ID
+        'groupId': groupId, // 群ID
+        'userId': userId // 用户ID
     }
     let updatestr = {
-        'lastTime': new Date() // 更新最后聊天时间
+        'lastTime': time // 更新最后聊天时间
     }
     GroupUser.updateMany(wherestr, updatestr) // 更新群消息时间
     .then(result => {
@@ -233,16 +233,16 @@ exports.updateGroupMessageLastTime = function(data, res) {
 
 // 群消息状态修改
 exports.updateGroupMsg = function(data, res) {
-    const { gid, uid } = data // 解构获取请求体中的数据
+    const { groupId, userId } = data // 解构获取请求体中的数据
     let wherestr = {
-        'groupId': gid, // 群ID
-        'userId': uid, // 用户ID
+        'groupId': groupId, // 群ID
+        'userId': userId, // 用户ID
         'state': 1 // 消息状态 
     }
     let updatestr = {
         'state': 0 // 修改消息状态为已读
     }
-    GroupUser.updateMany(wherestr, updatestr) // 更新消息状态
+    GroupMessage.updateMany(wherestr, updatestr) // 更新消息状态
     .then(result => {
         // console.log('更新成功！', result); // 打印成功信息
         if (res) {
@@ -260,14 +260,12 @@ exports.updateGroupMsg = function(data, res) {
         }
     });
 }
-
-// 汇总群消息未读取
-exports.unreadGroupMsg = function(data, res) {
+const unreadGroupMsg = function(data, res) {
     return new Promise((resolve) => {
-        const { gid, uid } = data // 解构获取请求体中的数据
+        const { groupId, userId } = data // 解构获取请求体中的数据
         let wherestr = {
-            'groupId': gid, // 群组ID
-            'userId': uid, // 用户ID
+            'groupId': groupId, // 群组ID
+            'userId': userId, // 用户ID
             'state': 1 // 消息状态 
         }
         // console.log('汇总群未读消息', wherestr)
@@ -336,3 +334,8 @@ exports.getGroupMsg = function (data, res) {
         res.send('查询失败！'); // 返回失败信息给前端
     });
 } 
+
+
+// 汇总群消息未读取
+exports.unreadGroupMsg = unreadGroupMsg
+exports.getOneGroupMsg = getOneGroupMsg
