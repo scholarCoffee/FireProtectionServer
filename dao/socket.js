@@ -45,7 +45,7 @@ module.exports = function(io) {
 
         socket.on('groupMsgServer', data => {
             console.log('发送群组消息：', JSON.stringify(data))
-            const { messageInfo, userId, groupId, nickName, avatarUrl, time } = data
+            const { messageInfo, userId, userName, userAvatar, groupId, nickName, avatarUrl, time } = data
             // 插入群组消息
             dbServer.insertGroupMsg({
                 groupId: groupId,
@@ -66,14 +66,18 @@ module.exports = function(io) {
                 userId: userId,
                 groupId: groupId,
                 nickName: nickName,
-                avatarUrl: avatarUrl
+                avatarUrl: avatarUrl,
+                userName: userName,
+                userAvatar: userAvatar
             }) // 发送给其他客户端
             socket.emit('groupMsgFront', {
                 messageInfo: messageInfo,
                 userId: userId,
                 groupId: groupId,
                 nickName: nickName,
-                avatarUrl: avatarUrl
+                avatarUrl: avatarUrl,
+                userName: userName,
+                userAvatar: userAvatar
             }) // 发送给自己
         })
 

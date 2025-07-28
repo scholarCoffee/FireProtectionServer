@@ -38,7 +38,7 @@ const checkInGroup = function(data, userId) {
 // 获取单个群消息
 const getOneGroupMsg = async function(data) {
     return new Promise((resolve, reject) => {
-        const { _id } = data // 解构获取请求体中的数据
+        const { _id, name, imgUrl } = data // 解构获取请求体中的数据
         let query = GroupMessage.findOne({})
         query.where({
             'groupId': _id // 群ID
@@ -60,19 +60,35 @@ const getOneGroupMsg = async function(data) {
                     result.message = '[位置]'
                 }
             }
-            resolve({
-                groupMessageInfo: {
-                    message: result.message,
-                    sendMsgName: result.userId.nickName,
-                    sendMsgAvatar: result.userId.avatarUrl,
-                    sendMsgId: result.userId._id,
-                    groupId: result.groupId._id,
-                    groupName: result.groupId.name,
-                    groupAvatar: result.groupId.imgUrl,
-                    types: result.types,
-                    lastTime: result.time
-                }
-            })
+            if (result) {
+                resolve({
+                    groupMessageInfo: {
+                        message: result.message,
+                        sendMsgName: result.userId.nickName,
+                        sendMsgAvatar: result.userId.avatarUrl,
+                        sendMsgId: result.userId._id,
+                        groupId: result.groupId._id,
+                        groupName: result.groupId.name,
+                        groupAvatar: result.groupId.imgUrl,
+                        types: result.types,
+                        lastTime: result.time
+                    }
+                })
+            } else {
+                resolve({
+                    groupMessageInfo: {
+                        message: '',
+                        sendMsgName: '',
+                        sendMsgAvatar: '',
+                        sendMsgId: '',
+                        groupId: _id,
+                        groupName: name,
+                        groupAvatar: '/group/group.png',
+                        types: 0,
+                        lastTime: new Date()
+                    }
+                })
+            }
         })
     })
 }   
@@ -180,7 +196,7 @@ exports.getOnlyGroup = function(data, res) {
 exports.getLastGroupMsg = async function(data, res) {
     const { groupInfo, userId } = data // 解构获取请求体中的数据
     const result = await getOneGroupMsg(groupInfo)
-    const unreadCount = await unreadGroupMsg({ groupId: groupInfo.groupId, userId: userId })
+    const unreadCount = await unreadGroupMsg({ groupId: groupInfo._id, userId: userId })
     result.groupMessageInfo.tip = unreadCount
     console.log('最终群消息成功：', result); // 打印成功信息
     try {
@@ -236,7 +252,7 @@ exports.updateGroupMsg = function(data, res) {
     const { groupId, userId } = data // 解构获取请求体中的数据
     let wherestr = {
         'groupId': groupId, // 群ID
-        'userId': userId, // 用户ID
+        'userId': { $ne: userId }, // 非当前用户
         'state': 1 // 消息状态 
     }
     let updatestr = {
@@ -263,13 +279,15 @@ exports.updateGroupMsg = function(data, res) {
 const unreadGroupMsg = function(data, res) {
     return new Promise((resolve) => {
         const { groupId, userId } = data // 解构获取请求体中的数据
+        console.log('汇总群未读消息', groupId, userId)
+        // 统计该群组中未读消息数量，非当前用户
         let wherestr = {
             'groupId': groupId, // 群组ID
-            'userId': userId, // 用户ID
+            'userId': { $ne: userId }, // 非当前用户
             'state': 1 // 消息状态 
         }
         // console.log('汇总群未读消息', wherestr)
-        return resolve(GroupUser.countDocuments(wherestr)) // 查询未读消息数量
+        return resolve(GroupMessage.countDocuments(wherestr)) // 查询未读消息数量
     })
     .then(count => {
         // console.log('查询群汇总消息数量：', count); // 打印成功信息
@@ -314,7 +332,7 @@ exports.getGroupMsg = function (data, res) {
                 types: item.types, // 消息类型
                 fromId: item.userId._id, // 发送者ID - 修复：使用实际发送者的ID
                 groupId: item.groupId, // 群ID
-                name: item.userId.nickName, // 发送者名称 - 修复：使用 User Schema 中的 nickName 字段
+                nickName: item.userId.nickName, // 发送者名称 - 修复：使用 User Schema 中的 nickName 字段
                 avatarUrl: item.userId.avatarUrl, // 发送者头像 - 修复：使用 User Schema 中的 avatarUrl 字段
             }
         })

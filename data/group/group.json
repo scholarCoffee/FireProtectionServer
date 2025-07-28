@@ -6,7 +6,7 @@
     "$oid": "687a6f59e83419906c0699e0"
   },
   "name": "消防作战",
-  "imgUrl": "/group/default-group.png",
+  "imgUrl": "/group/group.png",
   "time": {
     "$date": "2024-01-15T08:30:00.000Z"
   },
