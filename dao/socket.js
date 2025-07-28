@@ -87,14 +87,16 @@ module.exports = function(io) {
          * @param {*} fromId 发送者ID
          * @param {*} type 聊天类型 0-好友 1-群组
          */
-        socket.on('leaveChatRoomServer', (userId, fromId, type) => {
+        socket.on('leaveChatRoomServer', async (userId, fromId, type) => {
             // 离开聊天室
             console.log('离开聊天室：', userId, fromId, type)
-            // 1. 更新聊天记录的未读数量
+            let tip = {}
+            // 统计未读消息数量
             if (type == 1) {
-                dbServer.updateGroupMsg({ userId: userId, groupId: fromId })
+                tip = await dbServer.updateGroupMsg({ userId: userId, groupId: fromId })
+                console.log('更新群消息状态成功！', tip)
             }
-            socket.emit('leaveChatRoomFront', userId, fromId, type) // 发送离开聊天室的消息
+            socket.emit('leaveChatRoomFront', userId, fromId, type, tip.matchedCount) // 发送离开聊天室的消息
         })
     })
 }

@@ -249,32 +249,19 @@ exports.updateGroupMessageLastTime = function(data, res) {
 
 // 群消息状态修改
 exports.updateGroupMsg = function(data, res) {
-    const { groupId, userId } = data // 解构获取请求体中的数据
-    let wherestr = {
-        'groupId': groupId, // 群ID
-        'userId': { $ne: userId }, // 非当前用户
-        'state': 1 // 消息状态 
-    }
-    let updatestr = {
-        'state': 0 // 修改消息状态为已读
-    }
-    GroupMessage.updateMany(wherestr, updatestr) // 更新消息状态
-    .then(result => {
-        // console.log('更新成功！', result); // 打印成功信息
-        if (res) {
-            res.send({
-                code: 200,
-                msg: '更新成功！',
-                data: result // 返回更新后的消息数据
-            })
+    return new Promise((resolve, reject) => {
+        const { groupId, userId } = data // 解构获取请求体中的数据
+        let wherestr = {
+            'groupId': groupId, // 群ID
+            'userId': { $ne: userId }, // 非当前用户
+            'state': 1 // 消息状态 
         }
+        let updatestr = {
+            'state': 0 // 修改消息状态为已读
+        }
+        resolve(GroupMessage.updateMany(wherestr, updatestr)) // 更新消息状态
     })
-    .catch(err => {
-        console.log(err); // 打印错误信息
-        if (res) {
-            res.send('更新失败！'); // 返回失败信息给前端
-        }
-    });
+
 }
 const unreadGroupMsg = function(data, res) {
     return new Promise((resolve) => {

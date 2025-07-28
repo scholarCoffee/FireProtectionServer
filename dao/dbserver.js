@@ -72,39 +72,5 @@ module.exports = {
             console.log(err); // 打印错误信息
             res.send('查询失败！'); // 返回失败信息给前端
         }
-    },
-
-    getGroupInMsg: async function(data, res) {
-        try {
-            let group = await groupService.getOnlyGroup(data) // 获取用户列表
-            for(let i = 0; i < group.length; i++) {
-                let result = await groupService.getOneGroupMsg({ gid: group[i].id})
-                if (result) {
-                    if (result.types == 0) {
-                    
-                    } else if (result.types == 1) {
-                        result.message = '[图片]'
-                    } else if (result.types == 2) { 
-                        result.message = '[音频]'
-                    } else if (result.types == 3) {
-                        result.message = '[位置]'
-                    }
-                    group[i].msg = result.message // 将消息内容添加到用户列表中
-                    // console.log('result:', result)
-                    group[i].username = result.userId && result.userId.name // 将用户名称添加到用户列表中
-                    let readGroupTip = await groupService.unreadGroupMsg({  uid: uid, gid: group[i].id })
-                    group[i].tip = readGroupTip
-                }
-            }
-            // console.log('获取最终群信息！', group); // 打印成功信息
-            res.send({
-                code: 200,
-                msg: '查询成功！',
-                data: group // 返回查询到的用户数据
-            }) // 返回成功信息给前端
-        } catch (err) {
-            console.log(err); // 打印错误信息
-            res.send('查询失败！'); // 返回失败信息给前端
-        }
     }
 };
