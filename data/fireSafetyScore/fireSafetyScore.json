@@ -1,0 +1,224 @@
+[
+  {
+    "_id": {
+      "$oid": "65f3d731a63046e5b2cc8001"
+    },
+    "safeId": "SAFE001",
+    "addressId": "123456",
+    "addressName": "江苏省苏州市工业园区东方之门",
+    "scoreItems": {
+      "naturalWaterSource": {
+        "score": 10,
+        "option": "有",
+        "itemId": "naturalWaterSource"
+      },
+      "outdoorHydrant": {
+        "score": 10,
+        "option": "有",
+        "itemId": "outdoorHydrant"
+      },
+      "vehicleAccess": {
+        "score": 10,
+        "option": "重型消防车能通行",
+        "itemId": "vehicleAccess"
+      },
+      "buildingHydrant": {
+        "score": 10,
+        "option": "都有水",
+        "itemId": "buildingHydrant"
+      },
+      "outdoorHydrantWater": {
+        "score": 10,
+        "option": "全部有水",
+        "itemId": "outdoorHydrantWater"
+      },
+      "controlRoom": {
+        "score": 10,
+        "option": "排烟机和水泵都能启动",
+        "itemId": "controlRoom"
+      },
+      "fireElevator": {
+        "score": 10,
+        "option": "都是消防电梯",
+        "itemId": "fireElevator"
+      },
+      "stairwellType": {
+        "score": 10,
+        "option": "都是防烟楼梯间",
+        "itemId": "stairwellType"
+      },
+      "unitConnection": {
+        "score": 10,
+        "option": "都能贯通",
+        "itemId": "unitConnection"
+      },
+      "emergencyTeam": {
+        "score": 10,
+        "option": "是",
+        "itemId": "emergencyTeam"
+      }
+    },
+    "totalScore": 100,
+    "maxPossibleScore": 100,
+    "scorePercentage": 100,
+    "safetyLevel": "优秀",
+    "safetyColor": "绿色",
+    "safetyCssClass": "safety-excellent",
+    "safetyCssColor": "#52c41a",
+    "configVersion": "1.0.0",
+    "createTime": {
+      "$date": "2024-01-15T08:30:00.000Z"
+    },
+    "updateTime": {
+      "$date": "2024-01-15T08:30:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "65f3d731a63046e5b2cc8002"
+    },
+    "safeId": "SAFE002",
+    "addressId": "654321",
+    "addressName": "江苏省苏州市姑苏区虎丘山风景区",
+    "scoreItems": {
+      "naturalWaterSource": {
+        "score": 10,
+        "option": "有",
+        "itemId": "naturalWaterSource"
+      },
+      "outdoorHydrant": {
+        "score": 10,
+        "option": "有",
+        "itemId": "outdoorHydrant"
+      },
+      "vehicleAccess": {
+        "score": 5,
+        "option": "小型消防车能通行",
+        "itemId": "vehicleAccess"
+      },
+      "buildingHydrant": {
+        "score": 10,
+        "option": "都有水",
+        "itemId": "buildingHydrant"
+      },
+      "outdoorHydrantWater": {
+        "score": 10,
+        "option": "全部有水",
+        "itemId": "outdoorHydrantWater"
+      },
+      "controlRoom": {
+        "score": 5,
+        "option": "只能启动1个",
+        "itemId": "controlRoom"
+      },
+      "fireElevator": {
+        "score": 5,
+        "option": "部分消防电梯",
+        "itemId": "fireElevator"
+      },
+      "stairwellType": {
+        "score": 10,
+        "option": "都是防烟楼梯间",
+        "itemId": "stairwellType"
+      },
+      "unitConnection": {
+        "score": 10,
+        "option": "都能贯通",
+        "itemId": "unitConnection"
+      },
+      "emergencyTeam": {
+        "score": 10,
+        "option": "是",
+        "itemId": "emergencyTeam"
+      }
+    },
+    "totalScore": 85,
+    "maxPossibleScore": 100,
+    "scorePercentage": 85,
+    "safetyLevel": "一般",
+    "safetyColor": "黄色",
+    "safetyCssClass": "safety-normal",
+    "safetyCssColor": "#faad14",
+    "configVersion": "1.0.0",
+    "createTime": {
+      "$date": "2024-01-15T09:15:00.000Z"
+    },
+    "updateTime": {
+      "$date": "2024-01-15T09:15:00.000Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "65f3d731a63046e5b2cc8003"
+    },
+    "safeId": "SAFE003",
+    "addressId": "789012",
+    "addressName": "江苏省苏州市姑苏区平江路历史街区",
+    "scoreItems": {
+      "naturalWaterSource": {
+        "score": 0,
+        "option": "无",
+        "itemId": "naturalWaterSource"
+      },
+      "outdoorHydrant": {
+        "score": 10,
+        "option": "有",
+        "itemId": "outdoorHydrant"
+      },
+      "vehicleAccess": {
+        "score": 0,
+        "option": "都不能通行",
+        "itemId": "vehicleAccess"
+      },
+      "buildingHydrant": {
+        "score": 5,
+        "option": "部分有水",
+        "itemId": "buildingHydrant"
+      },
+      "outdoorHydrantWater": {
+        "score": 5,
+        "option": "部分有水",
+        "itemId": "outdoorHydrantWater"
+      },
+      "controlRoom": {
+        "score": 5,
+        "option": "只能启动1个",
+        "itemId": "controlRoom"
+      },
+      "fireElevator": {
+        "score": 0,
+        "option": "都不是消防电梯",
+        "itemId": "fireElevator"
+      },
+      "stairwellType": {
+        "score": 5,
+        "option": "部分防烟楼梯间",
+        "itemId": "stairwellType"
+      },
+      "unitConnection": {
+        "score": 5,
+        "option": "部分贯通",
+        "itemId": "unitConnection"
+      },
+      "emergencyTeam": {
+        "score": 10,
+        "option": "是",
+        "itemId": "emergencyTeam"
+      }
+    },
+    "totalScore": 45,
+    "maxPossibleScore": 100,
+    "scorePercentage": 45,
+    "safetyLevel": "较差",
+    "safetyColor": "红色",
+    "safetyCssClass": "safety-poor",
+    "safetyCssColor": "#ff4d4f",
+    "configVersion": "1.0.0",
+    "createTime": {
+      "$date": "2024-01-15T10:00:00.000Z"
+    },
+    "updateTime": {
+      "$date": "2024-01-15T10:00:00.000Z"
+    }
+  }
+] 

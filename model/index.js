@@ -86,11 +86,48 @@ const LocationSchema = new Schema({
     addressExt: { type: String, required: true },
     allSenceLink: { type: String },
     type: { type: Number, required: true }, // 1-高层小区 2-重点单位 3-沿街商铺
+    safeId: { type: String, ref: 'FireSafetyScore', required: true }, // 关联消防安全评分的safeId
     safeLevelId: { type: Number, required: true }, // 1-优秀 2-良好 3-一般 4-较差
     safeLevelName: { type: String, required: true },
     safeLevelDesc: { type: String, required: true },
     phoneList: [PhoneSchema],
     enterGateList: [GateSchema],
+    createTime: { type: Date, default: Date.now },
+    updateTime: { type: Date, default: Date.now }
+});
+
+// 消防安全评分表Schema - 动态字段设计
+const FireSafetyScoreSchema = new mongoose.Schema({
+    safeId: { type: String, required: true, unique: true }, // 关联safeId
+    addressId: { type: String, ref: 'Location', required: true }, // 关联地址ID
+    addressName: { type: String, required: true }, // 地址名称
+    
+    // 动态评分项目 - 使用Map存储，支持任意评分项
+    scoreItems: {
+        type: Map,
+        of: {
+            score: { type: Number, required: true }, // 得分
+            option: { type: String, required: true }, // 选择的选项文本
+            itemId: { type: String, required: true } // 评分项ID
+        },
+        default: new Map()
+    },
+    
+    // 计算结果
+    totalScore: { type: Number, required: true }, // 总分
+    maxPossibleScore: { type: Number, required: true }, // 最高可能分数
+    scorePercentage: { type: Number, required: true }, // 得分百分比
+    
+    // 安全等级信息
+    safetyLevel: { type: String, required: true }, // 安全等级
+    safetyColor: { type: String, required: true }, // 安全颜色
+    safetyCssClass: { type: String, required: true }, // CSS类名
+    safetyCssColor: { type: String, required: true }, // CSS颜色值
+    
+    // 评分配置版本 - 用于追踪评分规则版本
+    configVersion: { type: String, default: '1.0.0' },
+    
+    // 时间戳
     createTime: { type: Date, default: Date.now },
     updateTime: { type: Date, default: Date.now }
 });
@@ -119,6 +156,9 @@ const Group = db.model('Group', GroupSchema, 'group');
 const GroupUser = db.model('GroupUser', GroupUserSchema, 'groupUser');
 const GroupMessage = db.model('GroupMessage', GroupMessageSchema, 'groupMessage');
 const Location = db.model('Location', LocationSchema, 'location');
+const FireSafetyScore = db.model('FireSafetyScore', FireSafetyScoreSchema, 'fireSafetyScore');  
+// 导出消防安全评分表模型
+
 
 // 统一导出模型
 module.exports = {
@@ -141,5 +181,6 @@ module.exports = {
     Group,
     GroupUser,
     GroupMessage,
-    Location
+    Location,
+    FireSafetyScore
 };

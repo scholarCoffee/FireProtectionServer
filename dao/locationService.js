@@ -1,5 +1,6 @@
 const dbmodel = require('../model/index.js');
 const Location = dbmodel.Location;
+const { getFireSafetyScoreByAddressId } = require('./fireSafetyScoreService.js');
 
 // 地址列表查询（支持分页和模糊搜索）
 exports.getLocationList = async (req, res) => {
@@ -9,8 +10,7 @@ exports.getLocationList = async (req, res) => {
             page = 1, 
             pageSize = 10, 
             keyword = '', 
-            type = '', 
-            safeLevelId = '' 
+            type = ''
         } = req.query
 
         // 构建查询条件
@@ -19,6 +19,7 @@ exports.getLocationList = async (req, res) => {
         // 关键词模糊搜索（地址名称、详细地址）
         if (keyword) {
             query.$or = [
+                { addressId: { $regex: keyword, $options: 'i' } },
                 { addressName: { $regex: keyword, $options: 'i' } },
                 { addressExt: { $regex: keyword, $options: 'i' } }
             ];
@@ -28,12 +29,6 @@ exports.getLocationList = async (req, res) => {
         if (type && type !== '') {
             query.type = parseInt(type);
         }
-        
-        // 安全等级筛选
-        if (safeLevelId && safeLevelId !== '') {
-            query.safeLevelId = parseInt(safeLevelId);
-        }
-
         // 计算分页参数
         const skip = (parseInt(page) - 1) * parseInt(pageSize);
         const limit = parseInt(pageSize);
@@ -89,9 +84,8 @@ exports.getLocationDetail = async (req, res) => {
         }
 
         const detail = await Location.findOne(
-            { addressId }, 
-            { _id: 0, __v: 0 }
-        );
+            { addressId }
+        ).lean();
 
         if (!detail) {
             return res.send({ 
@@ -100,10 +94,21 @@ exports.getLocationDetail = async (req, res) => {
             });
         }
 
+        // 查询关联的消防安全评分信息
+        try {
+            fireSafetyScore = await getFireSafetyScoreByAddressId(addressId)
+        } catch (err) {
+            console.error('查询消防安全评分失败:', err);
+        }
+        console.log('detail', detail);
+        console.log('fireSafetyScore', fireSafetyScore);
         res.send({
             code: 200,
             msg: '查询成功',
-            data: detail
+            data: {
+                ...detail,
+                fireSafetyScore
+            }
         });
     } catch (err) {
         console.error('地址明细查询失败:', err);
