@@ -270,42 +270,5 @@
         }
       ]
     }
-  ],
-  "categories": [
-    {
-      "id": "waterSource",
-      "name": "水源配置",
-      "description": "天然水源和消火栓配置"
-    },
-    {
-      "id": "roadAccess",
-      "name": "道路通行",
-      "description": "消防车辆通行条件"
-    },
-    {
-      "id": "fireFacilities",
-      "name": "消防设施",
-      "description": "消火栓等消防设备"
-    },
-    {
-      "id": "controlSystem",
-      "name": "控制系统",
-      "description": "消防控制室设备"
-    },
-    {
-      "id": "evacuation",
-      "name": "疏散设施",
-      "description": "电梯和楼梯间"
-    },
-    {
-      "id": "buildingLayout",
-      "name": "建筑布局",
-      "description": "建筑单元连通性"
-    },
-    {
-      "id": "emergencyManagement",
-      "name": "应急管理",
-      "description": "应急人员配置"
-    }
   ]
 } 
