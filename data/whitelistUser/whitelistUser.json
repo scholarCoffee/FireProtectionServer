@@ -1,0 +1,50 @@
+[
+  {
+    "_id": { "$oid": "65f3d731a63046e5b2cc9001" },
+    "userId": "user_001",
+    "nickName": "张三",
+    "avatarUrl": "https://example.com/avatar1.jpg",
+    "phoneNumber": "13800138001",
+    "encryptedData": "encrypted_data_1",
+    "iv": "iv_1",
+    "code": "code_001",
+    "sessionKey": "session_key_1",
+    "permission": 1,
+    "status": 1,
+    "lastLoginTime": { "$date": "2024-01-15T08:30:00.000Z" },
+    "createTime": { "$date": "2024-01-15T08:30:00.000Z" },
+    "updateTime": { "$date": "2024-01-15T08:30:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "65f3d731a63046e5b2cc9002" },
+    "userId": "user_002",
+    "nickName": "李四",
+    "avatarUrl": "https://example.com/avatar2.jpg",
+    "phoneNumber": "13800138002",
+    "encryptedData": "encrypted_data_2",
+    "iv": "iv_2",
+    "code": "code_002",
+    "sessionKey": "session_key_2",
+    "permission": 2,
+    "status": 1,
+    "lastLoginTime": { "$date": "2024-01-15T09:30:00.000Z" },
+    "createTime": { "$date": "2024-01-15T09:30:00.000Z" },
+    "updateTime": { "$date": "2024-01-15T09:30:00.000Z" }
+  },
+  {
+    "_id": { "$oid": "65f3d731a63046e5b2cc9003" },
+    "userId": "user_003",
+    "nickName": "王五",
+    "avatarUrl": "https://example.com/avatar3.jpg",
+    "phoneNumber": "13800138003",
+    "encryptedData": "encrypted_data_3",
+    "iv": "iv_3",
+    "code": "code_003",
+    "sessionKey": "session_key_3",
+    "permission": 3,
+    "status": 1,
+    "lastLoginTime": { "$date": "2024-01-15T10:30:00.000Z" },
+    "createTime": { "$date": "2024-01-15T10:30:00.000Z" },
+    "updateTime": { "$date": "2024-01-15T10:30:00.000Z" }
+  }
+] 

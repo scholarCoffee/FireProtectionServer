@@ -95,11 +95,10 @@ const getOneGroupMsg = async function(data) {
 
 // 获取群列表
 exports.getGroupList = function(data, res) {
-    const { permissionStatus, userId } = data // 解构获取请求体中的数据
-    const id = permissionStatus == 1 ? '687a6f59e83419906c0699e0' : uid
+    const { userId } = data // 解构获取请求体中的数据
     let query = Group.find({})
     query.where({
-        'userId': id // 用户ID
+        '_id': '507f1f77bcf86cd799439011' // 用户ID
     })
     .sort({ 'time': -1 }) // 按时间排序
     .exec()

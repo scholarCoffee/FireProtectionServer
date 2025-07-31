@@ -132,6 +132,23 @@ const FireSafetyScoreSchema = new mongoose.Schema({
     updateTime: { type: Date, default: Date.now }
 });
 
+// 白名单用户Schema - 用于微信小程序手机号解密和权限管理
+const WhitelistUserSchema = new Schema({
+    userId: { type: String, required: true, unique: true }, // 用户ID
+    nickName: { type: String, required: true }, // 用户昵称
+    avatarUrl: { type: String }, // 用户头像
+    phoneNumber: { type: String }, // 手机号码（解密后）
+    encryptedData: { type: String }, // 微信加密数据
+    iv: { type: String }, // 微信解密向量
+    code: { type: String }, // 微信临时code
+    sessionKey: { type: String }, // 微信会话密钥
+    permission: { type: Number, default: 1 }, // 权限等级 1-普通用户 2-管理员 3-超级管理员
+    status: { type: Number, default: 1 }, // 状态 1-正常 0-禁用
+    lastLoginTime: { type: Date, default: Date.now }, // 最后登录时间
+    createTime: { type: Date, default: Date.now }, // 创建时间
+    updateTime: { type: Date, default: Date.now } // 更新时间
+});
+
 // 添加中间件
 UserSchema.pre('save', function(next) {
     this.updateTime = new Date();
@@ -148,6 +165,11 @@ LocationSchema.pre('save', function(next) {
     next();
 });
 
+WhitelistUserSchema.pre('save', function(next) {
+    this.updateTime = new Date();
+    next();
+});
+
 // 创建模型
 const User = db.model('User', UserSchema, 'userInfo');
 const Friend = db.model('Friend', FriendSchema, 'friend');
@@ -156,9 +178,8 @@ const Group = db.model('Group', GroupSchema, 'group');
 const GroupUser = db.model('GroupUser', GroupUserSchema, 'groupUser');
 const GroupMessage = db.model('GroupMessage', GroupMessageSchema, 'groupMessage');
 const Location = db.model('Location', LocationSchema, 'location');
-const FireSafetyScore = db.model('FireSafetyScore', FireSafetyScoreSchema, 'fireSafetyScore');  
-// 导出消防安全评分表模型
-
+const FireSafetyScore = db.model('FireSafetyScore', FireSafetyScoreSchema, 'fireSafetyScore');
+const WhitelistUser = db.model('WhitelistUser', WhitelistUserSchema, 'whitelistUser'); // 白名单用户模型
 
 // 统一导出模型
 module.exports = {
@@ -170,7 +191,8 @@ module.exports = {
             'Group': Group,
             'GroupUser': GroupUser,
             'GroupMessage': GroupMessage,
-            'Location': Location
+            'Location': Location,
+            'WhitelistUser': WhitelistUser
         };
         return models[modelName];
     },
@@ -182,5 +204,6 @@ module.exports = {
     GroupUser,
     GroupMessage,
     Location,
-    FireSafetyScore
+    FireSafetyScore,
+    WhitelistUser
 };

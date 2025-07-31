@@ -3,6 +3,7 @@ const group = require('../server/group.js'); // 引入首页模块
 const chat = require('../server/chat.js'); // 引入聊天模块
 const location = require('../server/location.js'); // 引入地址模块
 const fireSafetyScore = require('./fireSafetyScore.js'); // 引入消防安全评分模块
+const whitelistUser = require('./whitelistUser.js'); // 引入白名单用户模块
 
 module.exports = function (app) {
     // 用户信息修改
@@ -42,4 +43,7 @@ module.exports = function (app) {
 
     // 消防安全评分相关路由
     app.use('/fireSafetyScore', fireSafetyScore);
+    
+    // 白名单用户相关路由
+    app.use('/whitelistUser', whitelistUser);
 }
