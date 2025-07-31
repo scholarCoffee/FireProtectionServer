@@ -10,19 +10,7 @@ module.exports = function(io) {
                 users[id] = socket.id // 将用户id和socket.id存储在users对象中
             }
         })
-
-        socket.on('msgServer', ({messageInfo, fromId, toId}) => {
-            console.log('发送消息：', messageInfo)
-            console.log('发送用户：', fromId)
-            console.log('接收用户：', toId)
-            dbServer.updateFriendLastTime({ uid: fromId, fid: toId })
-            dbServer.insertMsg(fromId, toId, messageInfo.message, messageInfo.types)
-            if (users[toId]) {
-                socket.to(users[toId]).emit('msgFront', messageInfo, fromId) // 发送给其他客户端
-            }
-            socket.emit('msgFront', messageInfo, toId) // 发送给自己
-        })
-
+        
         socket.on('disconnecting', () => {
             console.log('用户断开连接:', socket.id) // 打印断开连接的socket.id
             if (users.hasOwnProperty(socket.name)) {

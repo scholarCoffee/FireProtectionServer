@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const dbUrl = 'mongodb://localhost:27017/xuzc';
+// const dbUrl = 'mongodb://localhost:27017/xuzc';
+const dbUrl = 'mongodb://chat:123456@47.97.7.181:27017/chat';
 const db = mongoose.createConnection(dbUrl);
 
 db.on('error', function (err) {
