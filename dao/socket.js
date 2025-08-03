@@ -1,4 +1,4 @@
-const dbServer = require('./dbServer')
+const dbServer = require('./dbserver')
 
 module.exports = function(io) {
     const users = {}
