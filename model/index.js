@@ -89,7 +89,9 @@ const LocationSchema = new Schema({
     safeId: { type: String, ref: 'FireSafetyScore', required: true }, // 关联消防安全评分的safeId
     safeLevelId: { type: Number, required: true }, // 1-优秀 2-良好 3-一般 4-较差
     safeLevelName: { type: String, required: true },
-    safeLevelDesc: { type: String, required: true },
+    safeLevelScore: { type: Number, required: true }, // 安全等级分数
+    description: { type: String, default: '' }, // 地址描述
+    imgList: [{ type: String }], // 图片列表
     phoneList: [PhoneSchema],
     enterGateList: [GateSchema],
     createTime: { type: Date, default: Date.now },
