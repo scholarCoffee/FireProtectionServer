@@ -1,4 +1,4 @@
-const dbServer = require('../dao/dbServer.js'); // 引入数据操作模块
+const dbServer = require('../dao/dbserver.js'); // 引入数据操作模块
 
 // 查询所有地址信息
 const getLocationList = function (req, res) {

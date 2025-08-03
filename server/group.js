@@ -1,4 +1,4 @@
-const dbserver = require('../dao/dbServer.js'); // 引入数据操作模块
+const dbserver = require('../dao/dbserver.js'); // 引入数据操作模块
 
 // 获取群列表
 const getGroupList = function (req, res) {
