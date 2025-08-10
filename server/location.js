@@ -10,7 +10,25 @@ const getLocationDetail = function (req, res) {
     dbServer.getLocationDetail(req, res); // 调用查询用户函数
 }
 
+// 新增地址信息
+const addLocation = function (req, res) {
+    dbServer.addLocation(req, res); // 调用新增地址函数
+}
+
+// 更新地址信息
+const updateLocation = function (req, res) {
+    dbServer.updateLocation(req, res); // 调用更新地址函数
+}
+
+// 删除地址信息
+const deleteLocation = function (req, res) {
+    dbServer.deleteLocation(req, res); // 调用删除地址函数
+}
+
 module.exports = {
     getLocationList,
-    getLocationDetail
+    getLocationDetail,
+    addLocation,
+    updateLocation,
+    deleteLocation
 }

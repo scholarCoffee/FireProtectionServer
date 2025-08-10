@@ -168,15 +168,11 @@ exports.addLocation = async (req, res) => {
 // 更新地址信息
 exports.updateLocation = async (req, res) => {
     try {
-        const { addressId } = req.params;
         const updateData = req.body;
-        
-        // 移除addressId字段，避免修改主键
-        delete updateData.addressId;
         updateData.updateTime = new Date();
 
         const result = await Location.findOneAndUpdate(
-            { addressId },
+            { addressId: updateData.addressId },
             updateData,
             { new: true, runValidators: true }
         );

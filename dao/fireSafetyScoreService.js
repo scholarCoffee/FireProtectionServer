@@ -1,5 +1,6 @@
 const dbmodel = require('../model/index.js');
 const FireSafetyScore = dbmodel.FireSafetyScore;
+const Location = dbmodel.Location;
 const fs = require('fs');
 const path = require('path');
 
@@ -56,7 +57,7 @@ const calculateTotalScore = (scoreItems, config) => {
     }
     
     // 计算实际得分
-    for (const [itemId, itemData] of scoreItems.entries()) {
+    for (const [itemId, itemData] of Object.entries(scoreItems)) {
         totalScore += itemData.score || 0;
     }
     
@@ -76,34 +77,40 @@ const validateScoreData = (scoreItems, config) => {
     if (!config || !config.scoreItems) {
         return { valid: false, errors: ['评分配置无效'] };
     }
-    
     const errors = [];
-    const configItems = new Map(config.scoreItems.map(item => [item.id, item]));
-    
     // 检查是否包含所有必需的评分项
     for (const item of config.scoreItems) {
-        if (!scoreItems.has(item.id)) {
+        if (!scoreItems[item.id]) {
             errors.push(`缺少评分项: ${item.name}`);
             continue;
-        }
-        
-        const itemData = scoreItems.get(item.id);
-        const configItem = configItems.get(item.id);
-        
-        // 验证选项是否有效
-        const validOptions = configItem.options.map(opt => opt.text);
-        if (!validOptions.includes(itemData.option)) {
-            errors.push(`评分项"${item.name}"的选项无效: ${itemData.option}`);
-        }
-        
-        // 验证分数是否有效
-        const validScores = configItem.options.map(opt => opt.score);
-        if (!validScores.includes(itemData.score)) {
-            errors.push(`评分项"${item.name}"的分数无效: ${itemData.score}`);
         }
     }
     
     return { valid: errors.length === 0, errors };
+};
+
+// 根据addressId获取地址信息
+const getLocationByAddressId = async (addressId) => {
+    try {
+        const location = await Location.findOne({ addressId }).lean();
+        return location;
+    } catch (err) {
+        console.error('获取地址信息失败:', err);
+        return null;
+    }
+};
+
+// 将plain object转换为Map格式
+const convertScoreItemsToMap = (scoreItems) => {
+    if (!scoreItems || typeof scoreItems !== 'object') {
+        return new Map();
+    }
+    
+    const scoreMap = new Map();
+    for (const [key, value] of Object.entries(scoreItems)) {
+        scoreMap.set(key, value);
+    }
+    return scoreMap;
 };
 
 // 获取消防安全评分列表
@@ -240,7 +247,7 @@ exports.getFireSafetyScoreByAddressId = async (addressId) => {
 // 新增消防安全评分
 exports.addFireSafetyScore = async (req, res) => {
     try {
-        const scoreData = req.body;
+        const { safeId, scoreItems, addressId } = req.body;
         const config = getScoreConfig();
         
         if (!config) {
@@ -252,7 +259,7 @@ exports.addFireSafetyScore = async (req, res) => {
         
         // 检查safeId是否已存在
         const existingScore = await FireSafetyScore.findOne({ 
-            safeId: scoreData.safeId 
+            safeId: safeId 
         });
         
         if (existingScore) {
@@ -263,7 +270,7 @@ exports.addFireSafetyScore = async (req, res) => {
         }
 
         // 验证评分数据
-        const validation = validateScoreData(scoreData.scoreItems, config);
+        const validation = validateScoreData(scoreItems, config);
         if (!validation.valid) {
             return res.send({ 
                 code: 400, 
@@ -273,14 +280,15 @@ exports.addFireSafetyScore = async (req, res) => {
         }
 
         // 计算总分
-        const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(scoreData.scoreItems, config);
+        const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(scoreItems, config);
         
         // 计算安全等级和颜色
         const { level, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
         
         // 构建完整数据
         const newScoreData = {
-            ...scoreData,
+            safeId,
+            scoreItems: convertScoreItemsToMap(scoreItems),
             totalScore,
             maxPossibleScore,
             scorePercentage,
@@ -292,6 +300,14 @@ exports.addFireSafetyScore = async (req, res) => {
             createTime: new Date(),
             updateTime: new Date()
         };
+
+        // 如果提供了addressId，添加地址相关信息
+        if (addressId) {
+            newScoreData.addressId = addressId;
+            // 获取地址名称
+            const location = await getLocationByAddressId(addressId);
+            newScoreData.addressName = location ? location.addressName : '';
+        }
 
         const newScore = new FireSafetyScore(newScoreData);
         const result = await newScore.save();
@@ -311,11 +327,10 @@ exports.addFireSafetyScore = async (req, res) => {
     }
 };
 
-// 更新消防安全评分
+// 更新消防安全评分（支持upsert）
 exports.updateFireSafetyScore = async (req, res) => {
     try {
-        const { safeId } = req.params;
-        const updateData = req.body;
+        const { safeId, scoreItems, addressId } = req.body;
         const config = getScoreConfig();
         
         if (!config) {
@@ -324,13 +339,13 @@ exports.updateFireSafetyScore = async (req, res) => {
                 msg: '评分配置无效' 
             });
         }
-        
-        // 移除safeId字段，避免修改主键
-        delete updateData.safeId;
+
+        // 构建更新数据对象
+        const updateData = {};
         
         // 验证评分数据
-        if (updateData.scoreItems) {
-            const validation = validateScoreData(updateData.scoreItems, config);
+        if (scoreItems) {
+            const validation = validateScoreData(scoreItems, config);
             if (!validation.valid) {
                 return res.send({ 
                     code: 400, 
@@ -338,14 +353,15 @@ exports.updateFireSafetyScore = async (req, res) => {
                     errors: validation.errors 
                 });
             }
-            
+
             // 重新计算总分
-            const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(updateData.scoreItems, config);
+            const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(scoreItems, config);
             
             // 重新计算安全等级和颜色
             const { level, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
             
             // 更新数据
+            updateData.scoreItems = convertScoreItemsToMap(scoreItems);
             updateData.totalScore = totalScore;
             updateData.maxPossibleScore = maxPossibleScore;
             updateData.scorePercentage = scorePercentage;
@@ -355,27 +371,55 @@ exports.updateFireSafetyScore = async (req, res) => {
             updateData.safetyCssColor = cssColor;
             updateData.configVersion = config.configVersion;
         }
-        
+
         updateData.updateTime = new Date();
 
-        const result = await FireSafetyScore.findOneAndUpdate(
+        // 如果提供了addressId，添加到更新数据中
+        if (addressId) {
+            updateData.addressId = addressId;
+        }
+
+        // 尝试更新现有记录
+        let result = await FireSafetyScore.findOneAndUpdate(
             { safeId },
             updateData,
             { new: true, runValidators: true }
         );
 
+        // 如果记录不存在，创建新记录
         if (!result) {
-            return res.send({ 
-                code: 404, 
-                msg: '未找到该消防安全评分信息' 
+            console.log(`未找到safeId为${safeId}的记录，创建新记录`);
+            
+            // 构建新记录数据
+            const newScoreData = {
+                safeId,
+                ...updateData,
+                createTime: new Date()
+            };
+
+            // 如果提供了addressId，添加地址相关信息
+            if (addressId) {
+                newScoreData.addressId = addressId;
+                // 获取地址名称
+                const location = await getLocationByAddressId(addressId);
+                newScoreData.addressName = location ? location.addressName : '';
+            }
+
+            const newScore = new FireSafetyScore(newScoreData);
+            result = await newScore.save();
+            
+            res.send({
+                code: 200,
+                msg: '记录不存在，已创建新记录',
+                data: result
+            });
+        } else {
+            res.send({
+                code: 200,
+                msg: '更新成功',
+                data: result
             });
         }
-
-        res.send({
-            code: 200,
-            msg: '更新成功',
-            data: result
-        });
     } catch (err) {
         console.error('更新消防安全评分失败:', err);
         res.send({ 
@@ -534,6 +578,7 @@ exports.batchImportScores = async (req, res) => {
                 // 构建完整数据
                 const newScoreData = {
                     ...scoreData,
+                    scoreItems: convertScoreItemsToMap(scoreData.scoreItems),
                     totalScore,
                     maxPossibleScore,
                     scorePercentage,
@@ -570,6 +615,104 @@ exports.batchImportScores = async (req, res) => {
         res.send({ 
             code: 500, 
             msg: '批量导入失败', 
+            error: err.message 
+        });
+    }
+}; 
+
+// 根据addressId添加消防安全评分
+exports.addFireSafetyScoreByAddressId = async (req, res) => {
+    try {
+        const { addressId, scoreItems } = req.body;
+        const config = getScoreConfig();
+        
+        if (!addressId) {
+            return res.send({ 
+                code: 400, 
+                msg: '缺少addressId参数' 
+            });
+        }
+        
+        if (!config) {
+            return res.send({ 
+                code: 500, 
+                msg: '评分配置无效' 
+            });
+        }
+
+        // 检查addressId是否已存在消防安全评分
+        const existingScore = await FireSafetyScore.findOne({ 
+            addressId: addressId 
+        });
+        
+        if (existingScore) {
+            return res.send({ 
+                code: 400, 
+                msg: '该地址的消防安全评分已存在' 
+            });
+        }
+
+        // 获取地址信息
+        const location = await getLocationByAddressId(addressId);
+        if (!location) {
+            return res.send({ 
+                code: 404, 
+                msg: '未找到对应的地址信息' 
+            });
+        }
+
+        // 生成新的safeId
+        const timestamp = Date.now();
+        const randomSuffix = Math.random().toString(36).substr(2, 5);
+        const safeId = `SAFE${timestamp}${randomSuffix}`;
+
+        // 验证评分数据
+        const validation = validateScoreData(scoreItems, config);
+        if (!validation.valid) {
+            return res.send({ 
+                code: 400, 
+                msg: '评分数据验证失败', 
+                errors: validation.errors 
+            });
+        }
+
+        // 计算总分
+        const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(scoreItems, config);
+        
+        // 计算安全等级和颜色
+        const { level, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
+        
+        // 构建完整数据
+        const newScoreData = {
+            safeId,
+            addressId,
+            addressName: location.addressName,
+            scoreItems: convertScoreItemsToMap(scoreItems),
+            totalScore,
+            maxPossibleScore,
+            scorePercentage,
+            safetyLevel: level,
+            safetyColor: color,
+            safetyCssClass: cssClass,
+            safetyCssColor: cssColor,
+            configVersion: config.configVersion,
+            createTime: new Date(),
+            updateTime: new Date()
+        };
+
+        const newScore = new FireSafetyScore(newScoreData);
+        const result = await newScore.save();
+
+        res.send({
+            code: 200,
+            msg: '添加成功',
+            data: result
+        });
+    } catch (err) {
+        console.error('根据addressId添加消防安全评分失败:', err);
+        res.send({ 
+            code: 500, 
+            msg: '添加失败', 
             error: err.message 
         });
     }

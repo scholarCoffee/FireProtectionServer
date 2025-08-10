@@ -41,6 +41,21 @@ module.exports = function (app) {
         location.getLocationDetail(req, res); // 调用查询地址明细函数
     });
 
+    // 新增地址信息
+    app.post('/location/add', function (req, res) {
+        location.addLocation(req, res); // 调用新增地址函数
+    });
+    
+    // 更新地址信息
+    app.post('/location/save', function (req, res) {
+        location.updateLocation(req, res); // 调用更新地址函数
+    });
+    
+    // 删除地址信息
+    app.post('/location/delete', function (req, res) {
+        location.deleteLocation(req, res); // 调用删除地址函数
+    });
+
     // 消防安全评分相关路由
     app.use('/fireSafetyScore', fireSafetyScore);
     

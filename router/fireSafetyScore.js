@@ -17,8 +17,11 @@ router.get('/stats', fireSafetyScoreService.getFireSafetyScoreStats);
 // 新增消防安全评分
 router.post('/add', fireSafetyScoreService.addFireSafetyScore);
 
+// 根据addressId新增消防安全评分
+router.post('/add-by-address', fireSafetyScoreService.addFireSafetyScoreByAddressId);
+
 // 更新消防安全评分
-router.put('/update/:safeId', fireSafetyScoreService.updateFireSafetyScore);
+router.post('/update', fireSafetyScoreService.updateFireSafetyScore);
 
 // 删除消防安全评分
 router.delete('/delete/:safeId', fireSafetyScoreService.deleteFireSafetyScore);
