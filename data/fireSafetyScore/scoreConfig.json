@@ -6,6 +6,7 @@
     "maxScore": 100,
     "safetyLevels": [
       {
+        "levelId": 1,
         "level": "优秀",
         "color": "绿色",
         "cssClass": "safety-excellent",
@@ -15,6 +16,7 @@
         "minPercentage": 80
       },
       {
+        "levelId": 2,
         "level": "一般",
         "color": "黄色",
         "cssClass": "safety-normal",
@@ -24,6 +26,7 @@
         "minPercentage": 60
       },
       {
+        "levelId": 3,
         "level": "较差",
         "color": "红色",
         "cssClass": "safety-poor",

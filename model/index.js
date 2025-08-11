@@ -87,9 +87,6 @@ const LocationSchema = new Schema({
     allSenceLink: { type: String },
     type: { type: Number, required: true }, // 1-高层小区 2-重点单位 3-沿街商铺
     safeId: { type: String, ref: 'FireSafetyScore', required: true }, // 关联消防安全评分的safeId
-    safeLevelId: { type: Number, required: true }, // 1-优秀 2-良好 3-一般 4-较差
-    safeLevelName: { type: String, required: true },
-    safeLevelScore: { type: Number, required: true }, // 安全等级分数
     description: { type: String, default: '' }, // 地址描述
     imgList: [{ type: String }], // 图片列表
     phoneList: [PhoneSchema],
@@ -121,7 +118,8 @@ const FireSafetyScoreSchema = new mongoose.Schema({
     scorePercentage: { type: Number, required: true }, // 得分百分比
     
     // 安全等级信息
-    safetyLevel: { type: String, required: true }, // 安全等级
+    safetyLevelId: { type: Number, required: true, enum: [1, 2, 3] }, // 安全等级ID 1-优秀 2-一般 3-较差
+    safetyLevelName: { type: String, required: true }, // 安全等级名称
     safetyColor: { type: String, required: true }, // 安全颜色
     safetyCssClass: { type: String, required: true }, // CSS类名
     safetyCssColor: { type: String, required: true }, // CSS颜色值

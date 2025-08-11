@@ -1,6 +1,6 @@
 const dbmodel = require('../model/index.js');
 const Location = dbmodel.Location;
-const { getFireSafetyScoreByAddressId } = require('./fireSafetyScoreService.js');
+const { getFireSafetyScoreByAddressId, createDefaultFireSafetyScore } = require('./fireSafetyScoreService.js');
 
 // 地址列表查询（支持分页和模糊搜索）
 exports.getLocationList = async (req, res) => {
@@ -42,6 +42,25 @@ exports.getLocationList = async (req, res) => {
             Location.countDocuments(query)
         ]);
 
+        // 为每个地址查询关联的消防安全评分信息
+        const listWithSafetyInfo = await Promise.all(
+            list.map(async (location) => {
+                try {
+                    const fireSafetyScore = await getFireSafetyScoreByAddressId(location.addressId);
+                    return {
+                        ...location.toObject(),
+                        fireSafetyScore: fireSafetyScore || null
+                    };
+                } catch (err) {
+                    console.error(`查询地址 ${location.addressId} 的安全信息失败:`, err);
+                    return {
+                        ...location.toObject(),
+                        fireSafetyScore: null
+                    };
+                }
+            })
+        );
+
         // 计算分页信息
         const totalPages = Math.ceil(total / limit);
         const hasNext = page < totalPages;
@@ -51,7 +70,7 @@ exports.getLocationList = async (req, res) => {
             code: 200,
             msg: '查询成功',
             data: {
-                list,
+                list: listWithSafetyInfo,
                 pagination: {
                     current: parseInt(page),
                     pageSize: limit,
@@ -147,8 +166,28 @@ exports.addLocation = async (req, res) => {
             });
         }
 
+        // 如果没有提供safeId，自动生成一个
+        if (!locationData.safeId) {
+            const timestamp = Date.now();
+            const randomNum = Math.floor(Math.random() * 1000);
+            locationData.safeId = `SAFE${timestamp}${randomNum}`;
+        }
+
         const newLocation = new Location(locationData);
         const result = await newLocation.save();
+
+        // 自动创建消防安全评分记录
+        try {
+            await createDefaultFireSafetyScore(
+                locationData.addressId,
+                locationData.addressName,
+                locationData.safeId
+            );
+            console.log(`为地址 ${locationData.addressId} 自动创建了安全评分记录`);
+        } catch (safetyErr) {
+            console.warn(`为地址 ${locationData.addressId} 创建安全评分记录失败:`, safetyErr.message);
+            // 不阻止地址创建，只记录警告
+        }
 
         res.send({
             code: 200,
@@ -171,17 +210,59 @@ exports.updateLocation = async (req, res) => {
         const updateData = req.body;
         updateData.updateTime = new Date();
 
+        // 检查是否需要创建或更新安全信息
+        const existingLocation = await Location.findOne({ addressId: updateData.addressId });
+        if (!existingLocation) {
+            return res.send({ 
+                code: 404, 
+                msg: '未找到该地址信息' 
+            });
+        }
+
+        // 如果没有safeId，自动生成一个
+        if (!updateData.safeId && !existingLocation.safeId) {
+            const timestamp = Date.now();
+            const randomNum = Math.floor(Math.random() * 1000);
+            updateData.safeId = `SAFE${timestamp}${randomNum}`;
+        }
+
         const result = await Location.findOneAndUpdate(
             { addressId: updateData.addressId },
             updateData,
             { new: true, runValidators: true }
         );
 
-        if (!result) {
-            return res.send({ 
-                code: 404, 
-                msg: '未找到该地址信息' 
-            });
+        // 若该地址还未有安全评分记录，则自动创建一条默认记录
+        try {
+            const safety = await getFireSafetyScoreByAddressId(updateData.addressId);
+            const finalSafeId = result?.safeId || updateData.safeId || existingLocation.safeId;
+            if (!safety && finalSafeId) {
+                await createDefaultFireSafetyScore(
+                    updateData.addressId,
+                    updateData.addressName || existingLocation.addressName,
+                    finalSafeId
+                );
+                console.log(`为地址 ${updateData.addressId} 自动创建了缺失的安全评分记录`);
+            }
+        } catch (autoCreateErr) {
+            console.warn(`自动创建安全评分记录失败(${updateData.addressId}):`, autoCreateErr.message);
+        }
+
+        // 如果地址名称发生变化，更新对应的安全评分记录
+        if (updateData.addressName && updateData.addressName !== existingLocation.addressName) {
+            try {
+                const fireSafetyScore = await getFireSafetyScoreByAddressId(updateData.addressId);
+                if (fireSafetyScore) {
+                    // 更新现有记录
+                    await fireSafetyScore.updateOne({
+                        addressName: updateData.addressName,
+                        updateTime: new Date()
+                    });
+                    console.log(`更新了地址 ${updateData.addressId} 的安全评分记录中的地址名称`);
+                }
+            } catch (safetyErr) {
+                console.warn(`更新地址 ${updateData.addressId} 的安全评分记录失败:`, safetyErr.message);
+            }
         }
 
         res.send({
@@ -230,13 +311,10 @@ exports.deleteLocation = async (req, res) => {
 // 获取地址统计信息
 exports.getLocationStats = async (req, res) => {
     try {
-        const [totalCount, typeStats, levelStats] = await Promise.all([
+        const [totalCount, typeStats] = await Promise.all([
             Location.countDocuments(),
             Location.aggregate([
                 { $group: { _id: '$type', count: { $sum: 1 } } }
-            ]),
-            Location.aggregate([
-                { $group: { _id: '$safeLevelId', count: { $sum: 1 } } }
             ])
         ]);
 
@@ -245,8 +323,7 @@ exports.getLocationStats = async (req, res) => {
             msg: '查询成功',
             data: {
                 totalCount,
-                typeStats,
-                levelStats
+                typeStats
             }
         });
     } catch (err) {

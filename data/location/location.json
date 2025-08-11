@@ -9,9 +9,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 1,
       "safeId": "SAFE001",
-      "safeLevelId": 1,
-      "safeLevelScore": 100,
-      "safeLevelName": "优秀",
       "description": "东方之门是苏州工业园区的地标性建筑，位于金鸡湖西岸，是一座集商业、办公、酒店、观光等功能于一体的综合性超高层建筑。该建筑采用双塔设计，中间由空中连廊连接，形似一扇大门，因此得名东方之门。建筑高度达到301.8米，是苏州最高的建筑之一。",
       "imgList": [
         "/static/icons/location/showLocation.png",
@@ -65,9 +62,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 2,
       "safeId": "SAFE002",
-      "safeLevelId": 2,
-      "safeLevelName": "一般",
-      "safeLevelScore": 85,
       "description": "虎丘山风景区是苏州著名的历史文化景区，以虎丘塔闻名于世。景区内古建筑众多，包括虎丘塔、剑池、千人石等历史遗迹。虎丘塔始建于五代时期，是江南地区现存最古老的砖塔之一，被誉为'吴中第一名胜'。",
       "imgList": [
         "/static/icons/location/showLocation.png",
@@ -113,9 +107,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 3,
       "safeId": "SAFE003",
-      "safeLevelId": 2,
-      "safeLevelName": "一般",
-      "safeLevelScore": 75,
       "description": "平江路历史街区是苏州古城内保存最完整的历史文化街区之一，全长1606米，是苏州古城内南北向的主要街道。街区保留了明清时期的建筑风格，街道两侧店铺林立，是体验苏州传统文化和品尝特色小吃的重要场所。",
       "imgList": [
         "/static/icons/location/showShop.png",
@@ -161,9 +152,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 1,
       "safeId": "SAFE004",
-      "safeLevelId": 1,
-      "safeLevelName": "优秀",
-      "safeLevelScore": 95,
       "description": "金鸡湖景区是苏州工业园区的重要景观，也是国家5A级旅游景区。景区以金鸡湖为核心，周边建有李公堤、月光码头、湖滨公园等景点，是集观光、休闲、娱乐为一体的现代化城市景观。",
       "imgList": [
         "/static/icons/location/showLocation.png",
@@ -209,9 +197,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 2,
       "safeId": "SAFE005",
-      "safeLevelId": 2,
-      "safeLevelName": "一般",
-      "safeLevelScore": 85,
       "description": "拙政园是苏州古典园林的代表作，也是中国四大名园之一，被联合国教科文组织列为世界文化遗产。园内亭台楼阁、假山水池布局精巧，体现了江南园林'咫尺之内，自有一番天地'的设计理念。",
       "imgList": [
         "/static/icons/location/showLocation.png",
@@ -257,9 +242,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 3,
       "safeId": "SAFE006",
-      "safeLevelId": 2,
-      "safeLevelName": "一般",
-      "safeLevelScore": 75,
       "description": "狮子林是苏州四大名园之一，以假山闻名，园内假山群峰起伏，形似狮子，故名狮子林。园内建筑布局精巧，假山、水池、亭台相互呼应，是江南园林艺术的杰出代表。",
       "imgList": [
         "/static/icons/location/showLocation.png",
@@ -305,9 +287,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 1,
       "safeId": "SAFE007",
-      "safeLevelId": 3,
-      "safeLevelName": "较差",
-      "safeLevelScore": 65,
       "description": "寒山寺是苏州著名的古刹，始建于南朝梁代，因唐代诗人张继的《枫桥夜泊》而闻名于世。寺内古钟悠扬，每年除夕夜都会举行敲钟仪式，吸引众多游客前来祈福。",
       "imgList": [
         "/static/icons/location/showLocation.png",
@@ -353,9 +332,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 1,
       "safeId": "SAFE008",
-      "safeLevelId": 2,
-      "safeLevelName": "一般",
-      "safeLevelScore": 85,
       "description": "网师园是苏州古典园林中的精品，以小巧精致著称。园内建筑布局紧凑，假山、水池、花木配置得当，体现了'咫尺之内，自有一番天地'的园林设计理念。",
       "imgList": [
         "/static/icons/location/showLocation.png",
@@ -401,9 +377,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 1,
       "safeId": "SAFE009",
-      "safeLevelId": 2,
-      "safeLevelName": "一般",
-      "safeLevelScore": 85,
       "description": "留园是苏州四大名园之一，以建筑布局精巧、空间层次丰富著称。园内分为东、中、西三部分，各部分风格各异，体现了江南园林'移步换景'的设计特色。",
       "imgList": [
         "/static/icons/location/showLocation.png",
@@ -449,9 +422,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 2,
       "safeId": "SAFE010",
-      "safeLevelId": 1,
-      "safeLevelName": "优秀",
-      "safeLevelScore": 95,
       "description": "独墅湖高教区是苏州工业园区的重要组成部分，聚集了多所知名高校和科研院所。该区域环境优美，配套设施完善，是苏州重要的科教文化中心。",
       "imgList": [
         "/static/icons/location/showFactory.png",
@@ -501,9 +471,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 3,
       "safeId": "SAFE011",
-      "safeLevelId": 2,
-      "safeLevelName": "一般",
-      "safeLevelScore": 85,
       "description": "木渎古镇是苏州著名的历史文化古镇，位于太湖之滨，素有'吴中第一镇'的美誉。古镇内古建筑众多，街道古朴，是体验江南水乡文化的重要场所。",
       "imgList": [
         "/static/icons/location/showShop.png",
@@ -549,9 +516,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 1,
       "safeId": "SAFE012",
-      "safeLevelId": 1,
-      "safeLevelName": "优秀",
-      "safeLevelScore": 95,
       "description": "阳澄湖度假区是苏州重要的生态旅游区，以阳澄湖大闸蟹闻名于世。该区域环境优美，水质清澈，是集观光、休闲、美食为一体的综合性度假区。",
       "imgList": [
         "/static/icons/location/showLocation.png",
@@ -605,9 +569,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 2,
       "safeId": "SAFE013",
-      "safeLevelId": 1,
-      "safeLevelName": "优秀",
-      "safeLevelScore": 95,
       "description": "高新区科技城是苏州重要的科技创新基地，聚集了众多高新技术企业和研发机构。该区域基础设施完善，创新氛围浓厚，是苏州科技发展的重要引擎。",
       "imgList": [
         "/static/icons/location/showFactory.png",
@@ -657,9 +618,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 3,
       "safeId": "SAFE014",
-      "safeLevelId": 2,
-      "safeLevelName": "一般",
-      "safeLevelScore": 85,
       "description": "同里古镇是江南六大古镇之一，以'小桥、流水、人家'的水乡特色闻名。古镇内保存完好的明清建筑众多，街道沿河而建，体现了典型的江南水乡风貌。",
       "imgList": [
         "/static/icons/location/showShop.png",
@@ -709,9 +667,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 3,
       "safeId": "SAFE015",
-      "safeLevelId": 2,
-      "safeLevelName": "一般",
-      "safeLevelScore": 75,
       "description": "星湖街商业区是苏州工业园区重要的商业中心，聚集了众多购物中心、餐饮店和娱乐场所。该区域交通便利，商业氛围浓厚，是市民购物休闲的重要场所。",
       "imgList": [
         "/static/icons/location/showShop.png",
@@ -757,9 +712,6 @@
       "allSenceLink": "https://www.720yun.com/vr/471j5gmwvu2",
       "type": 3,
       "safeId": "SAFE016",
-      "safeLevelId": 2,
-      "safeLevelName": "一般",
-      "safeLevelScore": 85,
       "description": "观前街是苏州古城内最繁华的商业街，历史悠久，是苏州传统商业文化的代表。街道两侧店铺林立，既有传统老字号，也有现代商业设施，是体验苏州商业文化的重要场所。",
       "imgList": [
         "/static/icons/location/showShop.png",

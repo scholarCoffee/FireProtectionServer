@@ -20,7 +20,8 @@ const getScoreConfig = () => {
 const calculateSafetyLevel = (totalScore, maxPossibleScore) => {
     const config = getScoreConfig();
     if (!config) return { 
-        level: '未知', 
+        levelId: 2, 
+        levelName: '一般', 
         color: '灰色', 
         cssClass: 'safety-unknown', 
         cssColor: '#999999' 
@@ -32,7 +33,8 @@ const calculateSafetyLevel = (totalScore, maxPossibleScore) => {
     for (const level of safetyLevels) {
         if (percentage >= level.minPercentage) {
             return { 
-                level: level.level, 
+                levelId: level.levelId || 2, 
+                levelName: level.level, 
                 color: level.color,
                 cssClass: level.cssClass,
                 cssColor: level.cssColor
@@ -40,7 +42,8 @@ const calculateSafetyLevel = (totalScore, maxPossibleScore) => {
         }
     }
     return { 
-        level: '未知', 
+        levelId: 2, 
+        levelName: '一般', 
         color: '灰色', 
         cssClass: 'safety-unknown', 
         cssColor: '#999999' 
@@ -121,9 +124,8 @@ exports.getFireSafetyScoreList = async (req, res) => {
             page = 1, 
             pageSize = 10, 
             keyword = '', 
-            safetyLevel = '',
-            safetyColor = '',
-            category = ''
+            safetyLevelName = '',
+            safetyColor = ''
         } = req.query;
 
         // 构建查询条件
@@ -138,8 +140,8 @@ exports.getFireSafetyScoreList = async (req, res) => {
         }
         
         // 安全等级筛选
-        if (safetyLevel && safetyLevel !== '') {
-            query.safetyLevel = safetyLevel;
+        if (safetyLevelName && safetyLevelName !== '') {
+            query.safetyLevelName = safetyLevelName;
         }
         
         // 安全颜色筛选
@@ -283,7 +285,7 @@ exports.addFireSafetyScore = async (req, res) => {
         const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(scoreItems, config);
         
         // 计算安全等级和颜色
-        const { level, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
+        const { levelId, levelName, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
         
         // 构建完整数据
         const newScoreData = {
@@ -292,7 +294,8 @@ exports.addFireSafetyScore = async (req, res) => {
             totalScore,
             maxPossibleScore,
             scorePercentage,
-            safetyLevel: level,
+            safetyLevelId: levelId,
+            safetyLevelName: levelName,
             safetyColor: color,
             safetyCssClass: cssClass,
             safetyCssColor: cssColor,
@@ -358,14 +361,15 @@ exports.updateFireSafetyScore = async (req, res) => {
             const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(scoreItems, config);
             
             // 重新计算安全等级和颜色
-            const { level, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
+            const { levelId, levelName, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
             
             // 更新数据
             updateData.scoreItems = convertScoreItemsToMap(scoreItems);
             updateData.totalScore = totalScore;
             updateData.maxPossibleScore = maxPossibleScore;
             updateData.scorePercentage = scorePercentage;
-            updateData.safetyLevel = level;
+            updateData.safetyLevelId = levelId;
+            updateData.safetyLevelName = levelName;
             updateData.safetyColor = color;
             updateData.safetyCssClass = cssClass;
             updateData.safetyCssColor = cssColor;
@@ -464,7 +468,7 @@ exports.getFireSafetyScoreStats = async (req, res) => {
         const [totalCount, levelStats, colorStats, avgScore, avgPercentage] = await Promise.all([
             FireSafetyScore.countDocuments(),
             FireSafetyScore.aggregate([
-                { $group: { _id: '$safetyLevel', count: { $sum: 1 } } }
+                { $group: { _id: '$safetyLevelName', count: { $sum: 1 } } }
             ]),
             FireSafetyScore.aggregate([
                 { $group: { _id: '$safetyColor', count: { $sum: 1 } } }
@@ -573,7 +577,7 @@ exports.batchImportScores = async (req, res) => {
                 const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(scoreData.scoreItems, config);
                 
                 // 计算安全等级和颜色
-                const { level, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
+                const { levelId, levelName, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
                 
                 // 构建完整数据
                 const newScoreData = {
@@ -582,7 +586,8 @@ exports.batchImportScores = async (req, res) => {
                     totalScore,
                     maxPossibleScore,
                     scorePercentage,
-                    safetyLevel: level,
+                    safetyLevelId: levelId,
+                    safetyLevelName: levelName,
                     safetyColor: color,
                     safetyCssClass: cssClass,
                     safetyCssColor: cssColor,
@@ -619,6 +624,73 @@ exports.batchImportScores = async (req, res) => {
         });
     }
 }; 
+
+// 内部方法：根据addressId创建默认消防安全评分记录
+exports.createDefaultFireSafetyScore = async (addressId, addressName, safeId) => {
+    try {
+        const config = getScoreConfig();
+        
+        if (!config) {
+            throw new Error('评分配置无效');
+        }
+
+        // 检查addressId是否已存在消防安全评分
+        const existingScore = await FireSafetyScore.findOne({ 
+            addressId: addressId 
+        });
+        
+        if (existingScore) {
+            return existingScore; // 如果已存在，直接返回
+        }
+
+        // 创建默认的评分项目（选择每项最低得分的选项）
+        const defaultScoreItems = {};
+        for (const item of config.scoreItems) {
+            if (!item || !Array.isArray(item.options) || item.options.length === 0) {
+                continue;
+            }
+            // 选择最低分的选项
+            const minOption = item.options.reduce((min, cur) => (cur.score < min.score ? cur : min));
+            defaultScoreItems[item.id] = {
+                score: minOption.score || 0,
+                option: minOption.text || '',
+                itemId: item.id
+            };
+        }
+
+        // 计算总分
+        const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(defaultScoreItems, config);
+        
+        // 计算安全等级和颜色
+        const { levelId, levelName, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
+        
+        // 构建完整数据
+        const newScoreData = {
+            safeId,
+            addressId,
+            addressName,
+            scoreItems: convertScoreItemsToMap(defaultScoreItems),
+            totalScore,
+            maxPossibleScore,
+            scorePercentage,
+            safetyLevelId: levelId,
+            safetyLevelName: levelName,
+            safetyColor: color,
+            safetyCssClass: cssClass,
+            safetyCssColor: cssColor,
+            configVersion: config.configVersion,
+            createTime: new Date(),
+            updateTime: new Date()
+        };
+
+        const newScore = new FireSafetyScore(newScoreData);
+        const result = await newScore.save();
+        return result;
+    } catch (err) {
+        console.error('创建默认消防安全评分失败:', err);
+        throw err;
+    }
+};
 
 // 根据addressId添加消防安全评分
 exports.addFireSafetyScoreByAddressId = async (req, res) => {
@@ -661,10 +733,13 @@ exports.addFireSafetyScoreByAddressId = async (req, res) => {
             });
         }
 
-        // 生成新的safeId
-        const timestamp = Date.now();
-        const randomSuffix = Math.random().toString(36).substr(2, 5);
-        const safeId = `SAFE${timestamp}${randomSuffix}`;
+        // 生成新的safeId（如果未传入）
+        let { safeId } = req.body || {};
+        if (!safeId) {
+            const timestamp = Date.now();
+            const randomSuffix = Math.random().toString(36).substr(2, 5);
+            safeId = `SAFE${timestamp}${randomSuffix}`;
+        }
 
         // 验证评分数据
         const validation = validateScoreData(scoreItems, config);
@@ -672,7 +747,7 @@ exports.addFireSafetyScoreByAddressId = async (req, res) => {
             return res.send({ 
                 code: 400, 
                 msg: '评分数据验证失败', 
-                errors: validation.errors 
+                    errors: validation.errors 
             });
         }
 
@@ -680,7 +755,7 @@ exports.addFireSafetyScoreByAddressId = async (req, res) => {
         const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(scoreItems, config);
         
         // 计算安全等级和颜色
-        const { level, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
+        const { levelId, levelName, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
         
         // 构建完整数据
         const newScoreData = {
@@ -691,7 +766,8 @@ exports.addFireSafetyScoreByAddressId = async (req, res) => {
             totalScore,
             maxPossibleScore,
             scorePercentage,
-            safetyLevel: level,
+            safetyLevelId: levelId,
+            safetyLevelName: levelName,
             safetyColor: color,
             safetyCssClass: cssClass,
             safetyCssColor: cssColor,
@@ -702,6 +778,15 @@ exports.addFireSafetyScoreByAddressId = async (req, res) => {
 
         const newScore = new FireSafetyScore(newScoreData);
         const result = await newScore.save();
+
+        // 回写Location.safeId（如未设置）
+        if (!location.safeId) {
+            await Location.findOneAndUpdate(
+                { addressId },
+                { safeId, updateTime: new Date() },
+                { new: true }
+            );
+        }
 
         res.send({
             code: 200,
