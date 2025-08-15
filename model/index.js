@@ -87,6 +87,7 @@ const LocationSchema = new Schema({
     allSenceLink: { type: String },
     type: { type: Number, required: true }, // 1-高层小区 2-重点单位 3-沿街商铺
     safeId: { type: String, ref: 'FireSafetyScore', required: true }, // 关联消防安全评分的safeId
+    defaultImg: { type: String }, // 默认图片
     description: { type: String, default: '' }, // 地址描述
     imgList: [{ type: String }], // 图片列表
     phoneList: [PhoneSchema],

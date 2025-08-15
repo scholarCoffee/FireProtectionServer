@@ -173,6 +173,24 @@ exports.addLocation = async (req, res) => {
             locationData.safeId = `SAFE${timestamp}${randomNum}`;
         }
 
+        // 如果没有提供defaultImg，根据类型自动设置
+        if (!locationData.defaultImg) {
+            const type = locationData.type || 1;
+            switch (type) {
+                case 1: // 高层小区
+                    locationData.defaultImg = '/static/icons/location/showLocation.png';
+                    break;
+                case 2: // 重点单位
+                    locationData.defaultImg = '/static/icons/location/factory.png';
+                    break;
+                case 3: // 沿街商铺
+                    locationData.defaultImg = '/static/icons/location/showShop.png';
+                    break;
+                default:
+                    locationData.defaultImg = '/static/icons/location/showLocation.png';
+            }
+        }
+
         const newLocation = new Location(locationData);
         const result = await newLocation.save();
 
@@ -224,6 +242,23 @@ exports.updateLocation = async (req, res) => {
             const timestamp = Date.now();
             const randomNum = Math.floor(Math.random() * 1000);
             updateData.safeId = `SAFE${timestamp}${randomNum}`;
+        }
+
+        // 如果类型发生变化且没有提供defaultImg，自动更新defaultImg
+        if (updateData.type && updateData.type !== existingLocation.type && !updateData.defaultImg) {
+            switch (updateData.type) {
+                case 1: // 高层小区
+                    updateData.defaultImg = '/static/icons/location/showLocation.png';
+                    break;
+                case 2: // 重点单位
+                    updateData.defaultImg = '/static/icons/location/factory.png';
+                    break;
+                case 3: // 沿街商铺
+                    updateData.defaultImg = '/static/icons/location/showShop.png';
+                    break;
+                default:
+                    updateData.defaultImg = '/static/icons/location/showLocation.png';
+            }
         }
 
         const result = await Location.findOneAndUpdate(
