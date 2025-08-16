@@ -801,4 +801,20 @@ exports.addFireSafetyScoreByAddressId = async (req, res) => {
             error: err.message 
         });
     }
+};
+
+// 根据addressId删除消防安全评分记录
+exports.deleteFireSafetyScoreByAddressId = async (addressId) => {
+    try {
+        const result = await FireSafetyScore.findOneAndDelete({ addressId });
+        if (result) {
+            console.log(`成功删除地址 ${addressId} 的消防安全评分记录`);
+        } else {
+            console.log(`地址 ${addressId} 没有找到消防安全评分记录`);
+        }
+        return result;
+    } catch (err) {
+        console.error(`删除地址 ${addressId} 的消防安全评分记录失败:`, err);
+        throw err;
+    }
 }; 

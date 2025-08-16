@@ -1,6 +1,62 @@
 const dbmodel = require('../model/index.js');
 const Location = dbmodel.Location;
-const { getFireSafetyScoreByAddressId, createDefaultFireSafetyScore } = require('./fireSafetyScoreService.js');
+const { getFireSafetyScoreByAddressId, createDefaultFireSafetyScore, deleteFireSafetyScoreByAddressId } = require('./fireSafetyScoreService.js');
+
+// 新增：处理消防安全评分数据的辅助函数
+const createFireSafetyScoreFromData = async (fireSafetyScoreData, addressId, addressName, safeId) => {
+    try {
+        const FireSafetyScore = dbmodel.FireSafetyScore;
+        
+        // 检查是否已存在
+        const existingScore = await FireSafetyScore.findOne({ addressId });
+        if (existingScore) {
+            return existingScore;
+        }
+
+        // 计算总分和最高可能分数
+        let totalScore = 0;
+        let maxPossibleScore = 0;
+        
+        if (fireSafetyScoreData.scoreItems) {
+            // 计算实际得分
+            for (const [itemId, itemData] of Object.entries(fireSafetyScoreData.scoreItems)) {
+                totalScore += itemData.score || 0;
+            }
+            
+            // 估算最高可能分数（假设每个项目最高10分）
+            maxPossibleScore = Object.keys(fireSafetyScoreData.scoreItems).length * 10;
+        }
+        
+        const scorePercentage = maxPossibleScore > 0 ? (totalScore / maxPossibleScore) * 100 : 0;
+        
+        // 构建消防安全评分数据
+        const newScoreData = {
+            safeId,
+            addressId,
+            addressName,
+            scoreItems: fireSafetyScoreData.scoreItems || {},
+            totalScore,
+            maxPossibleScore,
+            scorePercentage,
+            safetyLevelId: fireSafetyScoreData.safetyLevelId || 1,
+            safetyLevelName: fireSafetyScoreData.safetyLevelName || '一般',
+            safetyColor: fireSafetyScoreData.safetyColor || '灰色',
+            safetyCssClass: fireSafetyScoreData.safetyCssClass || 'safety-unknown',
+            safetyCssColor: fireSafetyScoreData.safetyCssColor || '#999999',
+            isLocal: fireSafetyScoreData.isLocal || false,
+            createTime: new Date(),
+            updateTime: new Date()
+        };
+
+        const newScore = new FireSafetyScore(newScoreData);
+        const result = await newScore.save();
+        console.log(`为地址 ${addressId} 创建了消防安全评分记录`);
+        return result;
+    } catch (err) {
+        console.error(`创建消防安全评分记录失败(${addressId}):`, err);
+        throw err;
+    }
+};
 
 // 地址列表查询（支持分页和模糊搜索）
 exports.getLocationList = async (req, res) => {
@@ -228,15 +284,80 @@ exports.updateLocation = async (req, res) => {
         const updateData = req.body;
         updateData.updateTime = new Date();
 
-        // 检查是否需要创建或更新安全信息
+        // 检查地址是否存在
         const existingLocation = await Location.findOne({ addressId: updateData.addressId });
         if (!existingLocation) {
-            return res.send({ 
-                code: 404, 
-                msg: '未找到该地址信息' 
+            // 如果地址不存在，则创建一个新的地址
+            console.log(`地址 ${updateData.addressId} 不存在，开始创建新地址`);
+            
+            // 设置创建时间
+            updateData.createTime = new Date();
+            
+            // 如果没有提供safeId，自动生成一个
+            if (!updateData.safeId) {
+                const timestamp = Date.now();
+                const randomNum = Math.floor(Math.random() * 1000);
+                updateData.safeId = `SAFE${timestamp}${randomNum}`;
+            }
+
+            // 如果没有提供defaultImg，根据类型自动设置
+            if (!updateData.defaultImg) {
+                const type = updateData.type || 1;
+                switch (type) {
+                    case 1: // 高层小区
+                        updateData.defaultImg = '/static/icons/location/showLocation.png';
+                        break;
+                    case 2: // 重点单位
+                        updateData.defaultImg = '/static/icons/location/factory.png';
+                        break;
+                    case 3: // 沿街商铺
+                        updateData.defaultImg = '/static/icons/location/showShop.png';
+                        break;
+                    default:
+                        updateData.defaultImg = '/static/icons/location/showLocation.png';
+                }
+            }
+
+            // 创建新地址
+            const newLocation = new Location(updateData);
+            const result = await newLocation.save();
+            console.log(`成功创建地址 ${updateData.addressId}`);
+
+            // 处理消防安全评分数据
+            if (updateData.fireSafetyScore) {
+                try {
+                    await createFireSafetyScoreFromData(
+                        updateData.fireSafetyScore,
+                        updateData.addressId,
+                        updateData.addressName,
+                        updateData.safeId
+                    );
+                } catch (safetyErr) {
+                    console.warn(`创建消防安全评分记录失败:`, safetyErr.message);
+                    // 不阻止地址创建，只记录警告
+                }
+            } else {
+                // 如果没有提供消防安全评分数据，创建默认记录
+                try {
+                    await createDefaultFireSafetyScore(
+                        updateData.addressId,
+                        updateData.addressName,
+                        updateData.safeId
+                    );
+                    console.log(`为地址 ${updateData.addressId} 自动创建了默认安全评分记录`);
+                } catch (safetyErr) {
+                    console.warn(`创建默认安全评分记录失败:`, safetyErr.message);
+                }
+            }
+
+            return res.send({
+                code: 200,
+                msg: '地址不存在，已创建',
+                data: result
             });
         }
 
+        // 如果地址存在，继续更新逻辑
         // 如果没有safeId，自动生成一个
         if (!updateData.safeId && !existingLocation.safeId) {
             const timestamp = Date.now();
@@ -318,8 +439,25 @@ exports.updateLocation = async (req, res) => {
 // 删除地址信息
 exports.deleteLocation = async (req, res) => {
     try {
-        const { addressId } = req.params;
+        const { addressId } = req.body
 
+        if (!addressId) {
+            return res.send({ 
+                code: 400, 
+                msg: '缺少addressId参数' 
+            });
+        }
+
+        // 先删除对应的消防安全评分记录
+        try {
+            await deleteFireSafetyScoreByAddressId(addressId);
+            console.log(`已删除地址 ${addressId} 的消防安全评分记录`);
+        } catch (safetyErr) {
+            console.warn(`删除地址 ${addressId} 的消防安全评分记录失败:`, safetyErr.message);
+            // 不阻止地址删除，只记录警告
+        }
+
+        // 删除地址信息
         const result = await Location.findOneAndDelete({ addressId });
 
         if (!result) {
@@ -329,9 +467,15 @@ exports.deleteLocation = async (req, res) => {
             });
         }
 
+        console.log(`成功删除地址 ${addressId} 及其相关信息`);
+
         res.send({
             code: 200,
-            msg: '删除成功'
+            msg: '删除成功',
+            data: {
+                deletedLocation: result,
+                message: '地址信息及相关的消防安全评分记录已删除'
+            }
         });
     } catch (err) {
         console.error('删除地址失败:', err);
