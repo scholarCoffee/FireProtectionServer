@@ -11,6 +11,11 @@ module.exports = function (app) {
         user.userUpdate(req, res); // 调用查询用户函数
     });
 
+    // 登录或更新（微信小程序 code 换 openid 并入库）
+    app.post('/user/loginOrUpdate', function (req, res) {
+        user.loginOrUpdate(req, res);
+    });
+
     // 获取群列表
     app.post('/group/getGroupList', function (req, res) {
         group.getGroupList(req, res); // 调用查询用户函数

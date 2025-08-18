@@ -29,7 +29,7 @@ module.exports = function (app) {
         console.log('文件上传请求接收:', req.files); // 打印请求体
         const { filename }  = req.files[0]
         let url = req.body.url || ''; // 获取请求体中的url参数
-        const resultFile =  '/' + url + '/' + filename
+        const resultFile =  url + '/' + filename
         res.send({ code: 0, msg: '文件上传成功', data: resultFile }); // 返回成功信息
     });
 }

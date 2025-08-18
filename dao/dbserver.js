@@ -11,6 +11,7 @@ module.exports = {
     // 用户相关服务
     userDetail: userService.userDetail,
     userUpdate: userService.userUpdate,
+    loginOrUpdate: userService.loginOrUpdate,
 
     // 消息相关服务
     insertMsg: messageService.insertMsg,
