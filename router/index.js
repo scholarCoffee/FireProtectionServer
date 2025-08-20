@@ -3,7 +3,6 @@ const group = require('../server/group.js'); // 引入首页模块
 const chat = require('../server/chat.js'); // 引入聊天模块
 const location = require('../server/location.js'); // 引入地址模块
 const fireSafetyScore = require('./fireSafetyScore.js'); // 引入消防安全评分模块
-const whitelistUser = require('./whitelistUser.js'); // 引入白名单用户模块
 
 module.exports = function (app) {
     // 用户信息修改
@@ -14,6 +13,11 @@ module.exports = function (app) {
     // 登录或更新（微信小程序 code 换 openid 并入库）
     app.post('/user/loginOrUpdate', function (req, res) {
         user.loginOrUpdate(req, res);
+    });
+
+    // 绑定手机号（微信解密）
+    app.post('/user/getPhoneNumber', function (req, res) {
+        user.getPhoneNumber(req, res);
     });
 
     // 获取群列表
@@ -63,7 +67,4 @@ module.exports = function (app) {
 
     // 消防安全评分相关路由
     app.use('/fireSafetyScore', fireSafetyScore);
-    
-    // 白名单用户相关路由
-    app.use('/whitelistUser', whitelistUser);
 }

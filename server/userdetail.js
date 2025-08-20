@@ -13,7 +13,14 @@ const loginOrUpdate = function (req, res) {
     dbServer.loginOrUpdate(data, res);
 }
 
+// 获取并绑定手机号
+const getPhoneNumber = function (req, res) {
+    // 直接把 req/res 交给服务层以便读取 req.body
+    dbServer.getPhoneNumber(req, res);
+}
+
 module.exports = {
     userUpdate,
-    loginOrUpdate
+    loginOrUpdate,
+    getPhoneNumber
 }

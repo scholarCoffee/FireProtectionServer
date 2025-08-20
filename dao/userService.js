@@ -1,12 +1,13 @@
 const dbmodel = require('../model/index.js'); // 引入数据模型
 const User = dbmodel.model('User'); // 引入用户模型
 const https = require('https');
+const crypto = require('crypto');
 
 // 微信小程序配置（建议通过环境变量配置）
 const WECHAT_CONFIG = {
-    appId: process.env.WECHAT_APP_ID || 'your_app_id',
-    appSecret: process.env.WECHAT_APP_SECRET || 'your_app_secret'
-};
+    appId: 'wxedd2e225d0fbca96',
+    appSecret: 'e49d9270c119f7613fed75c64c46d056'
+}
 
 // 轻量封装 https GET 请求
 function getJson(url) {
@@ -26,10 +27,6 @@ function getJson(url) {
 }
 
 async function getOpenIdByCode(code) {
-    const WECHAT_CONFIG = {
-        appId: 'wxedd2e225d0fbca96',
-        appSecret: 'e49d9270c119f7613fed75c64c46d056'
-    }
     const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${WECHAT_CONFIG.appId}&secret=${WECHAT_CONFIG.appSecret}&js_code=${code}&grant_type=authorization_code`;
     const resp = await getJson(url);
     if (resp.errcode) {
@@ -38,6 +35,22 @@ async function getOpenIdByCode(code) {
         throw err;
     }
     return { openId: resp.openid, sessionKey: resp.session_key, unionId: resp.unionid };
+}
+// 解密手机号
+function decryptPhoneNumber(sessionKey, encryptedData, iv) {
+    console.log('sessionKey',sessionKey);
+    console.log('encryptedData',encryptedData);
+    console.log('iv',iv);
+    const key = Buffer.from(sessionKey, 'base64');
+    const encrypted = Buffer.from(encryptedData, 'base64');
+    const ivBuffer = Buffer.from(iv, 'base64');
+    const decipher = crypto.createDecipheriv('aes-128-cbc', key, ivBuffer);
+    decipher.setAutoPadding(true);
+    let decoded = decipher.update(encrypted, 'base64', 'utf8');
+    decoded += decipher.final('utf8');
+    const data = JSON.parse(decoded);
+    if (!data.phoneNumber) throw new Error('解密数据不包含手机号');
+    return data.phoneNumber;
 }
 // 用户详情
 exports.userDetail = function (uid, res) {
@@ -130,6 +143,7 @@ exports.loginOrUpdate = async function (data, res) {
         // 2) 查找是否已有用户
         let user = await User.findOne({ id });
         if (!user) {
+            console.log('创建新用户');
             // 创建新用户（满足当前模型必填字段）
             const createPayload = {
                 id,
@@ -144,11 +158,8 @@ exports.loginOrUpdate = async function (data, res) {
             };
             user = await new User(createPayload).save();
         } else {
-            // 更新基础资料（可选）
-            const updateObj = { updateTime: new Date(), code };
-            if (nickName) updateObj.nickName = nickName;
-            if (avatarUrl) updateObj.avatarUrl = avatarUrl;
-            await User.updateOne({ id }, { $set: updateObj });
+            console.log('已有用户');
+            // 获取已有用户信息
             user = await User.findOne({ id });
         }
 
@@ -161,6 +172,61 @@ exports.loginOrUpdate = async function (data, res) {
         };
 
         return res.send({ code: 200, msg: '登录成功', data: respUser });
+    } catch (err) {
+        console.log(err);
+        return res.send({ code: 500, msg: '服务器错误', error: err.message });
+    }
+}
+
+// 获取并绑定手机号
+exports.getPhoneNumber = async function (req, res) {
+    try {
+        const { code, userId, encryptedData, iv } = req.body || {};
+        if (!code || !userId) {
+            return res.send({ code: 400, msg: '缺少必要参数' });
+        }
+
+        // 通过code获取session_key
+        let sessionInfo;
+        try {
+            sessionInfo = await getOpenIdByCode(code);
+        } catch (error) {
+            return res.send({ code: 500, msg: '获取微信会话失败', error: error.message });
+        }
+        console.log('sessionInfo',sessionInfo);
+
+        let phoneNumber = null;
+        if (encryptedData && iv) {
+            try {
+                phoneNumber = decryptPhoneNumber(sessionInfo.sessionKey, encryptedData, iv);
+            } catch (e) {
+                return res.send({ code: 400, msg: '手机号解密失败', error: e.message });
+            }
+        }
+
+        // 更新用户表（按 openid 作为 id 存储）
+        const user = await User.findOne({ id: userId });
+        if (!user) {
+            return res.send({ code: 404, msg: '用户不存在' });
+        }
+
+        const updateDoc = { updateTime: new Date() };
+        console.log('获取手机号码',phoneNumber);
+        if (phoneNumber) updateDoc.phone = phoneNumber;
+
+        const updated = await User.findOneAndUpdate({ id: userId }, updateDoc, { new: true });
+
+        return res.send({
+            code: 200,
+            msg: '绑定成功',
+            data: {
+                id: updated.id,
+                nickName: updated.nickName,
+                avatarUrl: updated.avatarUrl,
+                phone: updated.phone || phoneNumber || '',
+                permissionStatus: updated.permissionStatus || 1
+            }
+        });
     } catch (err) {
         console.log(err);
         return res.send({ code: 500, msg: '服务器错误', error: err.message });
