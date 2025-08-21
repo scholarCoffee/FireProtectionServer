@@ -30,6 +30,7 @@ module.exports = function (app) {
         const { filename }  = req.files[0]
         let url = req.body.url || ''; // 获取请求体中的url参数
         const resultFile =  url + '/' + filename
-        res.send({ code: 0, msg: '文件上传成功', data: resultFile }); // 返回成功信息
+        // 契约：统一 { code: 200, data: string, msg }
+        res.send({ code: 200, msg: 'ok', data: resultFile });
     });
 }

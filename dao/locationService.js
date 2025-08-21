@@ -98,19 +98,33 @@ exports.getLocationList = async (req, res) => {
             Location.countDocuments(query)
         ]);
 
-        // 为每个地址查询关联的消防安全评分信息
+        // 为每个地址查询关联的消防安全评分信息，并确保新增字段存在
         const listWithSafetyInfo = await Promise.all(
             list.map(async (location) => {
                 try {
                     const fireSafetyScore = await getFireSafetyScoreByAddressId(location.addressId);
+                    const locationObj = location.toObject();
                     return {
-                        ...location.toObject(),
+                        ...locationObj,
+                        // 确保新增字段存在（向后兼容）
+                        battleDeploymentMaterials: locationObj.battleDeploymentMaterials || [],
+                        householdOwnerName: locationObj.householdOwnerName || '',
+                        householdOwnerPhone: locationObj.householdOwnerPhone || '',
+                        householdFeedback: locationObj.householdFeedback || '',
+                        rescueRemark: locationObj.rescueRemark || '',
                         fireSafetyScore: fireSafetyScore || null
                     };
                 } catch (err) {
                     console.error(`查询地址 ${location.addressId} 的安全信息失败:`, err);
+                    const locationObj = location.toObject();
                     return {
-                        ...location.toObject(),
+                        ...locationObj,
+                        // 确保新增字段存在（向后兼容）
+                        battleDeploymentMaterials: locationObj.battleDeploymentMaterials || [],
+                        householdOwnerName: locationObj.householdOwnerName || '',
+                        householdOwnerPhone: locationObj.householdOwnerPhone || '',
+                        householdFeedback: locationObj.householdFeedback || '',
+                        rescueRemark: locationObj.rescueRemark || '',
                         fireSafetyScore: null
                     };
                 }
@@ -124,7 +138,7 @@ exports.getLocationList = async (req, res) => {
 
         res.send({
             code: 200,
-            msg: '查询成功',
+            msg: 'ok',
             data: {
                 list: listWithSafetyInfo,
                 pagination: {
@@ -159,7 +173,8 @@ exports.getLocationDetail = async (req, res) => {
         }
 
         const detail = await Location.findOne(
-            { addressId }
+            { addressId },
+            { _id: 0, __v: 0 }
         ).lean();
 
         if (!detail) {
@@ -169,7 +184,18 @@ exports.getLocationDetail = async (req, res) => {
             });
         }
 
+        // 确保新增字段存在（向后兼容）
+        const enhancedDetail = {
+            ...detail,
+            battleDeploymentMaterials: detail.battleDeploymentMaterials || [],
+            householdOwnerName: detail.householdOwnerName || '',
+            householdOwnerPhone: detail.householdOwnerPhone || '',
+            householdFeedback: detail.householdFeedback || '',
+            rescueRemark: detail.rescueRemark || ''
+        };
+
         // 查询关联的消防安全评分信息
+        let fireSafetyScore = null;
         try {
             fireSafetyScore = await getFireSafetyScoreByAddressId(addressId)
         } catch (err) {
@@ -177,14 +203,7 @@ exports.getLocationDetail = async (req, res) => {
         }
         console.log('detail', detail);
         console.log('fireSafetyScore', fireSafetyScore);
-        res.send({
-            code: 200,
-            msg: '查询成功',
-            data: {
-                ...detail,
-                fireSafetyScore
-            }
-        });
+        res.send({ code: 200, msg: 'ok', data: { ...enhancedDetail, fireSafetyScore } });
     } catch (err) {
         console.error('地址明细查询失败:', err);
         res.send({ 
@@ -198,7 +217,18 @@ exports.getLocationDetail = async (req, res) => {
 // 根据ID查询地址信息
 exports.getLocationById = async (addressId) => {
     try {
-        return await Location.findOne({ addressId }, { _id: 0, __v: 0 });
+        const location = await Location.findOne({ addressId }, { _id: 0, __v: 0 });
+        if (!location) return null;
+        
+        // 确保新增字段存在（向后兼容）
+        return {
+            ...location.toObject(),
+            battleDeploymentMaterials: location.battleDeploymentMaterials || [],
+            householdOwnerName: location.householdOwnerName || '',
+            householdOwnerPhone: location.householdOwnerPhone || '',
+            householdFeedback: location.householdFeedback || '',
+            rescueRemark: location.rescueRemark || ''
+        };
     } catch (err) {
         console.error('根据ID查询地址失败:', err);
         throw err;
@@ -263,11 +293,7 @@ exports.addLocation = async (req, res) => {
             // 不阻止地址创建，只记录警告
         }
 
-        res.send({
-            code: 200,
-            msg: '添加成功',
-            data: result
-        });
+        res.send({ code: 200, msg: 'ok', data: { addressId: result.addressId } });
     } catch (err) {
         console.error('添加地址失败:', err);
         res.send({ 
@@ -388,6 +414,52 @@ exports.updateLocation = async (req, res) => {
             { new: true, runValidators: true }
         );
 
+        // 若请求体带有 fireSafetyScore，则同步写入或创建评分记录
+        if (updateData.fireSafetyScore && updateData.fireSafetyScore.scoreItems) {
+            try {
+                const FireSafetyScore = dbmodel.FireSafetyScore;
+                const existingSafety = await FireSafetyScore.findOne({ addressId: updateData.addressId });
+
+                // 粗略计算（与前端一致）：合计得分与百分比
+                const scoreItemsObj = updateData.fireSafetyScore.scoreItems || {};
+                let totalScore = 0;
+                let itemCount = 0;
+                Object.values(scoreItemsObj).forEach((item) => {
+                    if (item && typeof item.score === 'number') {
+                        totalScore += item.score;
+                        itemCount += 1;
+                    }
+                });
+                const maxPossibleScore = itemCount * 10;
+                const scorePercentage = maxPossibleScore > 0 ? (totalScore / maxPossibleScore) * 100 : 0;
+
+                const safetyDoc = {
+                    safeId: result?.safeId || existingLocation.safeId,
+                    addressId: updateData.addressId,
+                    addressName: updateData.addressName || existingLocation.addressName,
+                    scoreItems: new Map(Object.entries(scoreItemsObj)),
+                    totalScore,
+                    maxPossibleScore,
+                    scorePercentage,
+                    safetyLevelId: 1,
+                    safetyLevelName: '一般',
+                    safetyColor: '黄色',
+                    safetyCssClass: 'safety-normal',
+                    safetyCssColor: '#faad14',
+                    updateTime: new Date()
+                };
+
+                if (existingSafety) {
+                    await FireSafetyScore.updateOne({ _id: existingSafety._id }, safetyDoc);
+                } else {
+                    safetyDoc.createTime = new Date();
+                    await new FireSafetyScore(safetyDoc).save();
+                }
+            } catch (syncErr) {
+                console.warn('同步消防安全评分失败:', syncErr.message);
+            }
+        }
+
         // 若该地址还未有安全评分记录，则自动创建一条默认记录
         try {
             const safety = await getFireSafetyScoreByAddressId(updateData.addressId);
@@ -421,11 +493,7 @@ exports.updateLocation = async (req, res) => {
             }
         }
 
-        res.send({
-            code: 200,
-            msg: '更新成功',
-            data: result
-        });
+        res.send({ code: 200, msg: 'ok', data: { addressId: result.addressId } });
     } catch (err) {
         console.error('更新地址失败:', err);
         res.send({ 
@@ -469,14 +537,7 @@ exports.deleteLocation = async (req, res) => {
 
         console.log(`成功删除地址 ${addressId} 及其相关信息`);
 
-        res.send({
-            code: 200,
-            msg: '删除成功',
-            data: {
-                deletedLocation: result,
-                message: '地址信息及相关的消防安全评分记录已删除'
-            }
-        });
+        res.send({ code: 200, msg: 'ok', data: { addressId } });
     } catch (err) {
         console.error('删除地址失败:', err);
         res.send({ 

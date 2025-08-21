@@ -93,6 +93,12 @@ const LocationSchema = new Schema({
 	imgList: [{ type: String }], // 图片列表
 	phoneList: [PhoneSchema],
 	enterGateList: [GateSchema],
+	// 新增字段（按前端合同）
+	battleDeploymentMaterials: [{ type: String }], // 作战素材（type=2）
+	householdOwnerName: { type: String, default: '' }, // 户主姓名（type=1）
+	householdOwnerPhone: { type: String, default: '' }, // 户主电话（type=1）
+	householdFeedback: { type: String, default: '' }, // 户主反馈（type=1）
+	rescueRemark: { type: String, default: '' }, // 搜救情况描述（type=1）
 	createTime: { type: Date, default: Date.now },
 	updateTime: { type: Date, default: Date.now }
 });
@@ -109,7 +115,8 @@ const FireSafetyScoreSchema = new mongoose.Schema({
 		of: {
 			score: { type: Number, required: true }, // 得分
 			option: { type: String, required: true }, // 选择的选项文本
-			itemId: { type: String, required: true } // 评分项ID
+			itemId: { type: String, required: true }, // 评分项ID
+			remark: { type: String, default: '' } // 备注信息
 		},
 		default: new Map()
 	},

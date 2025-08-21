@@ -13,6 +13,7 @@ module.exports = {
 	userUpdate: userService.userUpdate,
 	loginOrUpdate: userService.loginOrUpdate,
 	getPhoneNumber: userService.getPhoneNumber,
+	getUserList: userService.getUserList,
 
 	// 消息相关服务
 	insertMsg: messageService.insertMsg,

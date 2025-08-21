@@ -19,8 +19,14 @@ const getPhoneNumber = function (req, res) {
     dbServer.getPhoneNumber(req, res);
 }
 
+// 新增：获取用户列表（GET /user/list）
+const getUserList = function (req, res) {
+    dbServer.getUserList(req, res);
+}
+
 module.exports = {
     userUpdate,
     loginOrUpdate,
-    getPhoneNumber
+    getPhoneNumber,
+    getUserList
 }

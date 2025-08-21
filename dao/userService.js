@@ -232,3 +232,23 @@ exports.getPhoneNumber = async function (req, res) {
         return res.send({ code: 500, msg: '服务器错误', error: err.message });
     }
 }
+
+// 新增：权限管理 - 获取用户列表（GET /user/list）
+exports.getUserList = async function (req, res) {
+    try {
+        const list = await User.find({}, { _id: 0, __v: 0 }).lean();
+        const data = (list || []).map(u => ({
+            id: u.id || '',
+            name: u.nickName || '',
+            phone: u.phone || '',
+            avatar: u.avatarUrl || '',
+            role: 'user',
+            status: 'active',
+            permissions: { groupChat: true, settings: true, admin: false }
+        }));
+        return res.send({ code: 200, msg: 'ok', data });
+    } catch (err) {
+        console.log('获取用户列表失败:', err);
+        return res.send({ code: 500, msg: '查询失败', error: err.message });
+    }
+}

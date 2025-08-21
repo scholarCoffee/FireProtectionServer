@@ -95,38 +95,34 @@ const getOneGroupMsg = async function(data) {
 
 // 获取群列表
 exports.getGroupList = function(data, res) {
-    const { userId } = data // 解构获取请求体中的数据
-    let query = Group.find({})
-    query.where({
-        '_id': '507f1f77bcf86cd799439011' // 用户ID
-    })
-    .sort({ 'time': -1 }) // 按时间排序
-    .exec()
-    .then(async result => {
-        console.log('查询群列表成功', result); // 打印成功信息
-        // 判断当前群聊表数组中每个群里是否存在当前用户
-        const query = result.map(item => {
-            return checkInGroup(item, userId)
+    const { userId } = data || {}; // 合同：Body { permissionStatus, userId }
+    Group.find({})
+        .sort({ time: -1 })
+        .exec()
+        .then(async result => {
+            // 确保当前用户在群成员表中存在一条记录
+            if (userId) {
+                const ensureList = result.map(item => checkInGroup(item, userId));
+                await Promise.all(ensureList);
+            }
+            const dataList = result.map(item => ({
+                groupId: item._id,
+                groupName: item.name,
+                description: item.notice || '',
+                ownerName: '',
+                createTime: item.time,
+                groupAvatar: item.imgUrl
+            }));
+            if (res) {
+                res.send({ code: 200, msg: 'ok', data: dataList });
+            }
         })
-        await Promise.all(query)
-        if (res) {
-            res.send({
-                code: 200,
-                msg: '查询成功！',
-                data: result // 返回查询到的群列表和群成员列表
-            })
-        }
-    })
-    .catch(err => {
-        console.log('查询群列表失败！', err); // 打印错误信息
-        if (res) {
-            res.send({
-                code: 400,
-                msg: '查询失败！',
-                data: err // 返回查询到的群列表和群成员列表
-            }); // 返回失败信息给前端
-        }
-    })
+        .catch(err => {
+            console.log('查询群列表失败！', err);
+            if (res) {
+                res.send({ code: 500, msg: '查询失败', error: err.message });
+            }
+        });
 }
 // 添加群消息
 exports.insertGroupMsg = function(data, res) {

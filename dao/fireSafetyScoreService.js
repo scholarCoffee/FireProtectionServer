@@ -654,7 +654,8 @@ exports.createDefaultFireSafetyScore = async (addressId, addressName, safeId) =>
             defaultScoreItems[item.id] = {
                 score: minOption.score || 0,
                 option: minOption.text || '',
-                itemId: item.id
+                itemId: item.id,
+                remark: '' // 默认备注为空
             };
         }
 

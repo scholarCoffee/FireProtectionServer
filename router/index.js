@@ -20,6 +20,11 @@ module.exports = function (app) {
         user.getPhoneNumber(req, res);
     });
 
+    // 新增：权限管理 - 获取用户列表
+    app.get('/user/list', function (req, res) {
+        user.getUserList(req, res);
+    });
+
     // 获取群列表
     app.post('/group/getGroupList', function (req, res) {
         group.getGroupList(req, res); // 调用查询用户函数
@@ -39,6 +44,10 @@ module.exports = function (app) {
     app.post('/chat/getGroupMsg', function (req, res) {
         chat.getGroupMsg(req, res); // 调用聊天函数
     });
+    // 新增：群成员接口
+    app.get('/chat/members', function (req, res) {
+        group.getMembers(req, res);
+    });
 
     // 地址列表查询（支持分页和模糊搜索）
     app.get('/location/list', function (req, res) {
@@ -55,9 +64,12 @@ module.exports = function (app) {
         location.addLocation(req, res); // 调用新增地址函数
     });
     
-    // 更新地址信息
+    // 更新地址信息（合同允许 /location/save 或 /location/update）
     app.post('/location/save', function (req, res) {
         location.updateLocation(req, res); // 调用更新地址函数
+    });
+    app.post('/location/update', function (req, res) {
+        location.updateLocation(req, res);
     });
     
     // 删除地址信息
