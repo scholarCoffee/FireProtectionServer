@@ -68,9 +68,6 @@ module.exports = function (app) {
     app.post('/location/save', function (req, res) {
         location.updateLocation(req, res); // 调用更新地址函数
     });
-    app.post('/location/update', function (req, res) {
-        location.updateLocation(req, res);
-    });
     
     // 删除地址信息
     app.post('/location/delete', function (req, res) {
