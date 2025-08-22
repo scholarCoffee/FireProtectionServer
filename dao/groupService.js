@@ -95,13 +95,13 @@ const getOneGroupMsg = async function(data) {
 
 // 获取群列表
 exports.getGroupList = function(data, res) {
-    const { userId } = data || {}; // 合同：Body { permissionStatus, userId }
+    const { isAll, userId } = data || {}; // 合同：Body { isAll, userId }
     Group.find({})
         .sort({ time: -1 })
         .exec()
         .then(async result => {
             // 确保当前用户在群成员表中存在一条记录
-            if (userId) {
+            if (userId && !isAll) {
                 const ensureList = result.map(item => checkInGroup(item, userId));
                 await Promise.all(ensureList);
             }

@@ -244,6 +244,7 @@ exports.getUserList = async function (req, res) {
             avatar: u.avatarUrl || '',
             role: 'user',
             status: 'active',
+            permissionStatus: u.permissionStatus || 1,
             permissions: { groupChat: true, settings: true, admin: false }
         }));
         return res.send({ code: 200, msg: 'ok', data });
