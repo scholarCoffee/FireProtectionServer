@@ -2,6 +2,7 @@ const user = require('../server/userdetail.js'); // 引入用户详情模块
 const group = require('../server/group.js'); // 引入首页模块
 const chat = require('../server/chat.js'); // 引入聊天模块
 const location = require('../server/location.js'); // 引入地址模块
+const fire = require('../server/fire.js'); // 引入消防静态与部署模块
 const fireSafetyScore = require('./fireSafetyScore.js'); // 引入消防安全评分模块
 
 module.exports = function (app) {
@@ -76,4 +77,7 @@ module.exports = function (app) {
 
     // 消防安全评分相关路由
     app.use('/fireSafetyScore', fireSafetyScore);
+
+    // 静态配置与作战部署素材
+    app.use('/', fire);
 }

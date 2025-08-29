@@ -107,11 +107,8 @@ exports.getLocationList = async (req, res) => {
                     return {
                         ...locationObj,
                         // 确保新增字段存在（向后兼容）
-                        battleDeploymentMaterials: locationObj.battleDeploymentMaterials || [],
-                        householdOwnerName: locationObj.householdOwnerName || '',
-                        householdOwnerPhone: locationObj.householdOwnerPhone || '',
-                        householdFeedback: locationObj.householdFeedback || '',
-                        rescueRemark: locationObj.rescueRemark || '',
+                        ownerQueryUrl: locationObj.ownerQueryUrl || '',
+                        fireUnitDeploymentMap: Array.isArray(locationObj.fireUnitDeploymentMap) ? locationObj.fireUnitDeploymentMap : [],
                         fireSafetyScore: fireSafetyScore || null
                     };
                 } catch (err) {
@@ -120,11 +117,8 @@ exports.getLocationList = async (req, res) => {
                     return {
                         ...locationObj,
                         // 确保新增字段存在（向后兼容）
-                        battleDeploymentMaterials: locationObj.battleDeploymentMaterials || [],
-                        householdOwnerName: locationObj.householdOwnerName || '',
-                        householdOwnerPhone: locationObj.householdOwnerPhone || '',
-                        householdFeedback: locationObj.householdFeedback || '',
-                        rescueRemark: locationObj.rescueRemark || '',
+                        ownerQueryUrl: locationObj.ownerQueryUrl || '',
+                        fireUnitDeploymentMap: Array.isArray(locationObj.fireUnitDeploymentMap) ? locationObj.fireUnitDeploymentMap : [],
                         fireSafetyScore: null
                     };
                 }
@@ -187,11 +181,8 @@ exports.getLocationDetail = async (req, res) => {
         // 确保新增字段存在（向后兼容）
         const enhancedDetail = {
             ...detail,
-            battleDeploymentMaterials: detail.battleDeploymentMaterials || [],
-            householdOwnerName: detail.householdOwnerName || '',
-            householdOwnerPhone: detail.householdOwnerPhone || '',
-            householdFeedback: detail.householdFeedback || '',
-            rescueRemark: detail.rescueRemark || ''
+            ownerQueryUrl: detail.ownerQueryUrl || '',
+            fireUnitDeploymentMap: Array.isArray(detail.fireUnitDeploymentMap) ? detail.fireUnitDeploymentMap : []
         };
 
         // 查询关联的消防安全评分信息
@@ -223,11 +214,8 @@ exports.getLocationById = async (addressId) => {
         // 确保新增字段存在（向后兼容）
         return {
             ...location.toObject(),
-            battleDeploymentMaterials: location.battleDeploymentMaterials || [],
-            householdOwnerName: location.householdOwnerName || '',
-            householdOwnerPhone: location.householdOwnerPhone || '',
-            householdFeedback: location.householdFeedback || '',
-            rescueRemark: location.rescueRemark || ''
+            ownerQueryUrl: location.ownerQueryUrl || '',
+            fireUnitDeploymentMap: Array.isArray(location.fireUnitDeploymentMap) ? location.fireUnitDeploymentMap : []
         };
     } catch (err) {
         console.error('根据ID查询地址失败:', err);
@@ -239,6 +227,16 @@ exports.getLocationById = async (addressId) => {
 exports.addLocation = async (req, res) => {
     try {
         const locationData = req.body;
+        // 统一收敛：字段清理与默认值
+        delete locationData.householdOwnerName;
+        delete locationData.householdOwnerPhone;
+        delete locationData.householdFeedback;
+        delete locationData.rescueRemark;
+        delete locationData.battleDeploymentMaterials;
+        locationData.ownerQueryUrl = locationData.ownerQueryUrl || '';
+        if (!Array.isArray(locationData.fireUnitDeploymentMap)) {
+            locationData.fireUnitDeploymentMap = [];
+        }
         
         // 检查addressId是否已存在
         const existingLocation = await Location.findOne({ 
@@ -309,6 +307,16 @@ exports.updateLocation = async (req, res) => {
     try {
         const updateData = req.body;
         updateData.updateTime = new Date();
+        // 字段清理与默认值
+        delete updateData.householdOwnerName;
+        delete updateData.householdOwnerPhone;
+        delete updateData.householdFeedback;
+        delete updateData.rescueRemark;
+        delete updateData.battleDeploymentMaterials;
+        updateData.ownerQueryUrl = updateData.ownerQueryUrl || '';
+        if (!Array.isArray(updateData.fireUnitDeploymentMap)) {
+            updateData.fireUnitDeploymentMap = [];
+        }
 
         // 检查地址是否存在
         const existingLocation = await Location.findOne({ addressId: updateData.addressId });

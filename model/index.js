@@ -66,6 +66,18 @@ const GroupMessageSchema = new Schema({
 	time: { type: Date, default: Date.now } // 发送时间
 });
 
+// 静态配置表（通用字典/下拉），按 type + key 查询
+const StaticDataSchema = new Schema({
+	type: { type: String, required: true }, // 例如 fireUnits、xxxConfig
+	key: { type: String, required: true },  // 业务键
+	description: { type: String, default: '' },
+	data1: { type: String, default: '' },
+	data2: { type: String, default: '' },
+	data3: { type: String, default: '' },
+	data4: { type: String, default: '' },
+	extraParam: { type: Schema.Types.Mixed, default: '' }
+});
+
 // 地址信息相关 Schema
 // 联系电话子模型
 const PhoneSchema = new Schema({
@@ -94,11 +106,12 @@ const LocationSchema = new Schema({
 	phoneList: [PhoneSchema],
 	enterGateList: [GateSchema],
 	// 新增字段（按前端合同）
-	battleDeploymentMaterials: [{ type: String }], // 作战素材（type=2）
-	householdOwnerName: { type: String, default: '' }, // 户主姓名（type=1）
-	householdOwnerPhone: { type: String, default: '' }, // 户主电话（type=1）
-	householdFeedback: { type: String, default: '' }, // 户主反馈（type=1）
-	rescueRemark: { type: String, default: '' }, // 搜救情况描述（type=1）
+	ownerQueryUrl: { type: String, default: '' }, // 户主查询URL
+	fireUnitDeploymentMap: [{
+		key: { type: String, required: true },
+		value: { type: String, default: '' },
+		data: { type: String, default: '' }
+	}],
 	createTime: { type: Date, default: Date.now },
 	updateTime: { type: Date, default: Date.now }
 });
@@ -165,6 +178,7 @@ const GroupUser = db.model('GroupUser', GroupUserSchema, 'groupUser');
 const GroupMessage = db.model('GroupMessage', GroupMessageSchema, 'groupMessage');
 const Location = db.model('Location', LocationSchema, 'location');
 const FireSafetyScore = db.model('FireSafetyScore', FireSafetyScoreSchema, 'fireSafetyScore');
+const StaticData = db.model('StaticData', StaticDataSchema, 'staticData');
 
 // 统一导出模型
 module.exports = {
@@ -188,5 +202,6 @@ module.exports = {
 	GroupUser,
 	GroupMessage,
 	Location,
-	FireSafetyScore
+	FireSafetyScore,
+	StaticData
 };
