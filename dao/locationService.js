@@ -178,9 +178,22 @@ exports.getLocationDetail = async (req, res) => {
             });
         }
 
-        // 确保新增字段存在（向后兼容）
-        const enhancedDetail = {
-            ...detail,
+        // 过滤和重组返回数据，移除不需要的字段，确保新增字段存在
+        const filteredDetail = {
+            addressId: detail.addressId,
+            addressName: detail.addressName,
+            addressExt: detail.addressExt,
+            allSenceLink: detail.allSenceLink,
+            type: detail.type,
+            safeId: detail.safeId,
+            defaultImg: detail.defaultImg,
+            description: detail.description,
+            imgList: detail.imgList || [],
+            phoneList: detail.phoneList || [],
+            enterGateList: detail.enterGateList || [],
+            createTime: detail.createTime,
+            updateTime: detail.updateTime,
+            // 新增字段
             ownerQueryUrl: detail.ownerQueryUrl || '',
             fireUnitDeploymentMap: Array.isArray(detail.fireUnitDeploymentMap) ? detail.fireUnitDeploymentMap : []
         };
@@ -192,9 +205,15 @@ exports.getLocationDetail = async (req, res) => {
         } catch (err) {
             console.error('查询消防安全评分失败:', err);
         }
-        console.log('detail', detail);
+        
+        console.log('filteredDetail', filteredDetail);
         console.log('fireSafetyScore', fireSafetyScore);
-        res.send({ code: 200, msg: 'ok', data: { ...enhancedDetail, fireSafetyScore } });
+        
+        res.send({ 
+            code: 200, 
+            msg: 'ok', 
+            data: { ...filteredDetail, fireSafetyScore } 
+        });
     } catch (err) {
         console.error('地址明细查询失败:', err);
         res.send({ 
@@ -228,11 +247,6 @@ exports.addLocation = async (req, res) => {
     try {
         const locationData = req.body;
         // 统一收敛：字段清理与默认值
-        delete locationData.householdOwnerName;
-        delete locationData.householdOwnerPhone;
-        delete locationData.householdFeedback;
-        delete locationData.rescueRemark;
-        delete locationData.battleDeploymentMaterials;
         locationData.ownerQueryUrl = locationData.ownerQueryUrl || '';
         if (!Array.isArray(locationData.fireUnitDeploymentMap)) {
             locationData.fireUnitDeploymentMap = [];
@@ -308,11 +322,6 @@ exports.updateLocation = async (req, res) => {
         const updateData = req.body;
         updateData.updateTime = new Date();
         // 字段清理与默认值
-        delete updateData.householdOwnerName;
-        delete updateData.householdOwnerPhone;
-        delete updateData.householdFeedback;
-        delete updateData.rescueRemark;
-        delete updateData.battleDeploymentMaterials;
         updateData.ownerQueryUrl = updateData.ownerQueryUrl || '';
         if (!Array.isArray(updateData.fireUnitDeploymentMap)) {
             updateData.fireUnitDeploymentMap = [];

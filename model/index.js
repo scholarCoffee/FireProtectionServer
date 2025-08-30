@@ -153,6 +153,19 @@ const FireSafetyScoreSchema = new mongoose.Schema({
 	createTime: { type: Date, default: Date.now },
 	updateTime: { type: Date, default: Date.now }
 });
+
+// 数据指挥功能配置表Schema
+const CommandConfigSchema = new mongoose.Schema({
+	configId: { type: String, required: true, unique: true }, // 配置唯一标识
+	title: { type: String, required: true }, // 功能标题
+	desc: { type: String, required: true }, // 功能描述
+	icon: { type: String, required: true }, // 图标名称
+	url: { type: String, required: true }, // 访问地址
+	status: { type: String, default: 'active', enum: ['active', 'inactive'] }, // 状态：active-活跃，inactive-非活跃
+	order: { type: Number, default: 0 }, // 排序权重
+	createTime: { type: Date, default: Date.now }, // 创建时间
+	updateTime: { type: Date, default: Date.now } // 更新时间
+});
 // 添加中间件
 UserSchema.pre('save', function(next) {
 	this.updateTime = new Date();
@@ -169,6 +182,11 @@ LocationSchema.pre('save', function(next) {
 	next();
 });
 
+CommandConfigSchema.pre('save', function(next) {
+	this.updateTime = new Date();
+	next();
+});
+
 // 创建模型
 const User = db.model('User', UserSchema, 'userInfo');
 const Friend = db.model('Friend', FriendSchema, 'friend');
@@ -179,6 +197,7 @@ const GroupMessage = db.model('GroupMessage', GroupMessageSchema, 'groupMessage'
 const Location = db.model('Location', LocationSchema, 'location');
 const FireSafetyScore = db.model('FireSafetyScore', FireSafetyScoreSchema, 'fireSafetyScore');
 const StaticData = db.model('StaticData', StaticDataSchema, 'staticData');
+const CommandConfig = db.model('CommandConfig', CommandConfigSchema, 'commandConfig');
 
 // 统一导出模型
 module.exports = {
@@ -203,5 +222,6 @@ module.exports = {
 	GroupMessage,
 	Location,
 	FireSafetyScore,
-	StaticData
+	StaticData,
+	CommandConfig
 };

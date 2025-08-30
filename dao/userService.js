@@ -253,3 +253,41 @@ exports.getUserList = async function (req, res) {
         return res.send({ code: 500, msg: '查询失败', error: err.message });
     }
 }
+
+// 根据ID获取用户详情
+exports.getUserById = async function (req, res) {
+    try {
+        // 同时支持 GET 和 POST 请求
+        const { id } = req.method === 'GET' ? req.query : req.body;
+        
+        if (!id) {
+            return res.send({ code: 400, msg: '缺少id参数' });
+        }
+
+        const user = await User.findOne({ id }, { _id: 0, __v: 0 }).lean();
+        
+        if (!user) {
+            return res.send({ code: 404, msg: '用户不存在' });
+        }
+
+        // 返回用户信息（不包含敏感字段）
+        const userInfo = {
+            id: user.id,
+            nickName: user.nickName,
+            avatarUrl: user.avatarUrl,
+            phone: user.phone || '',
+            permissionStatus: user.permissionStatus || 1,
+            register: user.register,
+            updateTime: user.updateTime
+        };
+
+        return res.send({ 
+            code: 200, 
+            msg: '查询成功', 
+            data: userInfo 
+        });
+    } catch (err) {
+        console.log('根据ID获取用户详情失败:', err);
+        return res.send({ code: 500, msg: '查询失败', error: err.message });
+    }
+}

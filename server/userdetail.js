@@ -24,9 +24,15 @@ const getUserList = function (req, res) {
     dbServer.getUserList(req, res);
 }
 
+// 根据ID获取用户详情
+const getUserById = function (req, res) {
+    dbServer.getUserById(req, res);
+}
+
 module.exports = {
     userUpdate,
     loginOrUpdate,
     getPhoneNumber,
-    getUserList
+    getUserList,
+    getUserById
 }

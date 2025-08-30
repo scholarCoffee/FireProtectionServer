@@ -4,6 +4,7 @@ const chat = require('../server/chat.js'); // 引入聊天模块
 const location = require('../server/location.js'); // 引入地址模块
 const fire = require('../server/fire.js'); // 引入消防静态与部署模块
 const fireSafetyScore = require('./fireSafetyScore.js'); // 引入消防安全评分模块
+const command = require('./command.js'); // 引入数据指挥功能模块
 
 module.exports = function (app) {
     // 用户信息修改
@@ -24,6 +25,15 @@ module.exports = function (app) {
     // 新增：权限管理 - 获取用户列表
     app.get('/user/list', function (req, res) {
         user.getUserList(req, res);
+    });
+
+    // 根据ID获取用户详情（支持 GET 和 POST 方法）
+    app.get('/user/getById', function (req, res) {
+        user.getUserById(req, res);
+    });
+    
+    app.post('/user/getById', function (req, res) {
+        user.getUserById(req, res);
     });
 
     // 获取群列表
@@ -78,6 +88,9 @@ module.exports = function (app) {
     // 消防安全评分相关路由
     app.use('/fireSafetyScore', fireSafetyScore);
 
+    // 数据指挥功能相关路由
+    app.use('/command', command);
+
     // 静态配置与作战部署素材
-    app.use('/', fire);
+    app.use('/fire', fire);
 }
