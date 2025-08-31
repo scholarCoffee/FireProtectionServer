@@ -96,7 +96,13 @@ exports.userUpdate = async function (data, res) {
                 code,
                 encryptedData,
                 signature,
-                permissionStatus,
+                permissionStatus: permissionStatus || 0,
+                permissions: {
+                    groupChat: false,
+                    settings: false,
+                    admin: false
+                },
+                status: 'active',
                 register: new Date(),
                 updateTime: new Date()
             });
@@ -152,7 +158,13 @@ exports.loginOrUpdate = async function (data, res) {
                 code,
                 encryptedData: encryptedData || 'encrypted',
                 signature: signature || 'signature',
-                permissionStatus: 1,
+                permissionStatus: 0, // 默认为普通用户
+                permissions: {
+                    groupChat: false,
+                    settings: false,
+                    admin: false
+                },
+                status: 'active',
                 register: new Date(),
                 updateTime: new Date()
             };
@@ -168,7 +180,13 @@ exports.loginOrUpdate = async function (data, res) {
             id: user.id,
             nickName: user.nickName,
             avatarUrl: user.avatarUrl,
-            permissionStatus: user.permissionStatus || 1
+            permissionStatus: user.permissionStatus || 0,
+            permissions: user.permissions || {
+                groupChat: false,
+                settings: false,
+                admin: false
+            },
+            register: user.register
         };
 
         return res.send({ code: 200, msg: '登录成功', data: respUser });
@@ -236,18 +254,26 @@ exports.getPhoneNumber = async function (req, res) {
 // 新增：权限管理 - 获取用户列表（GET /user/list）
 exports.getUserList = async function (req, res) {
     try {
+        // 检查用户权限 - 只有超级管理员可以获取用户列表
+        // TODO: 这里需要添加JWT token验证逻辑
+        
         const list = await User.find({}, { _id: 0, __v: 0 }).lean();
         const data = (list || []).map(u => ({
             id: u.id || '',
-            name: u.nickName || '',
+            nickName: u.nickName || '',
+            avatarUrl: u.avatarUrl || '',
             phone: u.phone || '',
-            avatar: u.avatarUrl || '',
-            role: 'user',
-            status: 'active',
-            permissionStatus: u.permissionStatus || 1,
-            permissions: { groupChat: true, settings: true, admin: false }
+            permissionStatus: u.permissionStatus || 0,
+            permissions: u.permissions || {
+                groupChat: false,
+                settings: false,
+                admin: false
+            },
+            status: u.status || 'active',
+            register: u.register,
+            updateTime: u.updateTime
         }));
-        return res.send({ code: 200, msg: 'ok', data });
+        return res.send({ code: 200, msg: 'success', data });
     } catch (err) {
         console.log('获取用户列表失败:', err);
         return res.send({ code: 500, msg: '查询失败', error: err.message });
@@ -276,18 +302,135 @@ exports.getUserById = async function (req, res) {
             nickName: user.nickName,
             avatarUrl: user.avatarUrl,
             phone: user.phone || '',
-            permissionStatus: user.permissionStatus || 1,
+            permissionStatus: user.permissionStatus || 0,
+            permissions: user.permissions || {
+                groupChat: false,
+                settings: false,
+                admin: false
+            },
             register: user.register,
             updateTime: user.updateTime
         };
 
         return res.send({ 
             code: 200, 
-            msg: '查询成功', 
+            msg: 'success', 
             data: userInfo 
         });
     } catch (err) {
         console.log('根据ID获取用户详情失败:', err);
         return res.send({ code: 500, msg: '查询失败', error: err.message });
+    }
+}
+
+// 新增：更新单个用户权限（POST /user/updatePermission）
+exports.updateUserPermission = async function (req, res) {
+    try {
+        const { userId, permissionType, value } = req.body;
+        
+        if (!userId || !permissionType || value === undefined) {
+            return res.send({ code: 400, msg: '缺少必要参数' });
+        }
+
+        // 检查权限类型是否有效
+        const validPermissionTypes = ['groupChat', 'settings', 'admin'];
+        if (!validPermissionTypes.includes(permissionType)) {
+            return res.send({ code: 400, msg: '无效的权限类型' });
+        }
+
+        // 检查值是否为布尔类型
+        if (typeof value !== 'boolean') {
+            return res.send({ code: 400, msg: '权限值必须为布尔类型' });
+        }
+
+        // 查找用户
+        const user = await User.findOne({ id: userId });
+        if (!user) {
+            return res.send({ code: 404, msg: '用户不存在' });
+        }
+
+        // 更新权限
+        const updateObj = {
+            [`permissions.${permissionType}`]: value,
+            updateTime: new Date()
+        };
+
+        const updatedUser = await User.findOneAndUpdate(
+            { id: userId },
+            updateObj,
+            { new: true }
+        );
+
+        return res.send({
+            code: 200,
+            msg: '权限更新成功',
+            data: {
+                userId: updatedUser.id,
+                permissionType: permissionType,
+                value: value,
+                updateTime: updatedUser.updateTime
+            }
+        });
+    } catch (err) {
+        console.log('更新用户权限失败:', err);
+        return res.send({ code: 500, msg: '权限更新失败', error: err.message });
+    }
+}
+
+// 新增：更新用户角色（POST /user/updateRole）
+exports.updateUserRole = async function (req, res) {
+    try {
+        const { userId, newRole } = req.body;
+        
+        if (!userId || newRole === undefined) {
+            return res.send({ code: 400, msg: '缺少必要参数' });
+        }
+
+        // 检查角色值是否有效
+        if (![0, 1, 2].includes(newRole)) {
+            return res.send({ code: 400, msg: '无效的角色值，必须是 0、1 或 2' });
+        }
+
+        // 查找用户
+        const user = await User.findOne({ id: userId });
+        if (!user) {
+            return res.send({ code: 404, msg: '用户不存在' });
+        }
+
+        // 根据新角色计算权限
+        const permissions = {
+            groupChat: newRole >= 0, // 所有用户都有群聊权限
+            settings: newRole >= 1,  // 管理员及以上有设置权限
+            admin: newRole >= 2      // 超级管理员有权限管理权限
+        };
+
+        // 更新用户角色和权限
+        const updateObj = {
+            permissionStatus: newRole,
+            permissions: permissions,
+            updateTime: new Date()
+        };
+
+        const updatedUser = await User.findOneAndUpdate(
+            { id: userId },
+            updateObj,
+            { new: true }
+        );
+
+        return res.send({
+            code: 200,
+            msg: '用户角色更新成功',
+            data: {
+                userId: updatedUser.id,
+                nickName: updatedUser.nickName,
+                oldRole: user.permissionStatus,
+                newRole: updatedUser.permissionStatus,
+                permissions: updatedUser.permissions,
+                updateTime: updatedUser.updateTime
+            }
+        });
+    } catch (err) {
+        console.log('更新用户角色失败:', err);
+        return res.send({ code: 500, msg: '角色更新失败', error: err.message });
     }
 }

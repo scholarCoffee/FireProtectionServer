@@ -12,7 +12,6 @@ const getMembers = function (req, res) {
     // 由于现有 dao 未提供成员接口，这里基于 GroupUser 直接查询
     const dbmodel = require('../model/index.js');
     const GroupUser = dbmodel.model('GroupUser');
-    const User = dbmodel.model('User');
     const { groupId } = req.query;
     if (!groupId) {
         return res.send({ code: 400, msg: '缺少groupId', data: [] });
@@ -50,9 +49,17 @@ const updateGroupMsg = function (req, res) {
     dbserver.updateGroupMsg(data, res); // 调用查询用户函数
 }
 
+// 新增：获取群组详情
+const getGroupDetail = function (req, res) {
+    console.log('群组详情请求接收:', req.query); // 打印查询参数
+    const data = req.query; // 获取查询参数
+    dbserver.getGroupDetail(data, res); // 调用数据层获取群组详情
+}
+
 module.exports = {
     getGroupList,
     getLastGroupMsg,
     updateGroupMsg,
-    getMembers
+    getMembers,
+    getGroupDetail
 }

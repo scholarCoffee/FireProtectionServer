@@ -29,10 +29,22 @@ const getUserById = function (req, res) {
     dbServer.getUserById(req, res);
 }
 
+// 新增：更新单个用户权限
+const updateUserPermission = function (req, res) {
+    dbServer.updateUserPermission(req, res);
+}
+
+// 新增：更新用户角色
+const updateUserRole = function (req, res) {
+    dbServer.updateUserRole(req, res);
+}
+
 module.exports = {
     userUpdate,
     loginOrUpdate,
     getPhoneNumber,
     getUserList,
-    getUserById
+    getUserById,
+    updateUserPermission,
+    updateUserRole
 }

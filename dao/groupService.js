@@ -105,14 +105,23 @@ exports.getGroupList = function(data, res) {
                 const ensureList = result.map(item => checkInGroup(item, userId));
                 await Promise.all(ensureList);
             }
-            const dataList = result.map(item => ({
-                groupId: item._id,
-                groupName: item.name,
-                description: item.notice || '',
-                ownerName: '',
-                createTime: item.time,
-                groupAvatar: item.imgUrl
+            
+            // 获取每个群的成员数量
+            const dataList = await Promise.all(result.map(async item => {
+                // 查询群成员数量
+                const memberCount = await GroupUser.countDocuments({ groupId: item._id });
+                
+                return {
+                    groupId: item._id,
+                    groupName: item.name,
+                    description: item.notice || '',
+                    ownerName: '',
+                    createTime: item.time,
+                    groupAvatar: item.imgUrl,
+                    memberCount: memberCount // 新增：群成员数量
+                };
             }));
+            
             if (res) {
                 res.send({ code: 200, msg: 'ok', data: dataList });
             }
@@ -335,6 +344,77 @@ exports.getGroupMsg = function (data, res) {
     });
 } 
 
+
+// 新增：获取群组详情
+exports.getGroupDetail = async function(data, res) {
+    try {
+        const { id } = data; // 群组ID
+        
+        if (!id) {
+            return res.send({ code: 400, msg: '缺少群组ID参数' });
+        }
+
+        // 查找群组信息
+        const group = await Group.findById(id);
+        if (!group) {
+            return res.send({ code: 404, msg: '群组不存在' });
+        }
+
+        // 获取群成员列表
+        const groupUsers = await GroupUser.find({ groupId: id })
+            .populate('userId', 'id nickName avatarUrl') // 关联查询用户信息
+            .sort({ time: 1 }); // 按加入时间排序
+
+        // 获取群成员数量
+        const memberCount = groupUsers.length;
+
+        // 获取群最后一条消息
+        const lastMessage = await GroupMessage.findOne({ groupId: id })
+            .populate('userId', 'nickName avatarUrl')
+            .sort({ time: -1 });
+
+        // 构建群成员信息
+        const members = groupUsers.map(member => ({
+            userId: member.userId.id,
+            nickName: member.userId.nickName,
+            avatarUrl: member.userId.avatarUrl,
+            joinTime: member.time,
+            lastChatTime: member.lastTime
+        }));
+
+        // 构建群详情数据
+        const groupDetail = {
+            groupId: group._id,
+            groupName: group.name,
+            groupAvatar: group.imgUrl,
+            description: group.notice || '',
+            createTime: group.time,
+            updateTime: group.updateTime,
+            memberCount: memberCount,
+            members: members,
+            lastMessage: lastMessage ? {
+                message: lastMessage.message,
+                messageType: lastMessage.types,
+                sendTime: lastMessage.time,
+                sender: {
+                    userId: lastMessage.userId.id,
+                    nickName: lastMessage.userId.nickName,
+                    avatarUrl: lastMessage.userId.avatarUrl
+                }
+            } : null
+        };
+
+        res.send({
+            code: 200,
+            msg: '获取群组详情成功',
+            data: groupDetail
+        });
+
+    } catch (err) {
+        console.log('获取群组详情失败:', err);
+        res.send({ code: 500, msg: '获取群组详情失败', error: err.message });
+    }
+}
 
 // 汇总群消息未读取
 exports.unreadGroupMsg = unreadGroupMsg

@@ -9,10 +9,16 @@ const UserSchema = new Schema({
 	signature: { type: String, required: true }, // 签名
 	id: { type: String, require: true }, // id标签
 	encryptedData: { type: String, required: true }, // 微信加密数据
-	permissionStatus:{ type: Number, default: 1 }, // 权限实体
+	permissionStatus: { type: Number, default: 0 }, // 权限状态：0-普通用户，1-管理员，2-超级管理员
 	code: { type: String }, // 微信code
 	avatarUrl: { type: String }, // 头像地址
 	phone: { type: String }, // 手机号
+	permissions: {
+		groupChat: { type: Boolean, default: false }, // 群聊权限
+		settings: { type: Boolean, default: false }, // 设置权限
+		admin: { type: Boolean, default: false } // 权限管理权限
+	},
+	status: { type: String, default: 'active' }, // 用户状态：active-正常，inactive-禁用，pending-待审核
 	register: { type: Date, default: Date.now }, // 注册时间
 	updateTime: { type: Date, default: Date.now } // 更新时间
 });
@@ -159,7 +165,6 @@ const CommandConfigSchema = new mongoose.Schema({
 	configId: { type: String, required: true, unique: true }, // 配置唯一标识
 	title: { type: String, required: true }, // 功能标题
 	desc: { type: String, required: true }, // 功能描述
-	icon: { type: String, required: true }, // 图标名称
 	url: { type: String, required: true }, // 访问地址
 	status: { type: String, default: 'active', enum: ['active', 'inactive'] }, // 状态：active-活跃，inactive-非活跃
 	order: { type: Number, default: 0 }, // 排序权重
