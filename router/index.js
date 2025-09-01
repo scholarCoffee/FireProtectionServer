@@ -42,6 +42,7 @@ module.exports = function (app) {
         user.getUserById(req, res);
     });
     
+    // 根据ID获取用户详情（支持 POST 方法）
     app.post('/user/getById', function (req, res) {
         user.getUserById(req, res);
     });
@@ -73,6 +74,16 @@ module.exports = function (app) {
     // 新增：群成员接口
     app.get('/chat/members', function (req, res) {
         group.getMembers(req, res);
+    });
+
+    // 新增：群组内新增成员接口
+    app.post('/group/addMember', function (req, res) {
+        group.addGroupMember(req, res);
+    });
+
+    // 新增：群组内删除成员接口
+    app.post('/group/removeMember', function (req, res) {
+        group.removeGroupMember(req, res);
     });
 
     // 地址列表查询（支持分页和模糊搜索）

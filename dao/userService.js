@@ -257,8 +257,10 @@ exports.getUserList = async function (req, res) {
         // 检查用户权限 - 只有超级管理员可以获取用户列表
         // TODO: 这里需要添加JWT token验证逻辑
         
-        const list = await User.find({}, { _id: 0, __v: 0 }).lean();
+        const list = await User.find({}, { __v: 0 }).lean();
+        console.log('list',list)
         const data = (list || []).map(u => ({
+            userId: u._id,
             id: u.id || '',
             nickName: u.nickName || '',
             avatarUrl: u.avatarUrl || '',

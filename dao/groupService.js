@@ -348,20 +348,20 @@ exports.getGroupMsg = function (data, res) {
 // 新增：获取群组详情
 exports.getGroupDetail = async function(data, res) {
     try {
-        const { id } = data; // 群组ID
+        const { groupId } = data; // 群组ID
         
-        if (!id) {
+        if (!groupId) {
             return res.send({ code: 400, msg: '缺少群组ID参数' });
         }
 
         // 查找群组信息
-        const group = await Group.findById(id);
+        const group = await Group.findById(groupId);
         if (!group) {
             return res.send({ code: 404, msg: '群组不存在' });
         }
 
         // 获取群成员列表
-        const groupUsers = await GroupUser.find({ groupId: id })
+        const groupUsers = await GroupUser.find({ groupId: groupId })
             .populate('userId', 'id nickName avatarUrl') // 关联查询用户信息
             .sort({ time: 1 }); // 按加入时间排序
 
@@ -369,16 +369,16 @@ exports.getGroupDetail = async function(data, res) {
         const memberCount = groupUsers.length;
 
         // 获取群最后一条消息
-        const lastMessage = await GroupMessage.findOne({ groupId: id })
+        const lastMessage = await GroupMessage.findOne({ groupId: groupId })
             .populate('userId', 'nickName avatarUrl')
             .sort({ time: -1 });
 
         // 构建群成员信息
         const members = groupUsers.map(member => ({
-            userId: member.userId.id,
+            userId: member.userId._id,
             nickName: member.userId.nickName,
             avatarUrl: member.userId.avatarUrl,
-            joinTime: member.time,
+            time: member.time,
             lastChatTime: member.lastTime
         }));
 
@@ -413,6 +413,91 @@ exports.getGroupDetail = async function(data, res) {
     } catch (err) {
         console.log('获取群组详情失败:', err);
         res.send({ code: 500, msg: '获取群组详情失败', error: err.message });
+    }
+}
+
+// 新增：添加群组成员
+exports.addGroupMember = async function(data, res) {
+    try {
+        const { groupId, userId } = data; // 群组ID和用户ID
+        
+        if (!groupId || !userId) {
+            return res.send({ code: 400, msg: '缺少必要参数：groupId 或 userId' });
+        }
+
+        // 检查群组是否存在
+        const group = await Group.findById(groupId);
+        if (!group) {
+            return res.send({ code: 404, msg: '群组不存在' });
+        }
+
+        // 检查用户是否已经在群组中
+        const existingMember = await GroupUser.findOne({ groupId: groupId, userId: userId });
+        if (existingMember) {
+            return res.send({ code: 400, msg: '用户已经是群组成员' });
+        }
+
+        // 添加用户到群组
+        const newMember = new GroupUser({
+            groupId: groupId,
+            userId: userId,
+            time: new Date()
+        });
+
+        await newMember.save();
+
+        res.send({
+            code: 200,
+            msg: '添加群组成员成功',
+            data: {
+                groupId: groupId,
+                userId: userId,
+                time: newMember.time
+            }
+        });
+
+    } catch (err) {
+        console.log('添加群组成员失败:', err);
+        res.send({ code: 500, msg: '添加群组成员失败', error: err.message });
+    }
+}
+
+// 新增：删除群组成员
+exports.removeGroupMember = async function(data, res) {
+    try {
+        const { groupId, userId } = data; // 群组ID和用户ID
+        
+        if (!groupId || !userId) {
+            return res.send({ code: 400, msg: '缺少必要参数：groupId 或 userId' });
+        }
+
+        // 检查群组是否存在
+        const group = await Group.findById(groupId);
+        if (!group) {
+            return res.send({ code: 404, msg: '群组不存在' });
+        }
+
+        // 检查用户是否在群组中
+        const existingMember = await GroupUser.findOne({ groupId: groupId, userId: userId });
+        if (!existingMember) {
+            return res.send({ code: 400, msg: '用户不是群组成员' });
+        }
+
+        // 从群组中删除用户
+        await GroupUser.deleteOne({ groupId: groupId, userId: userId });
+
+        res.send({
+            code: 200,
+            msg: '删除群组成员成功',
+            data: {
+                groupId: groupId,
+                userId: userId
+            }
+        });
+
+    } catch (err) {
+        console.log('删除群组成员失败:', err);
+        res.send({ code: 500, msg: '删除群组成员失败', error: err.message });
     }
 }
 

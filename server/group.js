@@ -56,10 +56,26 @@ const getGroupDetail = function (req, res) {
     dbserver.getGroupDetail(data, res); // 调用数据层获取群组详情
 }
 
+// 新增：添加群组成员
+const addGroupMember = function (req, res) {
+    console.log('添加群组成员请求接收:', req.body); // 打印请求体
+    const data = req.body; // 解构获取请求体中的数据
+    dbserver.addGroupMember(data, res); // 调用数据层添加群组成员
+}
+
+// 新增：删除群组成员
+const removeGroupMember = function (req, res) {
+    console.log('删除群组成员请求接收:', req.body); // 打印请求体
+    const data = req.body; // 解构获取请求体中的数据
+    dbserver.removeGroupMember(data, res); // 调用数据层删除群组成员
+}
+
 module.exports = {
     getGroupList,
     getLastGroupMsg,
     updateGroupMsg,
     getMembers,
-    getGroupDetail
+    getGroupDetail,
+    addGroupMember,
+    removeGroupMember
 }
