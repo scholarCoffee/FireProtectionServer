@@ -416,13 +416,13 @@ exports.getGroupDetail = async function(data, res) {
     }
 }
 
-// 新增：添加群组成员
+// 新增：添加群组成员（支持批量添加）
 exports.addGroupMember = async function(data, res) {
     try {
-        const { groupId, userId } = data; // 群组ID和用户ID
+        const { groupId, userInfo } = data; // 群组ID和用户信息数组
         
-        if (!groupId || !userId) {
-            return res.send({ code: 400, msg: '缺少必要参数：groupId 或 userId' });
+        if (!groupId || !userInfo || !Array.isArray(userInfo)) {
+            return res.send({ code: 400, msg: '缺少必要参数：groupId 或 userInfo' });
         }
 
         // 检查群组是否存在
@@ -431,28 +431,53 @@ exports.addGroupMember = async function(data, res) {
             return res.send({ code: 404, msg: '群组不存在' });
         }
 
-        // 检查用户是否已经在群组中
-        const existingMember = await GroupUser.findOne({ groupId: groupId, userId: userId });
-        if (existingMember) {
-            return res.send({ code: 400, msg: '用户已经是群组成员' });
+        const results = [];
+        const errors = [];
+
+        // 批量处理用户
+        for (const user of userInfo) {
+            try {
+                const userId = user.userId;
+                
+                if (!userId) {
+                    errors.push({ userId: user.userId || 'unknown', error: '缺少userId' });
+                    continue;
+                }
+
+                // 检查用户是否已经在群组中
+                const existingMember = await GroupUser.findOne({ groupId: groupId, userId: userId });
+                if (existingMember) {
+                    errors.push({ userId: userId, error: '用户已经是群组成员' });
+                    continue;
+                }
+
+                // 添加用户到群组
+                const newMember = new GroupUser({
+                    groupId: groupId,
+                    userId: userId,
+                    time: new Date()
+                });
+
+                await newMember.save();
+                results.push({
+                    userId: userId,
+                    nickName: user.nickName,
+                    time: newMember.time
+                });
+
+            } catch (userErr) {
+                console.log(`添加用户 ${user.userId} 失败:`, userErr);
+                errors.push({ userId: user.userId, error: userErr.message });
+            }
         }
-
-        // 添加用户到群组
-        const newMember = new GroupUser({
-            groupId: groupId,
-            userId: userId,
-            time: new Date()
-        });
-
-        await newMember.save();
 
         res.send({
             code: 200,
-            msg: '添加群组成员成功',
+            msg: `批量添加群组成员完成，成功: ${results.length}，失败: ${errors.length}`,
             data: {
                 groupId: groupId,
-                userId: userId,
-                time: newMember.time
+                success: results,
+                errors: errors
             }
         });
 
@@ -462,13 +487,13 @@ exports.addGroupMember = async function(data, res) {
     }
 }
 
-// 新增：删除群组成员
+// 新增：删除群组成员（支持批量删除）
 exports.removeGroupMember = async function(data, res) {
     try {
-        const { groupId, userId } = data; // 群组ID和用户ID
+        const { groupId, userInfo } = data; // 群组ID和用户信息数组
         
-        if (!groupId || !userId) {
-            return res.send({ code: 400, msg: '缺少必要参数：groupId 或 userId' });
+        if (!groupId || !userInfo || !Array.isArray(userInfo)) {
+            return res.send({ code: 400, msg: '缺少必要参数：groupId 或 userInfo' });
         }
 
         // 检查群组是否存在
@@ -477,27 +502,108 @@ exports.removeGroupMember = async function(data, res) {
             return res.send({ code: 404, msg: '群组不存在' });
         }
 
-        // 检查用户是否在群组中
-        const existingMember = await GroupUser.findOne({ groupId: groupId, userId: userId });
-        if (!existingMember) {
-            return res.send({ code: 400, msg: '用户不是群组成员' });
-        }
+        const results = [];
+        const errors = [];
 
-        // 从群组中删除用户
-        await GroupUser.deleteOne({ groupId: groupId, userId: userId });
+        // 批量处理用户
+        for (const user of userInfo) {
+            try {
+                const userId = user.userId;
+                
+                if (!userId) {
+                    errors.push({ userId: user.userId || 'unknown', error: '缺少userId' });
+                    continue;
+                }
+
+                // 检查用户是否在群组中
+                const existingMember = await GroupUser.findOne({ groupId: groupId, userId: userId });
+                if (!existingMember) {
+                    errors.push({ userId: userId, error: '用户不是群组成员' });
+                    continue;
+                }
+
+                // 从群组中删除用户
+                await GroupUser.deleteOne({ groupId: groupId, userId: userId });
+                results.push({
+                    userId: userId,
+                    nickName: user.nickName
+                });
+
+            } catch (userErr) {
+                console.log(`删除用户 ${user.userId} 失败:`, userErr);
+                errors.push({ userId: user.userId, error: userErr.message });
+            }
+        }
 
         res.send({
             code: 200,
-            msg: '删除群组成员成功',
+            msg: `批量删除群组成员完成，成功: ${results.length}，失败: ${errors.length}`,
             data: {
                 groupId: groupId,
-                userId: userId
+                success: results,
+                errors: errors
             }
         });
 
     } catch (err) {
         console.log('删除群组成员失败:', err);
         res.send({ code: 500, msg: '删除群组成员失败', error: err.message });
+    }
+}
+
+// 新增：更新群组信息
+exports.updateGroup = async function(data, res) {
+    try {
+        const { groupId, groupName, description, groupAvatar } = data; // 群组ID和更新信息
+        
+        if (!groupId) {
+            return res.send({ code: 400, msg: '缺少必要参数：groupId' });
+        }
+
+        // 检查群组是否存在
+        const group = await Group.findById(groupId);
+        if (!group) {
+            return res.send({ code: 404, msg: '群组不存在' });
+        }
+
+        // 构建更新数据
+        const updateData = {
+            updateTime: new Date()
+        };
+
+        // 只更新提供的字段
+        if (groupName !== undefined) {
+            updateData.name = groupName;
+        }
+        if (description !== undefined) {
+            updateData.notice = description;
+        }
+        if (groupAvatar !== undefined) {
+            updateData.imgUrl = groupAvatar;
+        }
+
+        // 更新群组信息
+        const updatedGroup = await Group.findByIdAndUpdate(
+            groupId, 
+            updateData, 
+            { new: true, runValidators: true }
+        );
+
+        res.send({
+            code: 200,
+            msg: '更新群组信息成功',
+            data: {
+                groupId: updatedGroup._id,
+                groupName: updatedGroup.name,
+                groupAvatar: updatedGroup.imgUrl,
+                description: updatedGroup.notice,
+                updateTime: updatedGroup.updateTime
+            }
+        });
+
+    } catch (err) {
+        console.log('更新群组信息失败:', err);
+        res.send({ code: 500, msg: '更新群组信息失败', error: err.message });
     }
 }
 

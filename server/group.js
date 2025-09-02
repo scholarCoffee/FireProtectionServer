@@ -70,6 +70,13 @@ const removeGroupMember = function (req, res) {
     dbserver.removeGroupMember(data, res); // 调用数据层删除群组成员
 }
 
+// 新增：更新群组信息
+const updateGroup = function (req, res) {
+    console.log('更新群组信息请求接收:', req.body); // 打印请求体
+    const data = req.body; // 解构获取请求体中的数据
+    dbserver.updateGroup(data, res); // 调用数据层更新群组信息
+}
+
 module.exports = {
     getGroupList,
     getLastGroupMsg,
@@ -77,5 +84,6 @@ module.exports = {
     getMembers,
     getGroupDetail,
     addGroupMember,
-    removeGroupMember
+    removeGroupMember,
+    updateGroup
 }

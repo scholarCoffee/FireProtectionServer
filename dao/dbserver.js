@@ -36,6 +36,9 @@ module.exports = {
 	unreadGroupMsg: groupService.unreadGroupMsg,
 	getGroupMsg: groupService.getGroupMsg,
 	getGroupDetail: groupService.getGroupDetail,
+	addGroupMember: groupService.addGroupMember,
+	removeGroupMember: groupService.removeGroupMember,
+	updateGroup: groupService.updateGroup,
 
 	// 地址相关服务
 	getLocationList: locationService.getLocationList,

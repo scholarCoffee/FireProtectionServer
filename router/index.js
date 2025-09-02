@@ -86,6 +86,11 @@ module.exports = function (app) {
         group.removeGroupMember(req, res);
     });
 
+    // 新增：群组信息更新接口
+    app.post('/group/save', function (req, res) {
+        group.updateGroup(req, res);
+    });
+
     // 地址列表查询（支持分页和模糊搜索）
     app.get('/location/list', function (req, res) {
         location.getLocationList(req, res); // 调用查询地址列表函数
