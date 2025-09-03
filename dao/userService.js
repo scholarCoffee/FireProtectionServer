@@ -286,21 +286,22 @@ exports.getUserList = async function (req, res) {
 exports.getUserById = async function (req, res) {
     try {
         // 同时支持 GET 和 POST 请求
-        const { id } = req.method === 'GET' ? req.query : req.body;
+        const { userId } = req.method === 'GET' ? req.query : req.body;
         
-        if (!id) {
+        if (!userId) {
             return res.send({ code: 400, msg: '缺少id参数' });
         }
 
-        const user = await User.findOne({ id }, { _id: 0, __v: 0 }).lean();
+        const user = await User.findOne({ _id: userId }, { __v: 0 }).lean();
         
         if (!user) {
             return res.send({ code: 404, msg: '用户不存在' });
         }
-
+        console.log('user',user)
         // 返回用户信息（不包含敏感字段）
         const userInfo = {
             id: user.id,
+            userId: user._id,
             nickName: user.nickName,
             avatarUrl: user.avatarUrl,
             phone: user.phone || '',

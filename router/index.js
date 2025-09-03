@@ -153,5 +153,5 @@ module.exports = function (app) {
     });
 
     // 静态配置与作战部署素材
-    app.use('/fire', fire);
+    app.use('/', fire);
 }

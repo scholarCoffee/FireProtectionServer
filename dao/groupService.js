@@ -374,10 +374,11 @@ exports.getGroupDetail = async function(data, res) {
             .sort({ time: -1 });
 
         // 构建群成员信息
+        console.log('群成员信息', groupUsers)
         const members = groupUsers.map(member => ({
-            userId: member.userId._id,
-            nickName: member.userId.nickName,
-            avatarUrl: member.userId.avatarUrl,
+            userId: member.userId?._id || '',
+            nickName: member.userId?.nickName || '',
+            avatarUrl: member.userId?.avatarUrl || '',
             time: member.time,
             lastChatTime: member.lastTime
         }));
@@ -397,9 +398,9 @@ exports.getGroupDetail = async function(data, res) {
                 messageType: lastMessage.types,
                 sendTime: lastMessage.time,
                 sender: {
-                    userId: lastMessage.userId.id,
-                    nickName: lastMessage.userId.nickName,
-                    avatarUrl: lastMessage.userId.avatarUrl
+                    userId: lastMessage.userId?._id || '',
+                    nickName: lastMessage.userId?.nickName || '',
+                    avatarUrl: lastMessage.userId?.avatarUrl || ''
                 }
             } : null
         };
@@ -454,6 +455,7 @@ exports.addGroupMember = async function(data, res) {
                 // 添加用户到群组
                 const newMember = new GroupUser({
                     groupId: groupId,
+                    name: user.nickName,
                     userId: userId,
                     time: new Date()
                 });
