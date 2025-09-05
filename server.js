@@ -17,8 +17,9 @@ app.use(bodyParser.json({
 
 // 注意：这里的 cors 是 Express 的跨域配置，与 Socket.IO 的 cors 是分开的
 app.use(cors({
-    origin: ['https://www.xiaobei.space', 'http://localhost:8080'],
-    methods: ['GET', 'POST']
+    origin: ['https://xiaobei.space', 'https://www.xiaobei.space', 'http://localhost:8080'],
+    methods: ['GET', 'POST'],
+    credentials: true  // 新增：WebSocket 跨域可能需要携带凭证，建议开启
 }));
 
 app.use(express.static(__dirname + '/data'));
@@ -58,54 +59,13 @@ var server = app.listen(3000, ipAddress, () => {
 // 配置 Socket.IO（绑定到上面创建的 server 实例）
 const io = require('socket.io')(server, {
     cors: {
-        origin: ['https://www.xiaobei.space', 'http://localhost:8080'], // 与前端域名一致
+        origin: ['https://xiaobei.space', 'https://www.xiaobei.space', 'http://localhost:8080'], // 与前端域名一致
         methods: ['GET', 'POST'],
-        credentials: true // 可选，根据需要开启
+        credentials: true, // 可选，根据需要开启
+        allowedOrigins: ['https://xiaobei.space', 'https://www.xiaobei.space', 'http://localhost:8080']  // 新增：明确允许的域名
     }
 });
 
 // 引入 Socket.IO 处理逻辑
 require('./dao/socket.js')(io);
 console.log('IP Address:', ipAddress);
-
-// // 引入路由
-// require('./router/files.js')(app);
-// require('./router/index.js')(app);
-
-// // token验证中间件
-// app.use((req, res, next) => {
-//     const { token } = req.body || {};
-//     if (typeof token !== 'undefined') {
-//         let tokenMatch = jwt.verifyToken(token);
-//         console.log('tokenMatch:', tokenMatch);
-//         if (tokenMatch.code !== 200) {
-//             return res.status(401).send('Unauthorized');
-//         }
-//     }
-//     next(); // 无论有无token，都继续执行后续中间件（原代码中重复调用了next()，已修正）
-// });
-
-// // 404页面
-// app.use((req, res) => {
-//     res.status(404).send('404 Not Found');
-// });
-
-// // 500错误处理
-// app.use((err, req, res, next) => {
-//     console.error(err.stack);
-//     res.status(500).send('500 Server Error');
-// });
-
-// // 配置 Socket.IO（绑定到上面创建的 server 实例）
-// const io = require('socket.io')(server, {
-//     cors: {
-//         origin: ['https://www.xiaobei.space', 'http://localhost:8080'], // 与前端域名一致
-//         methods: ['GET', 'POST'],
-//         credentials: true // 可选，根据需要开启
-//     }
-// });
-
-// // 引入 Socket.IO 处理逻辑
-// require('./dao/socket.js')(io);
-
-// console.log('IP Address:', ipAddress);
