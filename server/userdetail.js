@@ -39,6 +39,11 @@ const updateUserRole = function (req, res) {
     dbServer.updateUserRole(req, res);
 }
 
+// 删除用户
+const deleteUser = function (req, res) {
+    dbServer.deleteUser(req, res);
+}
+
 module.exports = {
     userUpdate,
     loginOrUpdate,
@@ -46,5 +51,6 @@ module.exports = {
     getUserList,
     getUserById,
     updateUserPermission,
-    updateUserRole
+    updateUserRole,
+    deleteUser
 }

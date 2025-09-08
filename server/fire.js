@@ -4,7 +4,7 @@ const dbmodel = require('../model/index.js');
 const StaticData = dbmodel.StaticData;
 
 // 获取静态配置：根据 type + key，返回多条 [{ description, data1..data4, extraParam }]
-router.get('/static/data', async (req, res) => {
+router.get('/data', async (req, res) => {
     try {
         const { type, key } = req.query || {};
         if (!type || !key) {

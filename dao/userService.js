@@ -159,6 +159,7 @@ exports.loginOrUpdate = async function (data, res) {
                 encryptedData: encryptedData || 'encrypted',
                 signature: signature || 'signature',
                 permissionStatus: 0, // 默认为普通用户
+                phone: '',
                 permissions: {
                     groupChat: false,
                     settings: false,
@@ -178,8 +179,10 @@ exports.loginOrUpdate = async function (data, res) {
         // 3) 组织前端需要的数据结构
         const respUser = {
             id: user.id,
+            userId: user._id,
             nickName: user.nickName,
             avatarUrl: user.avatarUrl,
+            phone: user.phone || '',
             permissionStatus: user.permissionStatus || 0,
             permissions: user.permissions || {
                 groupChat: false,
@@ -435,5 +438,43 @@ exports.updateUserRole = async function (req, res) {
     } catch (err) {
         console.log('更新用户角色失败:', err);
         return res.send({ code: 500, msg: '角色更新失败', error: err.message });
+    }
+} 
+
+// 删除用户
+exports.deleteUser = async function (req, res) {
+    try {
+        const { userId } = req.body;
+        
+        if (!userId) {
+            return res.send({ code: 400, msg: '缺少userId参数' });
+        }
+
+        const user = await User.findOne({ id: userId });
+        if (!user) {
+            return res.send({ code: 404, msg: '用户不存在' });
+        }
+
+        const result = await User.findOneAndDelete({ id: userId });
+        if (!result) {
+            return res.send({ code: 404, msg: '用户不存在' });
+        }
+
+        // 删除用户所在群组中的用户
+        const groupUser = await GroupUser.findOne({ userId: userId });
+        if (groupUser) {
+            await GroupUser.findOneAndDelete({ userId: userId });
+        }
+
+        // 删除用户所在群组中的消息
+        const groupMessage = await GroupMessage.findOne({ userId: userId });
+        if (groupMessage) {
+            await GroupMessage.findOneAndDelete({ userId: userId });
+        }
+
+        return res.send({ code: 200, msg: '用户删除成功' });
+    } catch (err) {
+        console.log('删除用户失败:', err);
+        return res.send({ code: 500, msg: '删除用户失败', error: err.message });
     }
 }

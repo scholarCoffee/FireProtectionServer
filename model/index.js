@@ -23,16 +23,6 @@ const UserSchema = new Schema({
 	updateTime: { type: Date, default: Date.now } // 更新时间
 });
 
-// 好友表
-const FriendSchema = new Schema({
-	userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 用户ID
-	friendId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 好友ID
-	markname: { type: String }, // 好友昵称
-	state: { type: Number, required: true }, // 好友状态 0-已为好友 1-申请中 2-申请发送对方，对方未同意
-	time: { type: Date, default: Date.now }, // 生成时间
-	lastTime: { type: Date, default: Date.now } // 最后一次聊天时间
-});
-
 // 一对一消息表
 const MessageSchema = new Schema({
 	userId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // 用户ID
@@ -194,7 +184,6 @@ CommandConfigSchema.pre('save', function(next) {
 
 // 创建模型
 const User = db.model('User', UserSchema, 'userInfo');
-const Friend = db.model('Friend', FriendSchema, 'friend');
 const Message = db.model('Message', MessageSchema, 'message');
 const Group = db.model('Group', GroupSchema, 'group');
 const GroupUser = db.model('GroupUser', GroupUserSchema, 'groupUser');
@@ -209,7 +198,6 @@ module.exports = {
 	model: function(modelName) {
 		const models = {
 			'User': User,
-			'Friend': Friend,
 			'Message': Message,
 			'Group': Group,
 			'GroupUser': GroupUser,
@@ -220,7 +208,6 @@ module.exports = {
 	},
 	// 直接导出模型
 	User,
-	Friend,
 	Message,
 	Group,
 	GroupUser,

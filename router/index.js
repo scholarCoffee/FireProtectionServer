@@ -37,9 +37,9 @@ module.exports = function (app) {
         user.updateUserRole(req, res);
     });
 
-    // 根据ID获取用户详情（支持 GET 和 POST 方法）
-    app.get('/user/getById', function (req, res) {
-        user.getUserById(req, res);
+    // 删除用户
+    app.post('/user/delete', function (req, res) {
+        user.deleteUser(req, res);
     });
     
     // 根据ID获取用户详情（支持 POST 方法）
@@ -119,6 +119,9 @@ module.exports = function (app) {
     // 消防安全评分相关路由
     app.use('/fireSafetyScore', fireSafetyScore);
 
+    // 静态配置与作战部署素材
+    app.use('/static', fire);
+    
     // 数据指挥功能相关路由
     // 获取指挥配置列表
     app.get('/command/config', function (req, res) {
@@ -130,28 +133,10 @@ module.exports = function (app) {
         require('../server/command.js').saveCommandConfig(req, res);
     });
 
-    // 更新指挥配置
-    app.put('/command/config', function (req, res) {
-        require('../server/command.js').updateCommandConfig(req, res);
-    });
-
     // 删除指挥配置
     app.post('/command/delConfig', function (req, res) {
         require('../server/command.js').deleteCommandConfig(req, res);
     });
 
-    // 兼容性路由 - 支持POST方式获取配置
-    app.post('/command/getConfig', function (req, res) {
-        require('../server/command.js').getCommandConfig(req, res);
-    });
 
-    // 兼容性路由 - 支持GET方式保存配置（不推荐，但为了兼容性保留）
-    app.get('/command/saveConfig', function (req, res) {
-        // 将query参数转换为body格式
-        req.body = req.query;
-        require('../server/command.js').saveCommandConfig(req, res);
-    });
-
-    // 静态配置与作战部署素材
-    app.use('/', fire);
 }

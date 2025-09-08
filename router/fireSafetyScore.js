@@ -25,8 +25,4 @@ router.post('/update', fireSafetyScoreService.updateFireSafetyScore);
 
 // 删除消防安全评分
 router.delete('/delete/:safeId', fireSafetyScoreService.deleteFireSafetyScore);
-
-// 批量导入评分数据
-router.post('/batch-import', fireSafetyScoreService.batchImportScores);
-
 module.exports = router; 
