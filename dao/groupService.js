@@ -38,10 +38,10 @@ const checkInGroup = function(data, userId) {
 // 获取单个群消息
 const getOneGroupMsg = async function(data) {
     return new Promise((resolve, reject) => {
-        const { _id, name, imgUrl } = data // 解构获取请求体中的数据
+        const { groupId, groupName } = data // 解构获取请求体中的数据
         let query = GroupMessage.findOne({})
         query.where({
-            'groupId': _id // 群ID
+            'groupId': groupId // 群ID
         })
         .populate('userId')
         .populate('groupId')
@@ -81,8 +81,8 @@ const getOneGroupMsg = async function(data) {
                         sendMsgName: '',
                         sendMsgAvatar: '',
                         sendMsgId: '',
-                        groupId: _id,
-                        groupName: name,
+                        groupId: groupId,
+                        groupName: groupName,
                         groupAvatar: '/group/group.png',
                         types: 0,
                         lastTime: new Date()
@@ -200,7 +200,7 @@ exports.getOnlyGroup = function(data, res) {
 exports.getLastGroupMsg = async function(data, res) {
     const { groupInfo, userId } = data // 解构获取请求体中的数据
     const result = await getOneGroupMsg(groupInfo)
-    const unreadCount = await unreadGroupMsg({ groupId: groupInfo._id, userId: userId })
+    const unreadCount = await unreadGroupMsg({ groupId: groupInfo.groupId, userId: userId })
     result.groupMessageInfo.tip = unreadCount
     console.log('最终群消息成功：', result); // 打印成功信息
     try {
