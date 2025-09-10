@@ -1,5 +1,7 @@
 const dbmodel = require('../model/index.js'); // 引入数据模型
 const User = dbmodel.model('User'); // 引入用户模型
+const GroupUser = dbmodel.model('GroupUser'); // 引入群组用户模型
+const GroupMessage = dbmodel.model('GroupMessage'); // 引入群组消息模型
 const https = require('https');
 const crypto = require('crypto');
 
@@ -445,32 +447,23 @@ exports.updateUserRole = async function (req, res) {
 exports.deleteUser = async function (req, res) {
     try {
         const { userId } = req.body;
-        
         if (!userId) {
             return res.send({ code: 400, msg: '缺少userId参数' });
         }
 
+        // 先用业务主键 id（如 openid）找到用户，拿到其 _id（ObjectId）
         const user = await User.findOne({ id: userId });
         if (!user) {
             return res.send({ code: 404, msg: '用户不存在' });
         }
 
-        const result = await User.findOneAndDelete({ id: userId });
-        if (!result) {
-            return res.send({ code: 404, msg: '用户不存在' });
-        }
+        // 删除用户本身
+        await User.findOneAndDelete({ id: userId });
 
-        // 删除用户所在群组中的用户
-        const groupUser = await GroupUser.findOne({ userId: userId });
-        if (groupUser) {
-            await GroupUser.findOneAndDelete({ userId: userId });
-        }
-
-        // 删除用户所在群组中的消息
-        const groupMessage = await GroupMessage.findOne({ userId: userId });
-        if (groupMessage) {
-            await GroupMessage.findOneAndDelete({ userId: userId });
-        }
+        // 使用用户的 _id（ObjectId）删除关联表中的数据，避免 ObjectId 转换错误
+        const objectUserId = user._id;
+        await GroupUser.deleteMany({ userId: objectUserId });
+        await GroupMessage.deleteMany({ userId: objectUserId });
 
         return res.send({ code: 200, msg: '用户删除成功' });
     } catch (err) {
