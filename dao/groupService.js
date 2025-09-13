@@ -71,7 +71,8 @@ const getOneGroupMsg = async function(data) {
                         groupName: result.groupId.name,
                         groupAvatar: result.groupId.imgUrl,
                         types: result.types,
-                        lastTime: result.time
+                        lastTime: result.time,
+                        voiceTime: result.voiceTime || 0
                     }
                 })
             } else {
@@ -85,7 +86,8 @@ const getOneGroupMsg = async function(data) {
                         groupName: groupName,
                         groupAvatar: '/group/group.png',
                         types: 0,
-                        lastTime: new Date()
+                        lastTime: new Date(),
+                        voiceTime: 0
                     }
                 })
             }
@@ -224,13 +226,17 @@ exports.getLastGroupMsg = async function(data, res) {
 }
 // 更新群消息时间
 exports.updateGroupMessageLastTime = function(data, res) {
-    const { groupId, userId, name, time } = data // 解构获取请求体中的数据
+    const { groupId, userId, name, time, voiceTime } = data // 解构获取请求体中的数据
     let wherestr = {
         'groupId': groupId, // 群ID
         'userId': userId // 用户ID
     }
     let updatestr = {
         'lastTime': time // 更新最后聊天时间
+    }
+    // 如果提供了语音时长，也更新到群成员记录中
+    if (voiceTime !== undefined) {
+        updatestr.voiceTime = voiceTime
     }
     GroupUser.updateMany(wherestr, updatestr) // 更新群消息时间
     .then(result => {
@@ -325,6 +331,7 @@ exports.getGroupMsg = function (data, res) {
                 groupId: item.groupId, // 群ID
                 nickName: item.userId.nickName, // 发送者名称 - 修复：使用 User Schema 中的 nickName 字段
                 avatarUrl: item.userId.avatarUrl, // 发送者头像 - 修复：使用 User Schema 中的 avatarUrl 字段
+                voiceTime: item.voiceTime || 0 // 语音时长（秒）
             }
         })
         res.send({
@@ -397,6 +404,7 @@ exports.getGroupDetail = async function(data, res) {
                 message: lastMessage.message,
                 messageType: lastMessage.types,
                 sendTime: lastMessage.time,
+                voiceTime: lastMessage.voiceTime || 0,
                 sender: {
                     userId: lastMessage.userId?._id || '',
                     nickName: lastMessage.userId?.nickName || '',

@@ -21,7 +21,17 @@ app.use(cors({
     credentials: true  // 新增：WebSocket 跨域可能需要携带凭证，建议开启
 }));
 
-app.use(express.static(__dirname + '/data'));
+// 修改后：仅非/vr/路径使用static中间件
+app.use((req, res, next) => {
+    if (req.path.startsWith('/vr/')) {
+      console.log('跳过static中间件，交给Nginx代理');
+      // 跳过static中间件，交给Nginx代理
+      next();
+    } else {
+      // 其他路径正常使用static
+      express.static(__dirname + '/data')(req, res, next);
+    }
+});
 
 // 引入路由
 require('./router/files.js')(app);

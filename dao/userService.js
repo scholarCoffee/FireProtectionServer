@@ -7,8 +7,8 @@ const crypto = require('crypto');
 
 // 微信小程序配置（建议通过环境变量配置）
 const WECHAT_CONFIG = {
-    appId: 'wxedd2e225d0fbca96',
-    appSecret: 'e49d9270c119f7613fed75c64c46d056'
+    appId: 'wx500011532223fce4',
+    appSecret: 'a3d1820bc4d8b433363d7a64af6c86e0'
 }
 
 // 轻量封装 https GET 请求
@@ -80,19 +80,19 @@ exports.userDetail = function (uid, res) {
 // 用户信息修改
 exports.userUpdate = async function (data, res) {
     try {
-        const { id, type, nickName, avatarUrl, code, encryptedData, signature, permissionStatus } = data;
-        if (!id) {
+        const { userId, type, nickName, avatarUrl, code, encryptedData, signature, permissionStatus } = data;
+        if (!userId) {
             return res.send({ code: 400, msg: '缺少id参数' });
         }
         // 先查找用户
-        const user = await User.findOne({ id });
+        const user = await User.findOne({ _id: userId });
         if (!user) {
             // 新建用户
             if (!nickName || !avatarUrl || !code || !encryptedData || !signature) {
                 return res.send({ code: 400, msg: '缺少必要参数' });
             }
             const newUser = new User({
-                id,
+                _id: userId,
                 nickName,
                 avatarUrl,
                 code,
@@ -120,7 +120,7 @@ exports.userUpdate = async function (data, res) {
         } else {
             return res.send({ code: 400, msg: 'type或参数错误' });
         }
-        const result = await User.findOneAndUpdate({ id }, updateObj, { new: true });
+        const result = await User.findOneAndUpdate({ _id: userId }, updateObj, { new: true });
         return res.send({ code: 200, msg: '更新成功', data: result });
     } catch (err) {
         console.log(err);
@@ -228,7 +228,7 @@ exports.getPhoneNumber = async function (req, res) {
         }
 
         // 更新用户表（按 openid 作为 id 存储）
-        const user = await User.findOne({ id: userId });
+        const user = await User.findOne({ _id: userId });
         if (!user) {
             return res.send({ code: 404, msg: '用户不存在' });
         }
@@ -237,7 +237,7 @@ exports.getPhoneNumber = async function (req, res) {
         console.log('获取手机号码',phoneNumber);
         if (phoneNumber) updateDoc.phone = phoneNumber;
 
-        const updated = await User.findOneAndUpdate({ id: userId }, updateDoc, { new: true });
+        const updated = await User.findOneAndUpdate({ _id: userId }, updateDoc, { new: true });
 
         return res.send({
             code: 200,

@@ -33,7 +33,7 @@ module.exports = function(io) {
 
         socket.on('groupMsgServer', data => {
             console.log('发送群组消息：', JSON.stringify(data))
-            const { messageInfo, userId, userName, userAvatar, groupId, nickName, avatarUrl, time } = data
+            const { messageInfo, userId, userName, userAvatar, groupId, nickName, avatarUrl, time, voiceTime } = data
             // 插入群组消息
             dbServer.insertGroupMsg({
                 groupId: groupId,
@@ -41,13 +41,15 @@ module.exports = function(io) {
                 message: messageInfo.message,
                 types: messageInfo.types,
                 time: time,
+                voiceTime: voiceTime,
                 state: 1
             })
             dbServer.updateGroupMessageLastTime({ 
                 groupId: groupId,
                 userId: userId,
                 name: nickName,
-                time: time
+                time: time,
+                voiceTime: voiceTime
             }) // 更新最后一条消息时间
             socket.to(groupId).emit('groupMsgFront', {
                 messageInfo: messageInfo,
@@ -56,7 +58,8 @@ module.exports = function(io) {
                 nickName: nickName,
                 avatarUrl: avatarUrl,
                 userName: userName,
-                userAvatar: userAvatar
+                userAvatar: userAvatar,
+                voiceTime: voiceTime
             }) // 发送给其他客户端
             socket.emit('groupMsgFront', {
                 messageInfo: messageInfo,
@@ -65,7 +68,8 @@ module.exports = function(io) {
                 nickName: nickName,
                 avatarUrl: avatarUrl,
                 userName: userName,
-                userAvatar: userAvatar
+                userAvatar: userAvatar,
+                voiceTime: voiceTime
             }) // 发送给自己
         })
 
