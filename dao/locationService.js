@@ -38,11 +38,8 @@ const createFireSafetyScoreFromData = async (fireSafetyScoreData, addressId, add
             totalScore,
             maxPossibleScore,
             scorePercentage,
-            safetyLevelId: fireSafetyScoreData.safetyLevelId || 1,
-            safetyLevelName: fireSafetyScoreData.safetyLevelName || '一般',
-            safetyColor: fireSafetyScoreData.safetyColor || '灰色',
-            safetyCssClass: fireSafetyScoreData.safetyCssClass || 'safety-unknown',
-            safetyCssColor: fireSafetyScoreData.safetyCssColor || '#999999',
+            safeLevelId: fireSafetyScoreData.safeLevelId || 1,
+            safeLevelName: fireSafetyScoreData.safeLevelName || '一般',
             isLocal: fireSafetyScoreData.isLocal || false,
             createTime: new Date(),
             updateTime: new Date()
@@ -458,11 +455,8 @@ exports.updateLocation = async (req, res) => {
                     totalScore,
                     maxPossibleScore,
                     scorePercentage,
-                    safetyLevelId: 1,
-                    safetyLevelName: '一般',
-                    safetyColor: '黄色',
-                    safetyCssClass: 'safety-normal',
-                    safetyCssColor: '#faad14',
+                    safeLevelId: updateData.fireSafetyScore.safeLevelId,
+                    safeLevelName: updateData.fireSafetyScore.safeLevelName,
                     updateTime: new Date()
                 };
 
@@ -592,3 +586,30 @@ exports.getLocationStats = async (req, res) => {
         });
     }
 }; 
+
+// 校验地址编号是否唯一且格式正确（仅允许填写一个）
+exports.checkAddressId = async (req, res) => {
+    try {
+        const addressId = (req.query.addressId || req.body?.addressId || '').trim();
+
+        if (!addressId) {
+            return res.send({ code: 400, msg: '缺少addressId参数' });
+        }
+
+        // 规则：地址编号只能填写一个，简单检测逗号/空白分隔的复数输入
+        const splitByComma = addressId.split(',').map(s => s.trim()).filter(Boolean);
+        const splitBySpace = addressId.split(/\s+/).map(s => s.trim()).filter(Boolean);
+        if (splitByComma.length > 1 || splitBySpace.length > 1) {
+            return res.send({ code: 400, msg: '地址编号只能填写一个' });
+        }
+
+        const exists = await Location.findOne({ addressId }, { _id: 1 }).lean();
+        if (exists) {
+            return res.send({ code: 200, msg: '地址编号已存在', data: { exists: true } });
+        }
+        return res.send({ code: 200, msg: '地址编号可用', data: { exists: false } });
+    } catch (err) {
+        console.error('检查地址编号失败:', err);
+        res.send({ code: 500, msg: '检查失败', error: err.message });
+    }
+};

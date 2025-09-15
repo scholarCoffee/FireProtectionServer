@@ -25,10 +25,16 @@ const deleteLocation = function (req, res) {
     dbServer.deleteLocation(req, res); // 调用删除地址函数
 }
 
+// 校验地址编号是否唯一且格式正确（仅允许填写一个）
+const checkAddressId = function (req, res) {
+    dbServer.checkAddressId(req, res); // 调用校验地址编号函数
+}       
+
 module.exports = {
     getLocationList,
     getLocationDetail,
     addLocation,
     updateLocation,
-    deleteLocation
+    deleteLocation,
+    checkAddressId,
 }

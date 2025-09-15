@@ -137,14 +137,8 @@ const FireSafetyScoreSchema = new mongoose.Schema({
 	scorePercentage: { type: Number, required: true }, // 得分百分比
 	
 	// 安全等级信息
-	safetyLevelId: { type: Number, required: true, enum: [1, 2, 3] }, // 安全等级ID 1-优秀 2-一般 3-较差
-	safetyLevelName: { type: String, required: true }, // 安全等级名称
-	safetyColor: { type: String, required: true }, // 安全颜色
-	safetyCssClass: { type: String, required: true }, // CSS类名
-	safetyCssColor: { type: String, required: true }, // CSS颜色值
-	
-	// 评分配置版本 - 用于追踪评分规则版本
-	configVersion: { type: String, default: '1.0.0' },
+	safeLevelId: { type: Number, required: true, enum: [1, 2, 3] }, // 安全等级ID 1-优秀 2-一般 3-较差
+	safeLevelName: { type: String, required: true }, // 安全等级名称
 	
 	// 时间戳
 	createTime: { type: Date, default: Date.now },

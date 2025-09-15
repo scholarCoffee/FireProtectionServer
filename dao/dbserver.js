@@ -48,6 +48,7 @@ module.exports = {
 	updateLocation: locationService.updateLocation,
 	deleteLocation: locationService.deleteLocation,
 	getLocationStats: locationService.getLocationStats,
+	checkAddressId: locationService.checkAddressId,
 
 	// 数据指挥功能相关服务
 	getCommandConfig: function(res) {

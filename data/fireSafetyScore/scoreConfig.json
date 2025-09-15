@@ -8,31 +8,22 @@
       {
         "levelId": 1,
         "level": "优秀",
-        "color": "绿色",
-        "cssClass": "safety-excellent",
-        "cssColor": "#52c41a",
-        "minScore": 80,
+        "minScore": 90,
         "maxScore": 100,
-        "minPercentage": 80
+        "minPercentage": 90
       },
       {
         "levelId": 2,
         "level": "一般",
-        "color": "黄色",
-        "cssClass": "safety-normal",
-        "cssColor": "#faad14",
-        "minScore": 60,
-        "maxScore": 79,
-        "minPercentage": 60
+        "minScore": 70,
+        "maxScore": 89,
+        "minPercentage": 70
       },
       {
         "levelId": 3,
         "level": "较差",
-        "color": "红色",
-        "cssClass": "safety-poor",
-        "cssColor": "#ff4d4f",
         "minScore": 0,
-        "maxScore": 59,
+        "maxScore": 69,
         "minPercentage": 0
       }
     ]

@@ -101,6 +101,11 @@ module.exports = function (app) {
         location.getLocationDetail(req, res); // 调用查询地址明细函数
     });
 
+    // 地址编号校验（地址编号只能填写一个且需唯一）
+    app.get('/location/checkAddressId', function (req, res) {
+        location.checkAddressId(req, res);
+    });
+
     // 新增地址信息
     app.post('/location/add', function (req, res) {
         location.addLocation(req, res); // 调用新增地址函数

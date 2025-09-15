@@ -21,10 +21,7 @@ const calculateSafetyLevel = (totalScore, maxPossibleScore) => {
     const config = getScoreConfig();
     if (!config) return { 
         levelId: 2, 
-        levelName: '一般', 
-        color: '灰色', 
-        cssClass: 'safety-unknown', 
-        cssColor: '#999999' 
+        levelName: '一般'
     };
 
     const { safetyLevels } = config.scoreConfig;
@@ -34,19 +31,13 @@ const calculateSafetyLevel = (totalScore, maxPossibleScore) => {
         if (percentage >= level.minPercentage) {
             return { 
                 levelId: level.levelId || 2, 
-                levelName: level.level, 
-                color: level.color,
-                cssClass: level.cssClass,
-                cssColor: level.cssColor
+                levelName: level.level
             };
         }
     }
     return { 
         levelId: 2, 
-        levelName: '一般', 
-        color: '灰色', 
-        cssClass: 'safety-unknown', 
-        cssColor: '#999999' 
+        levelName: '一般'
     };
 };
 
@@ -124,8 +115,7 @@ exports.getFireSafetyScoreList = async (req, res) => {
             page = 1, 
             pageSize = 10, 
             keyword = '', 
-            safetyLevelName = '',
-            safetyColor = ''
+            safeLevelName = ''
         } = req.query;
 
         // 构建查询条件
@@ -140,15 +130,10 @@ exports.getFireSafetyScoreList = async (req, res) => {
         }
         
         // 安全等级筛选
-        if (safetyLevelName && safetyLevelName !== '') {
-            query.safetyLevelName = safetyLevelName;
+        if (safeLevelName && safeLevelName !== '') {
+            query.safeLevelName = safeLevelName;
         }
-        
-        // 安全颜色筛选
-        if (safetyColor && safetyColor !== '') {
-            query.safetyColor = safetyColor;
-        }
-
+    
         // 计算分页参数
         const skip = (parseInt(page) - 1) * parseInt(pageSize);
         const limit = parseInt(pageSize);
@@ -285,7 +270,7 @@ exports.addFireSafetyScore = async (req, res) => {
         const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(scoreItems, config);
         
         // 计算安全等级和颜色
-        const { levelId, levelName, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
+        const { levelId, levelName } = calculateSafetyLevel(totalScore, maxPossibleScore);
         
         // 构建完整数据
         const newScoreData = {
@@ -294,12 +279,8 @@ exports.addFireSafetyScore = async (req, res) => {
             totalScore,
             maxPossibleScore,
             scorePercentage,
-            safetyLevelId: levelId,
-            safetyLevelName: levelName,
-            safetyColor: color,
-            safetyCssClass: cssClass,
-            safetyCssColor: cssColor,
-            configVersion: config.configVersion,
+            safeLevelId: levelId,
+            safeLevelName: levelName,
             createTime: new Date(),
             updateTime: new Date()
         };
@@ -361,19 +342,15 @@ exports.updateFireSafetyScore = async (req, res) => {
             const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(scoreItems, config);
             
             // 重新计算安全等级和颜色
-            const { levelId, levelName, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
+            const { levelId, levelName } = calculateSafetyLevel(totalScore, maxPossibleScore);
             
             // 更新数据
             updateData.scoreItems = convertScoreItemsToMap(scoreItems);
             updateData.totalScore = totalScore;
             updateData.maxPossibleScore = maxPossibleScore;
             updateData.scorePercentage = scorePercentage;
-            updateData.safetyLevelId = levelId;
-            updateData.safetyLevelName = levelName;
-            updateData.safetyColor = color;
-            updateData.safetyCssClass = cssClass;
-            updateData.safetyCssColor = cssColor;
-            updateData.configVersion = config.configVersion;
+            updateData.safeLevelId = levelId;
+            updateData.safeLevelName = levelName;
         }
 
         updateData.updateTime = new Date();
@@ -468,10 +445,7 @@ exports.getFireSafetyScoreStats = async (req, res) => {
         const [totalCount, levelStats, colorStats, avgScore, avgPercentage] = await Promise.all([
             FireSafetyScore.countDocuments(),
             FireSafetyScore.aggregate([
-                { $group: { _id: '$safetyLevelName', count: { $sum: 1 } } }
-            ]),
-            FireSafetyScore.aggregate([
-                { $group: { _id: '$safetyColor', count: { $sum: 1 } } }
+                { $group: { _id: '$safeLevelName', count: { $sum: 1 } } }
             ]),
             FireSafetyScore.aggregate([
                 { $group: { _id: null, avgScore: { $avg: '$totalScore' } } }
@@ -567,7 +541,7 @@ exports.createDefaultFireSafetyScore = async (addressId, addressName, safeId) =>
         const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(defaultScoreItems, config);
         
         // 计算安全等级和颜色
-        const { levelId, levelName, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
+        const { levelId, levelName } = calculateSafetyLevel(totalScore, maxPossibleScore);
         
         // 构建完整数据
         const newScoreData = {
@@ -578,12 +552,8 @@ exports.createDefaultFireSafetyScore = async (addressId, addressName, safeId) =>
             totalScore,
             maxPossibleScore,
             scorePercentage,
-            safetyLevelId: levelId,
-            safetyLevelName: levelName,
-            safetyColor: color,
-            safetyCssClass: cssClass,
-            safetyCssColor: cssColor,
-            configVersion: config.configVersion,
+            safeLevelId: levelId,
+            safeLevelName: levelName,
             createTime: new Date(),
             updateTime: new Date()
         };
@@ -660,7 +630,7 @@ exports.addFireSafetyScoreByAddressId = async (req, res) => {
         const { totalScore, maxPossibleScore, scorePercentage } = calculateTotalScore(scoreItems, config);
         
         // 计算安全等级和颜色
-        const { levelId, levelName, color, cssClass, cssColor } = calculateSafetyLevel(totalScore, maxPossibleScore);
+        const { levelId, levelName } = calculateSafetyLevel(totalScore, maxPossibleScore);
         
         // 构建完整数据
         const newScoreData = {
@@ -671,12 +641,8 @@ exports.addFireSafetyScoreByAddressId = async (req, res) => {
             totalScore,
             maxPossibleScore,
             scorePercentage,
-            safetyLevelId: levelId,
-            safetyLevelName: levelName,
-            safetyColor: color,
-            safetyCssClass: cssClass,
-            safetyCssColor: cssColor,
-            configVersion: config.configVersion,
+            safeLevelId: levelId,
+            safeLevelName: levelName,
             createTime: new Date(),
             updateTime: new Date()
         };
