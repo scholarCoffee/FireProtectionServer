@@ -55,7 +55,7 @@ const getOneGroupMsg = async function(data) {
                 } else if (result.types == 1) {
                     result.message = '[图片]'
                 } else if (result.types == 2) {
-                    result.message = '[音频]'
+                    result.message = '[语音] ' + result.voiceTime + '"'
                 } else if (result.types == 3) {
                     result.message = '[位置]'
                 }
@@ -340,7 +340,7 @@ exports.getGroupMsg = function (data, res) {
             data: data // 返回查询到的消息数据
         }) // 返回成功信息给前端
         // 更新消息状态为已读
-        this.updateGroupMsg({ uid: userId, gid: groupId }) // 修复：使用正确的参数名
+        this.updateGroupMsg({ userId: userId, groupId: groupId }) // 修复：使用正确的参数名
     })
     .then(result => {
         // console.log('更新成功！', result); // 打印成功信息
