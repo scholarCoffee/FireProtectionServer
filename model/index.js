@@ -103,12 +103,28 @@ const LocationSchema = new Schema({
 	phoneList: [PhoneSchema],
 	enterGateList: [GateSchema],
 	// 新增字段（按前端合同）
-	ownerQueryUrl: { type: String, default: '' }, // 户主查询URL
 	fireUnitDeploymentMap: [{
 		key: { type: String, required: true },
 		value: { type: String, default: '' },
 		data: { type: String, default: '' }
 	}],
+	createTime: { type: Date, default: Date.now },
+	updateTime: { type: Date, default: Date.now }
+});
+
+// 户主信息表Schema
+const OwnerInfoSchema = new Schema({
+	addressId: { type: String, ref: 'Location', required: true }, // 关联地址ID
+	building: { type: String, default: '' }, // 栋（选填）
+	unit: { type: String, default: '' }, // 单元（选填）
+	floor: { type: String, default: '' }, // 楼层（选填）
+	roomNo: { type: String, required: true }, // 房间号（必填）
+	name: { type: String, required: true }, // 住户姓名（必填）
+	phone: { type: String, required: true }, // 住户电话（必填）
+	status: { type: Number, required: true, enum: [0, 1, 2] }, // 住户情况：0-房间无人 1-房间有人 2-房间不确定
+	peopleCount: { type: Number, default: 0 }, // 房间人数（当status=1时必填，1-100）
+	area: { type: String, default: '' }, // 房间大小（㎡），支持小数点后两位
+	remark: { type: String, default: '' }, // 备注信息
 	createTime: { type: Date, default: Date.now },
 	updateTime: { type: Date, default: Date.now }
 });
@@ -145,17 +161,6 @@ const FireSafetyScoreSchema = new mongoose.Schema({
 	updateTime: { type: Date, default: Date.now }
 });
 
-// 数据指挥功能配置表Schema
-const CommandConfigSchema = new mongoose.Schema({
-	configId: { type: String, required: true, unique: true }, // 配置唯一标识
-	title: { type: String, required: true }, // 功能标题
-	desc: { type: String, required: true }, // 功能描述
-	url: { type: String, required: true }, // 访问地址
-	status: { type: String, default: 'active', enum: ['active', 'inactive'] }, // 状态：active-活跃，inactive-非活跃
-	order: { type: Number, default: 0 }, // 排序权重
-	createTime: { type: Date, default: Date.now }, // 创建时间
-	updateTime: { type: Date, default: Date.now } // 更新时间
-});
 // 添加中间件
 UserSchema.pre('save', function(next) {
 	this.updateTime = new Date();
@@ -172,10 +177,16 @@ LocationSchema.pre('save', function(next) {
 	next();
 });
 
-CommandConfigSchema.pre('save', function(next) {
+OwnerInfoSchema.pre('save', function(next) {
 	this.updateTime = new Date();
 	next();
 });
+
+FireSafetyScoreSchema.pre('save', function(next) {
+	this.updateTime = new Date();
+	next();
+});
+
 
 // 创建模型
 const User = db.model('User', UserSchema, 'userInfo');
@@ -184,9 +195,9 @@ const Group = db.model('Group', GroupSchema, 'group');
 const GroupUser = db.model('GroupUser', GroupUserSchema, 'groupUser');
 const GroupMessage = db.model('GroupMessage', GroupMessageSchema, 'groupMessage');
 const Location = db.model('Location', LocationSchema, 'location');
+const OwnerInfo = db.model('OwnerInfo', OwnerInfoSchema, 'ownerInfo');
 const FireSafetyScore = db.model('FireSafetyScore', FireSafetyScoreSchema, 'fireSafetyScore');
 const StaticData = db.model('StaticData', StaticDataSchema, 'staticData');
-const CommandConfig = db.model('CommandConfig', CommandConfigSchema, 'commandConfig');
 
 // 统一导出模型
 module.exports = {
@@ -208,7 +219,8 @@ module.exports = {
 	GroupUser,
 	GroupMessage,
 	Location,
+	OwnerInfo,
 	FireSafetyScore,
 	StaticData,
-	CommandConfig
+    
 };

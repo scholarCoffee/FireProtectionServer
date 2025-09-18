@@ -104,7 +104,6 @@ exports.getLocationList = async (req, res) => {
                     return {
                         ...locationObj,
                         // 确保新增字段存在（向后兼容）
-                        ownerQueryUrl: locationObj.ownerQueryUrl || '',
                         fireUnitDeploymentMap: Array.isArray(locationObj.fireUnitDeploymentMap) ? locationObj.fireUnitDeploymentMap : [],
                         fireSafetyScore: fireSafetyScore || null
                     };
@@ -114,7 +113,6 @@ exports.getLocationList = async (req, res) => {
                     return {
                         ...locationObj,
                         // 确保新增字段存在（向后兼容）
-                        ownerQueryUrl: locationObj.ownerQueryUrl || '',
                         fireUnitDeploymentMap: Array.isArray(locationObj.fireUnitDeploymentMap) ? locationObj.fireUnitDeploymentMap : [],
                         fireSafetyScore: null
                     };
@@ -175,7 +173,18 @@ exports.getLocationDetail = async (req, res) => {
             });
         }
 
-        // 过滤和重组返回数据，移除不需要的字段，确保新增字段存在
+        // 查询关联的户主信息统计
+        const OwnerInfo = dbmodel.OwnerInfo;
+        const ownerStats = await OwnerInfo.aggregate([
+            { $match: { addressId: addressId } },
+            { $group: { 
+                _id: null, 
+                total: { $sum: 1 },
+                count: { $sum: 1 }
+            }}
+        ]);
+
+        // 过滤和重组返回数据，符合API文档格式
         const filteredDetail = {
             addressId: detail.addressId,
             addressName: detail.addressName,
@@ -188,11 +197,13 @@ exports.getLocationDetail = async (req, res) => {
             imgList: detail.imgList || [],
             phoneList: detail.phoneList || [],
             enterGateList: detail.enterGateList || [],
+            fireUnitDeploymentMap: Array.isArray(detail.fireUnitDeploymentMap) ? detail.fireUnitDeploymentMap : [],
+            ownerInfo: {
+                total: ownerStats.length > 0 ? ownerStats[0].total : 0,
+                count: ownerStats.length > 0 ? ownerStats[0].count : 0
+            },
             createTime: detail.createTime,
-            updateTime: detail.updateTime,
-            // 新增字段
-            ownerQueryUrl: detail.ownerQueryUrl || '',
-            fireUnitDeploymentMap: Array.isArray(detail.fireUnitDeploymentMap) ? detail.fireUnitDeploymentMap : []
+            updateTime: detail.updateTime
         };
 
         // 查询关联的消防安全评分信息
@@ -208,7 +219,7 @@ exports.getLocationDetail = async (req, res) => {
         
         res.send({ 
             code: 200, 
-            msg: 'ok', 
+            msg: 'success', 
             data: { ...filteredDetail, fireSafetyScore } 
         });
     } catch (err) {
@@ -230,7 +241,6 @@ exports.getLocationById = async (addressId) => {
         // 确保新增字段存在（向后兼容）
         return {
             ...location.toObject(),
-            ownerQueryUrl: location.ownerQueryUrl || '',
             fireUnitDeploymentMap: Array.isArray(location.fireUnitDeploymentMap) ? location.fireUnitDeploymentMap : []
         };
     } catch (err) {
@@ -244,7 +254,6 @@ exports.addLocation = async (req, res) => {
     try {
         const locationData = req.body;
         // 统一收敛：字段清理与默认值
-        locationData.ownerQueryUrl = locationData.ownerQueryUrl || '';
         if (!Array.isArray(locationData.fireUnitDeploymentMap)) {
             locationData.fireUnitDeploymentMap = [];
         }
@@ -319,7 +328,6 @@ exports.updateLocation = async (req, res) => {
         const updateData = req.body;
         updateData.updateTime = new Date();
         // 字段清理与默认值
-        updateData.ownerQueryUrl = updateData.ownerQueryUrl || '';
         if (!Array.isArray(updateData.fireUnitDeploymentMap)) {
             updateData.fireUnitDeploymentMap = [];
         }

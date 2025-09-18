@@ -4,6 +4,7 @@ const chat = require('../server/chat.js'); // 引入聊天模块
 const location = require('../server/location.js'); // 引入地址模块
 const fire = require('../server/fire.js'); // 引入消防静态与部署模块
 const fireSafetyScore = require('./fireSafetyScore.js'); // 引入消防安全评分模块
+const owner = require('./owner.js'); // 引入户主信息模块
 
 
 module.exports = function (app) {
@@ -126,22 +127,9 @@ module.exports = function (app) {
 
     // 静态配置与作战部署素材
     app.use('/static', fire);
+
+    // 户主信息管理相关路由
+    app.use('/owner', owner);
     
-    // 数据指挥功能相关路由
-    // 获取指挥配置列表
-    app.get('/command/config', function (req, res) {
-        require('../server/command.js').getCommandConfig(req, res);
-    });
-
-    // 保存指挥配置
-    app.post('/command/config', function (req, res) {
-        require('../server/command.js').saveCommandConfig(req, res);
-    });
-
-    // 删除指挥配置
-    app.post('/command/delConfig', function (req, res) {
-        require('../server/command.js').deleteCommandConfig(req, res);
-    });
-
-
+    
 }

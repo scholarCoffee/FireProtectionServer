@@ -412,8 +412,7 @@
     "$date": "2025-09-15T07:29:24.330Z"
   },
   "battleDeploymentMaterials": [],
-  "fireUnitDeploymentMap": [],
-  "ownerQueryUrl": "www.baidu.com"
+  "fireUnitDeploymentMap": []
 },
 {
   "_id": {
@@ -513,7 +512,6 @@
   },
   "__v": 0,
   "battleDeploymentMaterials": [],
-  "ownerQueryUrl": "",
   "fireUnitDeploymentMap": [
     {
       "key": "1",
@@ -593,6 +591,5 @@
         "$oid": "68c63bd10217711d939d6235"
       }
     }
-  ],
-  "ownerQueryUrl": ""
+  ]
 }]
