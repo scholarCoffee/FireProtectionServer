@@ -227,7 +227,7 @@ exports.updateOwner = async (req, res) => {
         // 验证必填字段
         const requiredFields = ['addressId', 'roomNo', 'name', 'phone', 'status'];
         for (const field of requiredFields) {
-            if (!updateData[field]) {
+            if (!updateData[field] && updateData[field] !== 0) {
                 return res.send({ 
                     code: 400, 
                     msg: `缺少必填字段: ${field}` 
