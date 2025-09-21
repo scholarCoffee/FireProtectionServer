@@ -1,7 +1,7 @@
 const dbmodel = require('../model/index.js'); // 引入数据模型
-const Group = dbmodel.model('Group'); // 引入群模型
-const GroupUser = dbmodel.model('GroupUser'); // 引入群成员模型
-const GroupMessage = dbmodel.model('GroupMessage'); // 引入群消息模型
+const Group = dbmodel.Group;
+const GroupUser = dbmodel.GroupUser;
+const GroupMessage = dbmodel.GroupMessage;
 
 // 检查是否在群内
 const checkInGroup = function(data, userId) {

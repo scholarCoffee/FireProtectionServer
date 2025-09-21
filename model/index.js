@@ -72,7 +72,8 @@ const StaticDataSchema = new Schema({
 	data2: { type: String, default: '' },
 	data3: { type: String, default: '' },
 	data4: { type: String, default: '' },
-	extraParam: { type: Schema.Types.Mixed, default: '' }
+	extraParam: { type: Schema.Types.Mixed, default: '' },
+	config: { type: Schema.Types.Mixed, default: null } // 任务配置信息
 });
 
 // 地址信息相关 Schema
@@ -91,10 +92,10 @@ const GateSchema = new Schema({
 
 // 地址信息主模型
 const LocationSchema = new Schema({
-	addressId: { type: String, required: true, unique: true },
-	addressName: { type: String, required: true },
-	addressExt: { type: String, required: true },
-	allSenceLink: { type: String },
+	addressId: { type: String, required: true, unique: true }, // 地址ID
+	addressName: { type: String, required: true }, // 地址名称
+	addressExt: { type: String, required: true }, // 地址扩展信息
+	allSenceLink: { type: String }, // 全景链接
 	type: { type: Number, required: true }, // 1-高层小区 2-重点单位 3-沿街商铺
 	safeId: { type: String, ref: 'FireSafetyScore', required: true }, // 关联消防安全评分的safeId
 	defaultImg: { type: String }, // 默认图片
@@ -161,6 +162,46 @@ const FireSafetyScoreSchema = new mongoose.Schema({
 	updateTime: { type: Date, default: Date.now }
 });
 
+// 火灾情况表Schema
+const FireSituationSchema = new mongoose.Schema({
+	situationId: { type: String, required: true, unique: true }, // 火灾情况唯一ID
+	fireUnit: { type: String, required: true }, // 消防单位
+	fireCar: { type: String, required: true }, // 消防车辆
+	addressId: { type: String, required: true }, // 地址ID
+	addressName: { type: String, required: true }, // 地址名称
+	locationType: { type: Number, required: true }, // 位置类型
+	rescueFloor: { type: String, default: '' }, // 救援楼层
+	direction: { type: String, default: '' }, // 方向
+	taskType: { type: String, required: true }, // 任务类型（对应taskList的data2）
+	taskStatus: { type: String, required: true }, // 任务状态（对应statusList的data2）
+	taskExtra: { type: Schema.Types.Mixed, default: {} }, // 任务额外信息（根据任务类型动态存储）
+	remark: { type: String, default: '' }, // 备注
+	issuePersonId: { type: String, required: true }, // 下达人ID
+	issuePersonName: { type: String, required: true }, // 下达人姓名
+	issueTime: { type: Date, required: true }, // 下达时间
+	updateTime: { type: Date, required: true } // 更新时间
+});
+
+// 作战任务表Schema
+const TaskAssignSchema = new mongoose.Schema({
+	taskId: { type: String, required: true, unique: true }, // 任务唯一ID
+	fireUnit: { type: String, required: true }, // 消防单位
+	addressId: { type: String, required: true }, // 地址ID
+	addressName: { type: String, required: true }, // 地址名称
+	locationType: { type: Number, required: true }, // 位置类型
+	rescueFloor: { type: String, default: '' }, // 救援楼层
+	direction: { type: String, default: '' }, // 方向
+	taskType: { type: String, required: true }, // 任务类型（对应taskList的data2）
+	taskExtra: { type: Schema.Types.Mixed, default: {} }, // 任务额外信息（根据任务类型动态存储）
+	remark: { type: String, default: '' }, // 备注
+	issuePersonId: { type: String, required: true }, // 下达人ID
+	issuePersonName: { type: String, required: true }, // 下达人姓名
+	issueTime: { type: Date, required: true }, // 下达时间
+	feedbackStatus: { type: String, required: true, enum: ['received', 'unreceived'], default: 'unreceived' }, // 任务反馈状态：received-已接收，unreceived-未接收
+	feedbackTime: { type: Date }, // 反馈时间
+	updateTime: { type: Date, required: true } // 更新时间
+});
+
 // 添加中间件
 UserSchema.pre('save', function(next) {
 	this.updateTime = new Date();
@@ -187,6 +228,15 @@ FireSafetyScoreSchema.pre('save', function(next) {
 	next();
 });
 
+FireSituationSchema.pre('save', function(next) {
+	this.updateTime = new Date();
+	next();
+});
+
+TaskAssignSchema.pre('save', function(next) {
+	this.updateTime = new Date();
+	next();
+});
 
 // 创建模型
 const User = db.model('User', UserSchema, 'userInfo');
@@ -198,21 +248,11 @@ const Location = db.model('Location', LocationSchema, 'location');
 const OwnerInfo = db.model('OwnerInfo', OwnerInfoSchema, 'ownerInfo');
 const FireSafetyScore = db.model('FireSafetyScore', FireSafetyScoreSchema, 'fireSafetyScore');
 const StaticData = db.model('StaticData', StaticDataSchema, 'staticData');
+const FireSituation = db.model('FireSituation', FireSituationSchema, 'fireSituation');
+const TaskAssign = db.model('TaskAssign', TaskAssignSchema, 'taskAssign');
 
 // 统一导出模型
 module.exports = {
-	model: function(modelName) {
-		const models = {
-			'User': User,
-			'Message': Message,
-			'Group': Group,
-			'GroupUser': GroupUser,
-			'GroupMessage': GroupMessage,
-			'Location': Location
-		};
-		return models[modelName];
-	},
-	// 直接导出模型
 	User,
 	Message,
 	Group,
@@ -222,5 +262,6 @@ module.exports = {
 	OwnerInfo,
 	FireSafetyScore,
 	StaticData,
-    
+	FireSituation,
+	TaskAssign,
 };

@@ -3,9 +3,10 @@ const group = require('../server/group.js'); // 引入首页模块
 const chat = require('../server/chat.js'); // 引入聊天模块
 const location = require('../server/location.js'); // 引入地址模块
 const fire = require('../server/fire.js'); // 引入消防静态与部署模块
+const static = require('../server/static.js'); // 引入静态配置与作战部署素材模块
 const fireSafetyScore = require('./fireSafetyScore.js'); // 引入消防安全评分模块
 const owner = require('./owner.js'); // 引入户主信息模块
-
+const taskRouter = require('../server/task.js');
 
 module.exports = function (app) {
     // 用户信息修改
@@ -126,10 +127,15 @@ module.exports = function (app) {
     app.use('/fireSafetyScore', fireSafetyScore);
 
     // 静态配置与作战部署素材
-    app.use('/static', fire);
+    app.use('/static', static);
+
+    // 静态配置与作战部署素材
+    app.use('/fire', fire);
 
     // 户主信息管理相关路由
     app.use('/owner', owner);
-    
+
+    // 作战任务相关路由
+    app.use('/task', taskRouter);
     
 }

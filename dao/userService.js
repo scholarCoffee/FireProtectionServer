@@ -1,7 +1,7 @@
 const dbmodel = require('../model/index.js'); // 引入数据模型
-const User = dbmodel.model('User'); // 引入用户模型
-const GroupUser = dbmodel.model('GroupUser'); // 引入群组用户模型
-const GroupMessage = dbmodel.model('GroupMessage'); // 引入群组消息模型
+const User = dbmodel.User;
+const GroupUser = dbmodel.GroupUser;
+const GroupMessage = dbmodel.GroupMessage;
 const https = require('https');
 const crypto = require('crypto');
 

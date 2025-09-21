@@ -1,5 +1,5 @@
 var dbmodel = require('../model/index.js'); // 引入数据模型
-var Message = dbmodel.model('Message'); // 引入消息模型
+var Message = dbmodel.Message;
 
 // 添加一对一消息
 exports.insertMsg = function(uid, fid, msg, type, res) {
