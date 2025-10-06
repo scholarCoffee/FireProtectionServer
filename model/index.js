@@ -162,24 +162,31 @@ const FireSafetyScoreSchema = new mongoose.Schema({
 	updateTime: { type: Date, default: Date.now }
 });
 
-// 火灾情况表Schema
+// 火灾情况表Schema（新版：按 assignedUnits 结构存储）
 const FireSituationSchema = new mongoose.Schema({
-	situationId: { type: String, required: true, unique: true }, // 火灾情况唯一ID
-	fireUnit: { type: String, required: true }, // 消防单位
-	fireCar: { type: String, required: true }, // 消防车辆
-	addressId: { type: String, required: true }, // 地址ID
-	addressName: { type: String, required: true }, // 地址名称
-	locationType: { type: Number, required: true }, // 位置类型
-	rescueFloor: { type: String, default: '' }, // 救援楼层
-	direction: { type: String, default: '' }, // 方向
-	taskType: { type: String, required: true }, // 任务类型（对应taskList的data2）
-	taskStatus: { type: String, required: true }, // 任务状态（对应statusList的data2）
-	taskExtra: { type: Schema.Types.Mixed, default: {} }, // 任务额外信息（根据任务类型动态存储）
-	remark: { type: String, default: '' }, // 备注
-	issuePersonId: { type: String, required: true }, // 下达人ID
-	issuePersonName: { type: String, required: true }, // 下达人姓名
-	issueTime: { type: Date, required: true }, // 下达时间
-	updateTime: { type: Date, required: true } // 更新时间
+    situationId: { type: String, required: true, unique: true }, // 火灾情况唯一ID
+    addressId: { type: String, required: true }, // 地址ID
+    addressName: { type: String, required: true }, // 地址名称
+    locationType: { type: Number, required: true }, // 位置类型
+    taskStatus: { type: Number, enum: [1, 2, 3], default: 2 }, // 任务状态：1-已完成 2-救援中 3-需要支援
+    remark: { type: String, default: '' }, // 备注
+    assignedUnits: [{
+        unitId: { type: String, required: true }, // 单位ID
+        unitName: { type: String, required: true }, // 单位名称
+        rescueFloor: { type: String, default: '' }, // 救援楼层（可选）
+        direction: { type: Number, default: 0 }, // 方向（枚举数字，前端定义）
+        taskType: { type: String, default: '' }, // 任务类型（字符串/枚举编码）
+        taskExtra: { type: Schema.Types.Mixed, default: {} }, // 任务额外信息（根据任务类型动态存储）
+        carInfo: [{
+            label: { type: String, required: true },
+            value: { type: String, required: true },
+            index: { type: Number, required: true }
+        }]
+    }],
+    issuePersonId: { type: String, required: true }, // 下达人ID
+    issuePersonName: { type: String, required: true }, // 下达人姓名
+    issueTime: { type: Date, required: true }, // 下达时间
+    updateTime: { type: Date, required: true } // 更新时间
 });
 
 // 作战任务表Schema

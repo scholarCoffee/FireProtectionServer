@@ -3,52 +3,54 @@ const router = express.Router();
 const dbmodel = require('../model/index.js');
 const FireSituation = dbmodel.FireSituation;
 
-// 上传火灾情况数据
+// 上传火灾情况数据（新版：支持 assignedUnits 结构）
 router.post('/upload', async (req, res) => {
     try {
         const {
-            fireUnit,
-            fireCar,
+            // 新版必填
             addressId,
             addressName,
             locationType,
-            rescueFloor,
-            direction,
-            taskType,
-            taskStatus,
-            taskExtra,
+            assignedUnits = [],
             remark,
+            taskStatus,
             issuePersonId,
             issuePersonName,
-            issueTime
-        } = req.body;
+            issueTime,
+            updateTime
+        } = req.body || {};
 
-        // 验证必填字段
-        if (!fireUnit || !fireCar || !addressId || !addressName || !locationType || !taskType || !taskStatus || !issuePersonId || !issuePersonName || !issueTime) {
-            return res.send({ code: 400, msg: '缺少必填字段' });
+        // 基础必填校验（新版）
+        if (!addressId || !addressName || typeof locationType === 'undefined' || !Array.isArray(assignedUnits) || assignedUnits.length === 0 || !issuePersonId || !issuePersonName || !issueTime) {
+            return res.send({ code: 400, msg: '缺少必填字段（addressId/addressName/locationType/assignedUnits/issuePersonId/issuePersonName/issueTime）' });
+        }
+
+        // 细项校验 assignedUnits
+        for (const unit of assignedUnits) {
+            if (!unit.unitId || !unit.unitName) {
+                return res.send({ code: 400, msg: 'assignedUnits 中存在缺少 unitId 或 unitName 的记录' });
+            }
+            if (!Array.isArray(unit.carInfo)) {
+                return res.send({ code: 400, msg: 'assignedUnits.carInfo 必须为数组' });
+            }
         }
 
         // 生成唯一情况ID
         const situationId = 'SITUATION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-        // 创建新的火灾情况记录
+        // 创建新的火灾情况记录（核心以新版结构为准）
         const fireSituation = new FireSituation({
             situationId,
-            fireUnit,
-            fireCar,
             addressId,
             addressName,
             locationType,
-            rescueFloor: rescueFloor || '',
-            direction: direction || '',
-            taskType,
-            taskStatus,
-            taskExtra: taskExtra || {},
+            taskStatus: typeof taskStatus === 'number' ? taskStatus : 2, // 默认救援中(2)
             remark: remark || '',
+            assignedUnits, // 完整保存单位/车辆/任务配置
             issuePersonId,
             issuePersonName,
             issueTime: new Date(issueTime),
-            updateTime: new Date()
+            updateTime: updateTime ? new Date(updateTime) : new Date()
         });
 
         await fireSituation.save();
