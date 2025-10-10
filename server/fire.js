@@ -142,4 +142,44 @@ router.delete('/situations/:id', async (req, res) => {
     }
 });
 
+// 根据situationId查询火灾情况详情
+router.get('/detail', async (req, res) => {
+    try {
+        const { situationId } = req.query;
+        
+        if (!situationId) {
+            return res.send({ code: 400, msg: '缺少situationId参数' });
+        }
+
+        // 根据situationId查询火灾情况详情
+        const situation = await FireSituation.findOne({ situationId }).lean();
+        
+        if (!situation) {
+            return res.send({ code: 404, msg: '未找到相关火灾情况记录' });
+        }
+
+        // 返回详情数据
+        res.send({
+            code: 200,
+            msg: '查询成功',
+            data: {
+                situationId: situation.situationId,
+                addressId: situation.addressId,
+                addressName: situation.addressName,
+                locationType: situation.locationType,
+                taskStatus: situation.taskStatus,
+                remark: situation.remark,
+                assignedUnits: situation.assignedUnits || [],
+                issuePersonId: situation.issuePersonId,
+                issuePersonName: situation.issuePersonName,
+                issueTime: situation.issueTime,
+                updateTime: situation.updateTime,
+                createTime: situation._id.getTimestamp() // 从ObjectId获取创建时间
+            }
+        });
+    } catch (err) {
+        res.send({ code: 500, msg: '查询失败', error: err.message });
+    }
+});
+
 module.exports = router;
