@@ -3,6 +3,7 @@ const router = express.Router();
 const dbmodel = require('../model/index.js');
 const FireSituation = dbmodel.FireSituation;
 const FireUnitStatus = dbmodel.FireUnitStatus;
+const TaskAssign = dbmodel.TaskAssign;
 
 // 上传火灾情况数据（新版：支持 assignedUnits 结构，支持更新）
 router.post('/upload', async (req, res) => {
@@ -38,136 +39,166 @@ router.post('/upload', async (req, res) => {
             }
         }
 
-        // 判断是更新还是新建
-        let currentSituationId = situationId;
-        let isUpdate = false;
-        
-        if (situationId) {
-            // 检查是否存在该situationId
-            const existingSituation = await FireSituation.findOne({ situationId });
-            if (existingSituation) {
-                isUpdate = true;
-                currentSituationId = situationId;
-                console.log(`更新现有火灾情况: ${situationId}`);
-            } else {
-                return res.send({ code: 404, msg: '未找到指定的situationId，无法更新' });
-            }
-        } else {
-            // 生成新的唯一情况ID
-            currentSituationId = 'SITUATION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            console.log(`创建新的火灾情况: ${currentSituationId}`);
-        }
+         // 逻辑整理：判断是新建火灾情况还是支援任务
+         if (!situationId) {
+             // 情况1：没有situationId，说明是新的火灾上传，直接新增FireSituation
+             console.log('新建火灾情况');
+             
+             // 生成新的唯一情况ID
+             const currentSituationId = 'SITUATION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+             
+             // 检查单位占用状态
+             const unitIds = assignedUnits.map(unit => unit.unitId);
+             const occupiedUnits = await FireUnitStatus.find({ 
+                 unitId: { $in: unitIds }, 
+                 status: 'occupied'
+             }).lean();
+ 
+             if (occupiedUnits.length > 0) {
+                 const occupiedUnitNames = occupiedUnits.map(unit => unit.unitName);
+                 return res.send({ 
+                     code: 409, 
+                     msg: `以下单位已被占用，无法分配: ${occupiedUnitNames.join(', ')}` 
+                 });
+             }
+ 
+             // 确保 assignedUnits 中每个单位都有 unitStatus、rescueTime 和 taskId
+             const processedAssignedUnits = [];
+             const taskAssignments = [];
+             
+             for (const unit of assignedUnits) {
+                 const taskId = 'TASK_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                 
+                 // 创建TaskAssign记录
+                 const taskAssign = new TaskAssign({
+                     taskId,
+                     situationId: currentSituationId,
+                     status: 1, // 默认未接收
+                     remark: remark || '',
+                     feedbackPersonId: issuePersonId,
+                     feedbackPersonName: issuePersonName,
+                     feedbackTime: new Date(issueTime),
+                     updateTime: new Date()
+                 });
+                 
+                 await taskAssign.save();
+                 taskAssignments.push(taskAssign);
+                 
+                 // 处理assignedUnit，添加taskId
+                 const processedUnit = {
+                     ...unit,
+                     unitStatus: unit.unitStatus || 'rescue', // 默认首次救援单位
+                     rescueTime: unit.rescueTime || new Date(), // 默认当前时间
+                     taskId: taskId // 关联taskId
+                 };
+                 processedAssignedUnits.push(processedUnit);
+             }
+ 
+             // 创建新的火灾情况记录
+             const fireSituation = new FireSituation({
+                 situationId: currentSituationId,
+                 addressId,
+                 addressName,
+                 locationType,
+                 taskStatus: typeof taskStatus === 'number' ? taskStatus : 2, // 默认救援中
+                 remark: remark || '',
+                 assignedUnits: processedAssignedUnits,
+                 issuePersonId,
+                 issuePersonName,
+                 issueTime: new Date(issueTime),
+                 updateTime: updateTime ? new Date(updateTime) : new Date()
+             });
+ 
+             await fireSituation.save();
+ 
+             // 更新单位占用状态
+             const now = new Date();
+             for (const unit of processedAssignedUnits) {
+                 await FireUnitStatus.updateOne(
+                     { unitId: unit.unitId },
+                     {
+                         $set: {
+                             unitName: unit.unitName,
+                             status: 'occupied',
+                             currentSituationId: currentSituationId,
+                             occupyTime: now,
+                             updateTime: now
+                         }
+                     },
+                     { upsert: true }
+                 );
+             }
+ 
+             return res.send({ 
+                 code: 200, 
+                 msg: '火灾情况创建成功', 
+                 data: {
+                     fireSituation,
+                     taskAssignments,
+                     count: taskAssignments.length
+                 }
+             });
+         } else {
+             // 情况2：有situationId，说明是火灾需要支援，新增TaskAssign任务
+             console.log(`为火灾情况 ${situationId} 添加支援任务`);
+             
+             // 检查火灾情况是否存在
+             const existingSituation = await FireSituation.findOne({ situationId });
+             if (!existingSituation) {
+                 return res.send({ code: 404, msg: '未找到指定的火灾情况' });
+             }
+             
+             // 为每个assignedUnit创建TaskAssign记录，并更新assignedUnits中的taskId
+             const taskAssignments = [];
+             const updatedAssignedUnits = [];
+             
+             for (const unit of assignedUnits) {
+                 const taskId = 'TASK_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                 
+                 // 创建TaskAssign记录
+                 const taskAssign = new TaskAssign({
+                     taskId,
+                     situationId, // 关联的火灾情况ID
+                     status: 1, // 默认未接收
+                     remark: remark || '',
+                     feedbackPersonId: issuePersonId,
+                     feedbackPersonName: issuePersonName,
+                     feedbackTime: new Date(issueTime),
+                     updateTime: new Date()
+                 });
+                 
+                 await taskAssign.save();
+                 taskAssignments.push(taskAssign);
+                 
+                 // 更新assignedUnit，添加taskId
+                 const updatedUnit = {
+                     ...unit,
+                     taskId: taskId // 关联taskId
+                 };
+                 updatedAssignedUnits.push(updatedUnit);
+             }
+             
+             // 更新FireSituation中的assignedUnits，添加新的支援单位
+             await FireSituation.updateOne(
+                 { situationId },
+                 { 
+                     $push: { assignedUnits: { $each: updatedAssignedUnits } },
+                     $set: { updateTime: new Date() }
+                 }
+             );
+             
+             return res.send({ 
+                 code: 200, 
+                 msg: '支援任务创建成功', 
+                 data: {
+                     situationId,
+                     taskAssignments,
+                     updatedAssignedUnits,
+                     count: taskAssignments.length
+                 }
+             });
+         }
 
-        // 检查单位占用状态
-        const unitIds = assignedUnits.map(unit => unit.unitId);
-        
-        if (isUpdate) {
-            // 更新时：检查是否有单位已被其他火情占用
-            const occupiedUnits = await FireUnitStatus.find({ 
-                unitId: { $in: unitIds }, 
-                status: 'occupied',
-                currentSituationId: { $ne: currentSituationId }
-            }).lean();
-
-            if (occupiedUnits.length > 0) {
-                const occupiedUnitNames = occupiedUnits.map(unit => unit.unitName);
-                return res.send({ 
-                    code: 409, 
-                    msg: `以下单位已被其他火情占用，无法分配: ${occupiedUnitNames.join(', ')}` 
-                });
-            }
-        } else {
-            // 新建时：检查是否有单位已被占用
-            const occupiedUnits = await FireUnitStatus.find({ 
-                unitId: { $in: unitIds }, 
-                status: 'occupied'
-            }).lean();
-
-            if (occupiedUnits.length > 0) {
-                const occupiedUnitNames = occupiedUnits.map(unit => unit.unitName);
-                return res.send({ 
-                    code: 409, 
-                    msg: `以下单位已被占用，无法分配: ${occupiedUnitNames.join(', ')}` 
-                });
-            }
-        }
-
-        // 确保 assignedUnits 中每个单位都有 unitStatus 和 rescueTime
-        const processedAssignedUnits = assignedUnits.map(unit => ({
-            ...unit,
-            unitStatus: unit.unitStatus || 'rescue', // 默认首次救援单位
-            rescueTime: unit.rescueTime || new Date() // 默认当前时间
-        }));
-
-        let fireSituation;
-
-        if (isUpdate) {
-            // 更新现有记录 - 新增assignedUnits而不是覆盖
-            const updateData = {
-                addressId,
-                addressName,
-                locationType,
-                taskStatus: 4, // 新增救援单位时，状态更新为"正在支援中"
-                remark: remark || '',
-                issuePersonId,
-                issuePersonName,
-                issueTime: new Date(issueTime),
-                updateTime: updateTime ? new Date(updateTime) : new Date()
-            };
-
-            // 使用 $push 新增 assignedUnits，而不是覆盖
-            fireSituation = await FireSituation.findOneAndUpdate(
-                { situationId: currentSituationId },
-                {
-                    $set: updateData,
-                    $push: { assignedUnits: { $each: processedAssignedUnits } }
-                },
-                { new: true, runValidators: true }
-            );
-
-            console.log(`在火灾情况 ${currentSituationId} 中新增了 ${processedAssignedUnits.length} 个救援单位，状态更新为正在支援中`);
-        } else {
-            // 创建新记录
-            fireSituation = new FireSituation({
-                situationId: currentSituationId,
-                addressId,
-                addressName,
-                locationType,
-                taskStatus: typeof taskStatus === 'number' ? taskStatus : 2,
-                remark: remark || '',
-                assignedUnits: processedAssignedUnits,
-                issuePersonId,
-                issuePersonName,
-                issueTime: new Date(issueTime),
-                updateTime: updateTime ? new Date(updateTime) : new Date()
-            });
-
-            await fireSituation.save();
-        }
-
-        // 更新单位占用状态
-        const now = new Date();
-        for (const unit of processedAssignedUnits) {
-            await FireUnitStatus.updateOne(
-                { unitId: unit.unitId },
-                {
-                    $set: {
-                        unitName: unit.unitName,
-                        status: 'occupied',
-                        currentSituationId: currentSituationId,
-                        occupyTime: now,
-                        updateTime: now
-                    }
-                },
-                { upsert: true }
-            );
-        }
-
-        res.send({ 
-            code: 200, 
-            msg: isUpdate ? '更新成功' : '上传成功', 
-            data: fireSituation 
-        });
     } catch (err) {
         res.send({ code: 500, msg: '上传失败', error: err.message });
     }

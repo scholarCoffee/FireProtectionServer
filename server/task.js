@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const dbmodel = require('../model/index.js');
 const TaskAssign = dbmodel.TaskAssign;
+const FireSituation = dbmodel.FireSituation;
 
 // 创建作战任务（基于火情情况）
 router.post('/create', async (req, res) => {
@@ -71,7 +72,7 @@ router.post('/create', async (req, res) => {
 // 查询作战任务列表
 router.get('/list', async (req, res) => {
     try {
-        const { page = 1, limit = 10, addressId, taskStatus, feedbackStatus, unitStatus, unitId } = req.query;
+        const { page = 1, limit = 10, addressId, taskStatus, feedbackStatus, unitStatus, unitId, taskId } = req.query;
         
         // 构建查询条件
         const query = {};
@@ -80,6 +81,7 @@ router.get('/list', async (req, res) => {
         if (feedbackStatus) query.feedbackStatus = feedbackStatus;
         if (unitStatus) query['assignedUnits.unitStatus'] = unitStatus;
         if (unitId) query['assignedUnits.unitId'] = unitId;
+        if (taskId) query.taskId = taskId;
         
         // 分页查询
         const skip = (page - 1) * limit;
@@ -89,12 +91,35 @@ router.get('/list', async (req, res) => {
             .limit(parseInt(limit))
             .lean();
         
+        // 为每个任务查询关联的火灾情况
+        const tasksWithSituation = await Promise.all(
+            tasks.map(async (task) => {
+                try {
+                    // 根据taskId查询到的situationId查询当前火灾情况
+                    const situation = await FireSituation.findOne({ 
+                        situationId: task.situationId 
+                    }).lean();
+                    
+                    return {
+                        ...task,
+                        fireSituation: situation || null // 如果找不到火灾情况，返回null
+                    };
+                } catch (err) {
+                    console.error(`查询火灾情况失败，taskId: ${task.taskId}, situationId: ${task.situationId}`, err);
+                    return {
+                        ...task,
+                        fireSituation: null
+                    };
+                }
+            })
+        );
+        
         const total = await TaskAssign.countDocuments(query);
         
         res.send({
             code: 200,
             msg: '查询成功',
-            data: tasks,
+            data: tasksWithSituation,
             pagination: {
                 page: parseInt(page),
                 limit: parseInt(limit),
