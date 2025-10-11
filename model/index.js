@@ -162,13 +162,13 @@ const FireSafetyScoreSchema = new mongoose.Schema({
 	updateTime: { type: Date, default: Date.now }
 });
 
-// 火灾情况表Schema（新版：按 assignedUnits 结构存储）
+// 火灾情况表Schema
 const FireSituationSchema = new mongoose.Schema({
     situationId: { type: String, required: true, unique: true }, // 火灾情况唯一ID
     addressId: { type: String, required: true }, // 地址ID
     addressName: { type: String, required: true }, // 地址名称
     locationType: { type: Number, required: true }, // 位置类型
-    taskStatus: { type: Number, enum: [1, 2, 3], default: 2 }, // 任务状态：1-已完成 2-救援中 3-需要支援
+    taskStatus: { type: Number, enum: [1, 2, 3, 4], default: 2 }, // 任务状态：1-已完成 2-救援中 3-需要支援 4-正在支援
     remark: { type: String, default: '' }, // 备注
     assignedUnits: [{
         unitId: { type: String, required: true }, // 单位ID
@@ -177,6 +177,10 @@ const FireSituationSchema = new mongoose.Schema({
         direction: { type: Number, default: 0 }, // 方向（枚举数字，前端定义）
         taskType: { type: String, default: '' }, // 任务类型（字符串/枚举编码）
         taskExtra: { type: Schema.Types.Mixed, default: {} }, // 任务额外信息（根据任务类型动态存储）
+        // 单位状态：rescue-首次救援单位，support-支援单位
+        unitStatus: { type: String, enum: ['rescue', 'support'], default: 'rescue' },
+        // 救援时间
+        rescueTime: { type: Date, default: Date.now },
         carInfo: [{
             label: { type: String, required: true },
             value: { type: String, required: true },
@@ -189,24 +193,57 @@ const FireSituationSchema = new mongoose.Schema({
     updateTime: { type: Date, required: true } // 更新时间
 });
 
-// 作战任务表Schema
+// 作战任务表Schema（与FireSituationSchema保持一致）
 const TaskAssignSchema = new mongoose.Schema({
 	taskId: { type: String, required: true, unique: true }, // 任务唯一ID
-	fireUnit: { type: String, required: true }, // 消防单位
+	// 关联火情
+	situationId: { type: String, required: true }, // 关联的火灾情况ID
+	// 基础信息
 	addressId: { type: String, required: true }, // 地址ID
 	addressName: { type: String, required: true }, // 地址名称
 	locationType: { type: Number, required: true }, // 位置类型
-	rescueFloor: { type: String, default: '' }, // 救援楼层
-	direction: { type: String, default: '' }, // 方向
-	taskType: { type: String, required: true }, // 任务类型（对应taskList的data2）
-	taskExtra: { type: Schema.Types.Mixed, default: {} }, // 任务额外信息（根据任务类型动态存储）
+	taskStatus: { type: Number, enum: [1, 2, 3, 4], default: 2 }, // 任务状态：1-已完成 2-救援中 3-需要支援 4-正在支援
 	remark: { type: String, default: '' }, // 备注
+	// 任务单位信息（与FireSituation的assignedUnits结构一致）
+	assignedUnits: [{
+		unitId: { type: String, required: true }, // 单位ID
+		unitName: { type: String, required: true }, // 单位名称
+		rescueFloor: { type: String, default: '' }, // 救援楼层（可选）
+		direction: { type: Number, default: 0 }, // 方向（枚举数字，前端定义）
+		taskType: { type: String, default: '' }, // 任务类型（字符串/枚举编码）
+		taskExtra: { type: Schema.Types.Mixed, default: {} }, // 任务额外信息（根据任务类型动态存储）
+		// 单位状态：rescue-首次救援单位，support-支援单位
+		unitStatus: { type: String, enum: ['rescue', 'support'], default: 'rescue' },
+		// 救援时间
+		rescueTime: { type: Date, default: Date.now },
+		carInfo: [{
+			label: { type: String, required: true },
+			value: { type: String, required: true },
+			index: { type: Number, required: true }
+		}]
+	}],
+	// 下达人信息
 	issuePersonId: { type: String, required: true }, // 下达人ID
 	issuePersonName: { type: String, required: true }, // 下达人姓名
 	issueTime: { type: Date, required: true }, // 下达时间
+	// 反馈状态
 	feedbackStatus: { type: String, required: true, enum: ['received', 'unreceived'], default: 'unreceived' }, // 任务反馈状态：received-已接收，unreceived-未接收
 	feedbackTime: { type: Date }, // 反馈时间
 	updateTime: { type: Date, required: true } // 更新时间
+});
+
+// 消防单位占用状态表Schema
+const FireUnitStatusSchema = new mongoose.Schema({
+	unitId: { type: String, required: true, unique: true }, // 单位ID
+	unitName: { type: String, required: true }, // 单位名称
+	status: { type: String, required: true, enum: ['idle', 'occupied'], default: 'idle' }, // 占用状态：idle-空闲，occupied-占用中
+	currentTaskId: { type: String, default: '' }, // 当前任务ID
+	currentSituationId: { type: String, default: '' }, // 当前火情ID
+	occupyTime: { type: Date }, // 占用时间
+	releaseTime: { type: Date }, // 释放时间
+	remark: { type: String, default: '' }, // 备注
+	createTime: { type: Date, default: Date.now },
+	updateTime: { type: Date, default: Date.now }
 });
 
 // 添加中间件
@@ -245,6 +282,11 @@ TaskAssignSchema.pre('save', function(next) {
 	next();
 });
 
+FireUnitStatusSchema.pre('save', function(next) {
+	this.updateTime = new Date();
+	next();
+});
+
 // 创建模型
 const User = db.model('User', UserSchema, 'userInfo');
 const Message = db.model('Message', MessageSchema, 'message');
@@ -257,6 +299,7 @@ const FireSafetyScore = db.model('FireSafetyScore', FireSafetyScoreSchema, 'fire
 const StaticData = db.model('StaticData', StaticDataSchema, 'staticData');
 const FireSituation = db.model('FireSituation', FireSituationSchema, 'fireSituation');
 const TaskAssign = db.model('TaskAssign', TaskAssignSchema, 'taskAssign');
+const FireUnitStatus = db.model('FireUnitStatus', FireUnitStatusSchema, 'fireUnitStatus');
 
 // 统一导出模型
 module.exports = {
@@ -271,4 +314,5 @@ module.exports = {
 	StaticData,
 	FireSituation,
 	TaskAssign,
+	FireUnitStatus,
 };

@@ -3,44 +3,57 @@ const router = express.Router();
 const dbmodel = require('../model/index.js');
 const TaskAssign = dbmodel.TaskAssign;
 
-// 创建作战任务
+// 创建作战任务（基于火情情况）
 router.post('/create', async (req, res) => {
     try {
         const {
-            fireUnit,
+            situationId,
             addressId,
             addressName,
             locationType,
-            rescueFloor,
-            direction,
-            taskType,
-            taskExtra,
+            assignedUnits = [],
             remark,
+            taskStatus,
             issuePersonId,
             issuePersonName,
             issueTime
         } = req.body;
 
         // 验证必填字段
-        if (!fireUnit || !addressId || !addressName || !locationType || !taskType || !issuePersonId || !issuePersonName || !issueTime) {
-            return res.send({ code: 400, msg: '缺少必填字段' });
+        if (!situationId || !addressId || !addressName || typeof locationType === 'undefined' || !Array.isArray(assignedUnits) || assignedUnits.length === 0 || !issuePersonId || !issuePersonName || !issueTime) {
+            return res.send({ code: 400, msg: '缺少必填字段（situationId/addressId/addressName/locationType/assignedUnits/issuePersonId/issuePersonName/issueTime）' });
+        }
+
+        // 细项校验 assignedUnits
+        for (const unit of assignedUnits) {
+            if (!unit.unitId || !unit.unitName) {
+                return res.send({ code: 400, msg: 'assignedUnits 中存在缺少 unitId 或 unitName 的记录' });
+            }
+            if (!Array.isArray(unit.carInfo)) {
+                return res.send({ code: 400, msg: 'assignedUnits.carInfo 必须为数组' });
+            }
         }
 
         // 生成唯一任务ID
         const taskId = 'TASK_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
+        // 确保 assignedUnits 中每个单位都有 unitStatus 和 rescueTime
+        const processedAssignedUnits = assignedUnits.map(unit => ({
+            ...unit,
+            unitStatus: unit.unitStatus || 'rescue', // 默认首次救援单位
+            rescueTime: unit.rescueTime || new Date() // 默认当前时间
+        }));
+
         // 创建新的作战任务
         const taskAssign = new TaskAssign({
             taskId,
-            fireUnit,
+            situationId,
             addressId,
             addressName,
             locationType,
-            rescueFloor: rescueFloor || '',
-            direction: direction || '',
-            taskType,
-            taskExtra: taskExtra || {},
+            taskStatus: typeof taskStatus === 'number' ? taskStatus : 2, // 默认救援中(2)
             remark: remark || '',
+            assignedUnits: processedAssignedUnits,
             issuePersonId,
             issuePersonName,
             issueTime: new Date(issueTime),
@@ -58,13 +71,15 @@ router.post('/create', async (req, res) => {
 // 查询作战任务列表
 router.get('/list', async (req, res) => {
     try {
-        const { page = 1, limit = 10, addressId, taskType, feedbackStatus } = req.query;
+        const { page = 1, limit = 10, addressId, taskStatus, feedbackStatus, unitStatus, unitId } = req.query;
         
         // 构建查询条件
         const query = {};
         if (addressId) query.addressId = addressId;
-        if (taskType) query.taskType = taskType;
+        if (taskStatus) query.taskStatus = taskStatus;
         if (feedbackStatus) query.feedbackStatus = feedbackStatus;
+        if (unitStatus) query['assignedUnits.unitStatus'] = unitStatus;
+        if (unitId) query['assignedUnits.unitId'] = unitId;
         
         // 分页查询
         const skip = (page - 1) * limit;
@@ -169,6 +184,49 @@ router.delete('/delete/:taskId', async (req, res) => {
         res.send({ code: 200, msg: '删除成功' });
     } catch (err) {
         res.send({ code: 500, msg: '删除失败', error: err.message });
+    }
+});
+
+// 根据taskId查询任务详情
+router.get('/detail', async (req, res) => {
+    try {
+        const { taskId } = req.query;
+        
+        if (!taskId) {
+            return res.send({ code: 400, msg: '缺少taskId参数' });
+        }
+
+        // 根据taskId查询任务详情
+        const task = await TaskAssign.findOne({ taskId }).lean();
+        
+        if (!task) {
+            return res.send({ code: 404, msg: '未找到相关任务记录' });
+        }
+
+        // 返回详情数据
+        res.send({
+            code: 200,
+            msg: '查询成功',
+            data: {
+                taskId: task.taskId,
+                situationId: task.situationId,
+                addressId: task.addressId,
+                addressName: task.addressName,
+                locationType: task.locationType,
+                taskStatus: task.taskStatus,
+                remark: task.remark,
+                assignedUnits: task.assignedUnits || [],
+                issuePersonId: task.issuePersonId,
+                issuePersonName: task.issuePersonName,
+                issueTime: task.issueTime,
+                feedbackStatus: task.feedbackStatus,
+                feedbackTime: task.feedbackTime,
+                updateTime: task.updateTime,
+                createTime: task._id.getTimestamp() // 从ObjectId获取创建时间
+            }
+        });
+    } catch (err) {
+        res.send({ code: 500, msg: '查询失败', error: err.message });
     }
 });
 

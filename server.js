@@ -17,7 +17,7 @@ app.use(bodyParser.json({
 // 注意：这里的 cors 是 Express 的跨域配置，与 Socket.IO 的 cors 是分开的
 app.use(cors({
     origin: ['https://xiaobei.space', 'https://www.xiaobei.space', 'http://localhost:8080'],
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true  // 新增：WebSocket 跨域可能需要携带凭证，建议开启
 }));
 
