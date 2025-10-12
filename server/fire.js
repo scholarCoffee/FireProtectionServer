@@ -62,37 +62,12 @@ router.post('/upload', async (req, res) => {
                  });
              }
  
-             // 确保 assignedUnits 中每个单位都有 unitStatus、rescueTime 和 taskId
-             const processedAssignedUnits = [];
-             const taskAssignments = [];
-             
-             for (const unit of assignedUnits) {
-                 const taskId = 'TASK_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                 
-                 // 创建TaskAssign记录
-                 const taskAssign = new TaskAssign({
-                     taskId,
-                     situationId: currentSituationId,
-                     status: 1, // 默认未接收
-                     remark: remark || '',
-                     feedbackPersonId: issuePersonId,
-                     feedbackPersonName: issuePersonName,
-                     feedbackTime: new Date(issueTime),
-                     updateTime: new Date()
-                 });
-                 
-                 await taskAssign.save();
-                 taskAssignments.push(taskAssign);
-                 
-                 // 处理assignedUnit，添加taskId
-                 const processedUnit = {
-                     ...unit,
-                     unitStatus: unit.unitStatus || 'rescue', // 默认首次救援单位
-                     rescueTime: unit.rescueTime || new Date(), // 默认当前时间
-                     taskId: taskId // 关联taskId
-                 };
-                 processedAssignedUnits.push(processedUnit);
-             }
+             // 确保 assignedUnits 中每个单位都有 unitStatus 和 rescueTime
+             const processedAssignedUnits = assignedUnits.map(unit => ({
+                 ...unit,
+                 unitStatus: unit.unitStatus || 'rescue', // 默认首次救援单位
+                 rescueTime: unit.rescueTime || new Date() // 默认当前时间
+             }));
  
              // 创建新的火灾情况记录
              const fireSituation = new FireSituation({
@@ -132,11 +107,7 @@ router.post('/upload', async (req, res) => {
              return res.send({ 
                  code: 200, 
                  msg: '火灾情况创建成功', 
-                 data: {
-                     fireSituation,
-                     taskAssignments,
-                     count: taskAssignments.length
-                 }
+                 data: fireSituation
              });
          } else {
              // 情况2：有situationId，说明是火灾需要支援，新增TaskAssign任务
@@ -148,53 +119,82 @@ router.post('/upload', async (req, res) => {
                  return res.send({ code: 404, msg: '未找到指定的火灾情况' });
              }
              
-             // 为每个assignedUnit创建TaskAssign记录，并更新assignedUnits中的taskId
-             const taskAssignments = [];
-             const updatedAssignedUnits = [];
-             
-             for (const unit of assignedUnits) {
-                 const taskId = 'TASK_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                 
-                 // 创建TaskAssign记录
-                 const taskAssign = new TaskAssign({
-                     taskId,
-                     situationId, // 关联的火灾情况ID
-                     status: 1, // 默认未接收
-                     remark: remark || '',
-                     feedbackPersonId: issuePersonId,
-                     feedbackPersonName: issuePersonName,
-                     feedbackTime: new Date(issueTime),
-                     updateTime: new Date()
+             // 检查单位占用状态
+             const unitIds = assignedUnits.map(unit => unit.unitId);
+             const occupiedUnits = await FireUnitStatus.find({ 
+                 unitId: { $in: unitIds }, 
+                 status: 'occupied'
+             }).lean();
+
+             if (occupiedUnits.length > 0) {
+                 const occupiedUnitNames = occupiedUnits.map(unit => unit.unitName);
+                 return res.send({ 
+                     code: 409, 
+                     msg: `以下单位已被占用，无法分配: ${occupiedUnitNames.join(', ')}` 
                  });
-                 
-                 await taskAssign.save();
-                 taskAssignments.push(taskAssign);
-                 
-                 // 更新assignedUnit，添加taskId
-                 const updatedUnit = {
-                     ...unit,
-                     taskId: taskId // 关联taskId
-                 };
-                 updatedAssignedUnits.push(updatedUnit);
              }
              
-             // 更新FireSituation中的assignedUnits，添加新的支援单位
+             // 创建一个TaskAssign任务
+             const taskId = 'TASK_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+             
+             // 创建TaskAssign记录
+             const taskAssign = new TaskAssign({
+                 taskId,
+                 situationId, // 关联的火灾情况ID
+                 status: 1, // 默认未接收
+                 remark: remark || '',
+                 feedbackPersonId: issuePersonId,
+                 feedbackPersonName: issuePersonName,
+                 feedbackTime: new Date(issueTime),
+                 updateTime: new Date()
+             });
+             
+             await taskAssign.save();
+             
+             // 为所有assignedUnits添加相同的taskId
+             const updatedAssignedUnits = assignedUnits.map(unit => ({
+                 ...unit,
+                 taskId: taskId // 关联同一个taskId
+             }));
+             
+             // 更新FireSituation中的assignedUnits，添加新的支援单位，并更新remark
              await FireSituation.updateOne(
                  { situationId },
                  { 
                      $push: { assignedUnits: { $each: updatedAssignedUnits } },
-                     $set: { updateTime: new Date() }
+                     $set: { 
+                         remark: remark || '', // 覆盖原来的remark
+                         updateTime: new Date() 
+                     }
                  }
              );
+             
+             // 更新单位占用状态
+             const now = new Date();
+             for (const unit of updatedAssignedUnits) {
+                 await FireUnitStatus.updateOne(
+                     { unitId: unit.unitId },
+                     {
+                         $set: {
+                             unitName: unit.unitName,
+                             status: 'occupied',
+                             currentSituationId: situationId,
+                             occupyTime: now,
+                             updateTime: now
+                         }
+                     },
+                     { upsert: true }
+                 );
+             }
              
              return res.send({ 
                  code: 200, 
                  msg: '支援任务创建成功', 
                  data: {
                      situationId,
-                     taskAssignments,
+                     taskAssign,
                      updatedAssignedUnits,
-                     count: taskAssignments.length
+                     count: updatedAssignedUnits.length
                  }
              });
          }
@@ -331,7 +331,6 @@ router.post('/releaseUnit', async (req, res) => {
     }
 });
 
-
 // 查询火灾情况数据
 router.get('/list', async (req, res) => {
     try {
@@ -340,10 +339,10 @@ router.get('/list', async (req, res) => {
             pageSize = 10, 
             unit, 
             taskStatus, 
-            issuePerson, 
+            feedbackPersonName, 
             startTime, 
             endTime, 
-            recordPerson, 
+            issuePersonName, 
             keyword,
             addressId,
             taskType,
@@ -361,19 +360,19 @@ router.get('/list', async (req, res) => {
         if (unitStatus) query['assignedUnits.unitStatus'] = unitStatus;
         if (unitId) query['assignedUnits.unitId'] = unitId;
         
-        // 救援单位查询
+        // 消防单位名称查询
         if (unit) {
-            query['assignedUnits.unitId'] = unit;
+            query['assignedUnits.unitName'] = { $regex: unit, $options: 'i' };
         }
         
-        // 任务下达人员查询
-        if (issuePerson) {
-            query.issuePersonName = { $regex: issuePerson, $options: 'i' };
+        // 反馈人姓名查询
+        if (feedbackPersonName) {
+            query.feedbackPersonName = { $regex: feedbackPersonName, $options: 'i' };
         }
         
-        // 记录人员查询（假设有recordPerson字段，如果没有可以忽略）
-        if (recordPerson) {
-            query.recordPerson = { $regex: recordPerson, $options: 'i' };
+        // 下达人姓名查询
+        if (issuePersonName) {
+            query.issuePersonName = { $regex: issuePersonName, $options: 'i' };
         }
         
         // 时间范围查询
@@ -387,12 +386,11 @@ router.get('/list', async (req, res) => {
             }
         }
         
-        // 关键词搜索（地址名称、备注等）
+        // 关键词搜索（地址名称、地址ID等）
         if (keyword) {
             query.$or = [
                 { addressName: { $regex: keyword, $options: 'i' } },
-                { remark: { $regex: keyword, $options: 'i' } },
-                { issuePersonName: { $regex: keyword, $options: 'i' } }
+                { addressId: { $regex: keyword, $options: 'i' } }
             ];
         }
         

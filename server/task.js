@@ -3,6 +3,7 @@ const router = express.Router();
 const dbmodel = require('../model/index.js');
 const TaskAssign = dbmodel.TaskAssign;
 const FireSituation = dbmodel.FireSituation;
+const FireUnitStatus = dbmodel.FireUnitStatus;
 
 // 创建作战任务（基于火情情况）
 router.post('/create', async (req, res) => {
@@ -72,23 +73,55 @@ router.post('/create', async (req, res) => {
 // 查询作战任务列表
 router.get('/list', async (req, res) => {
     try {
-        const { page = 1, limit = 10, addressId, taskStatus, feedbackStatus, unitStatus, unitId, taskId } = req.query;
+        const { 
+            page = 1, limit = 10, pageSize = 10, 
+            addressId, taskStatus, unitStatus, unitId,
+            unit, status, startTime, endTime, feedbackPersonName, keyword
+        } = req.query;
+        
+        // 使用pageSize或limit作为分页大小
+        const pageSizeNum = parseInt(pageSize) || parseInt(limit) || 10;
         
         // 构建查询条件
         const query = {};
         if (addressId) query.addressId = addressId;
         if (taskStatus) query.taskStatus = taskStatus;
-        if (feedbackStatus) query.feedbackStatus = feedbackStatus;
         if (unitStatus) query['assignedUnits.unitStatus'] = unitStatus;
         if (unitId) query['assignedUnits.unitId'] = unitId;
-        if (taskId) query.taskId = taskId;
+        
+        // 新增查询条件
+        if (unit) {
+            // 消防单位名称查询
+            query['assignedUnits.unitName'] = { $regex: unit, $options: 'i' };
+        }
+        if (status) {
+            // 任务状态查询
+            query.status = parseInt(status);
+        }
+        if (feedbackPersonName) {
+            // 反馈人姓名查询
+            query.feedbackPersonName = { $regex: feedbackPersonName, $options: 'i' };
+        }
+        if (keyword) {
+            // 关键词查询：addressName或addressId
+            query.$or = [
+                { addressName: { $regex: keyword, $options: 'i' } },
+                { addressId: { $regex: keyword, $options: 'i' } }
+            ];
+        }
+        if (startTime || endTime) {
+            // 时间范围查询
+            query.issueTime = {};
+            if (startTime) query.issueTime.$gte = new Date(startTime);
+            if (endTime) query.issueTime.$lte = new Date(endTime);
+        }
         
         // 分页查询
-        const skip = (page - 1) * limit;
+        const skip = (parseInt(page) - 1) * pageSizeNum;
         const tasks = await TaskAssign.find(query)
             .sort({ issueTime: -1 })
             .skip(skip)
-            .limit(parseInt(limit))
+            .limit(pageSizeNum)
             .lean();
         
         // 为每个任务查询关联的火灾情况
@@ -122,9 +155,9 @@ router.get('/list', async (req, res) => {
             data: tasksWithSituation,
             pagination: {
                 page: parseInt(page),
-                limit: parseInt(limit),
+                limit: pageSizeNum,
                 total,
-                pages: Math.ceil(total / limit)
+                pages: Math.ceil(total / pageSizeNum)
             }
         });
     } catch (err) {
@@ -136,20 +169,13 @@ router.get('/list', async (req, res) => {
 router.put('/feedback/:taskId', async (req, res) => {
     try {
         const { taskId } = req.params;
-        const { feedbackStatus } = req.body;
         
-        if (!feedbackStatus || !['received', 'unreceived'].includes(feedbackStatus)) {
-            return res.send({ code: 400, msg: '反馈状态参数错误' });
-        }
-        
+        // 默认直接更新为已接收状态
         const updateData = {
-            feedbackStatus,
+            status: 2, // 已接收
+            feedbackTime: new Date(),
             updateTime: new Date()
         };
-        
-        if (feedbackStatus === 'received') {
-            updateData.feedbackTime = new Date();
-        }
         
         const task = await TaskAssign.findOneAndUpdate(
             { taskId }, 
@@ -159,6 +185,21 @@ router.put('/feedback/:taskId', async (req, res) => {
         
         if (!task) {
             return res.send({ code: 404, msg: '未找到相关任务' });
+        }
+        
+        // 任务被接收，同时更新关联的火灾情况状态为正在支援中
+        try {
+            await FireSituation.findOneAndUpdate(
+                { situationId: task.situationId },
+                { 
+                    taskStatus: 4, // 正在支援中
+                    updateTime: new Date()
+                },
+                { new: true, runValidators: true }
+            );
+        } catch (err) {
+            console.error(`更新火灾情况状态失败，situationId: ${task.situationId}`, err);
+            // 这里不中断主流程，只记录错误
         }
         
         res.send({ code: 200, msg: '反馈成功', data: task });
@@ -204,6 +245,34 @@ router.delete('/delete/:taskId', async (req, res) => {
         
         if (!task) {
             return res.send({ code: 404, msg: '未找到相关任务' });
+        }
+        
+        // 释放关联的消防单位占用状态
+        try {
+            const unitIds = task.assignedUnits.map(unit => unit.unitId);
+            
+            if (unitIds.length > 0) {
+                const now = new Date();
+                await FireUnitStatus.updateMany(
+                    { 
+                        unitId: { $in: unitIds },
+                        currentSituationId: task.situationId
+                    },
+                    {
+                        $set: {
+                            status: 'idle',
+                            currentSituationId: '',
+                            releaseTime: now,
+                            updateTime: now
+                        }
+                    }
+                );
+                
+                console.log(`任务 ${taskId} 删除成功，释放了 ${unitIds.length} 个消防单位`);
+            }
+        } catch (err) {
+            console.error(`释放消防单位状态失败，taskId: ${taskId}`, err);
+            // 这里不中断主流程，只记录错误
         }
         
         res.send({ code: 200, msg: '删除成功' });
