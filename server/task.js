@@ -89,10 +89,14 @@ router.get('/list', async (req, res) => {
         if (unitStatus) query['assignedUnits.unitStatus'] = unitStatus;
         if (unitId) query['assignedUnits.unitId'] = unitId;
         
-        // 新增查询条件
+        // 消防单位查询（支持按ID或名称查询）
         if (unit) {
-            // 消防单位名称查询
-            query['assignedUnits.unitName'] = { $regex: unit, $options: 'i' };
+            // 如果unit是纯数字，按unitId查询；否则按unitName模糊查询
+            if (/^\d+$/.test(unit)) {
+                query['assignedUnits.unitId'] = unit;
+            } else {
+                query['assignedUnits.unitName'] = { $regex: unit, $options: 'i' };
+            }
         }
         if (status) {
             // 任务状态查询
@@ -249,9 +253,10 @@ router.delete('/delete/:taskId', async (req, res) => {
         
         // 释放关联的消防单位占用状态
         try {
-            const unitIds = task.assignedUnits.map(unit => unit.unitId);
-            
-            if (unitIds.length > 0) {
+            // 检查assignedUnits是否存在且为数组
+            if (task.assignedUnits && Array.isArray(task.assignedUnits) && task.assignedUnits.length > 0) {
+                const unitIds = task.assignedUnits.map(unit => unit.unitId);
+                
                 const now = new Date();
                 await FireUnitStatus.updateMany(
                     { 
@@ -269,6 +274,8 @@ router.delete('/delete/:taskId', async (req, res) => {
                 );
                 
                 console.log(`任务 ${taskId} 删除成功，释放了 ${unitIds.length} 个消防单位`);
+            } else {
+                console.log(`任务 ${taskId} 没有关联的消防单位或assignedUnits为空`);
             }
         } catch (err) {
             console.error(`释放消防单位状态失败，taskId: ${taskId}`, err);

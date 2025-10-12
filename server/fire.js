@@ -360,9 +360,14 @@ router.get('/list', async (req, res) => {
         if (unitStatus) query['assignedUnits.unitStatus'] = unitStatus;
         if (unitId) query['assignedUnits.unitId'] = unitId;
         
-        // 消防单位名称查询
+        // 消防单位查询（支持按ID或名称查询）
         if (unit) {
-            query['assignedUnits.unitName'] = { $regex: unit, $options: 'i' };
+            // 如果unit是纯数字，按unitId查询；否则按unitName模糊查询
+            if (/^\d+$/.test(unit)) {
+                query['assignedUnits.unitId'] = unit;
+            } else {
+                query['assignedUnits.unitName'] = { $regex: unit, $options: 'i' };
+            }
         }
         
         // 反馈人姓名查询
