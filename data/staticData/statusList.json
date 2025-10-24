@@ -1,0 +1,5 @@
+[
+{"type":"fireUnits","key":"statusList","data1":"已完成","data2":1},
+{"type":"fireUnits","key":"statusList","data1":"进行中","data2":2},
+{"type":"fireUnits","key":"statusList","data1":"需要救援","data2":3}
+]

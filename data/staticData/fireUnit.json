@@ -1,0 +1,75 @@
+[{
+  "_id": {
+    "$oid": "68b17503024125d27db69991"
+  },
+  "type": "fireUnits",
+  "key": "unitList",
+  "description": "消防单位与素材配置",
+  "data1": "虞山消防救援站",
+  "data2": "1",
+  "data3": "",
+  "data4": "",
+  "extraParam": {
+    "remark": ""
+  }
+},
+{
+  "_id": {
+    "$oid": "68b17503024125d27db69992"
+  },
+  "type": "fireUnits",
+  "key": "unitList",
+  "description": "消防单位与素材配置",
+  "data1": "黄河路消防救援站",
+  "data2": "2",
+  "data3": "",
+  "data4": "",
+  "extraParam": {
+    "remark": ""
+  }
+},
+{
+  "_id": {
+    "$oid": "68b17503024125d27db69993"
+  },
+  "type": "fireUnits",
+  "key": "unitList",
+  "description": "消防单位与素材配置",
+  "data1": "特勤五站",
+  "data2": "3",
+  "data3": "",
+  "data4": "",
+  "extraParam": {
+    "remark": ""
+  }
+},
+{
+  "_id": {
+    "$oid": "68b17503024125d27db69994"
+  },
+  "type": "fireUnits",
+  "key": "unitList",
+  "description": "消防单位与素材配置",
+  "data1": "服装城专职消防队",
+  "data2": "4",
+  "data3": "",
+  "data4": "",
+  "extraParam": {
+    "remark": ""
+  }
+},
+{
+  "_id": {
+    "$oid": "68b17503024125d27db69995"
+  },
+  "type": "fireUnits",
+  "key": "unitList",
+  "description": "消防单位与素材配置",
+  "data1": "尚湖消防专职队",
+  "data2": "5",
+  "data3": "",
+  "data4": "",
+  "extraParam": {
+    "remark": ""
+  }
+}]

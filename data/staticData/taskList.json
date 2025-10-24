@@ -1,0 +1,7 @@
+[
+{"type":"fireUnits","key":"taskList","data1":"内攻灭火","data2":1,"config":{"uiType":"select","actionKey":"firePower","options":["1枪","2枪","1炮","2炮"]}},
+{"type":"fireUnits","key":"taskList","data1":"堵截火势","data2":2,"config":{"uiType":"select","actionKey":"blockPower","options":["1枪","2枪","1炮","2炮"]}},
+{"type":"fireUnits","key":"taskList","data1":"人员搜救","data2":3,"config":{"uiType":"input","actionKey":"searchRoom","placeholder":"请输入搜救房间"}},
+{"type":"fireUnits","key":"taskList","data1":"火场排烟","data2":4,"config":{"uiType":"select","actionKey":"smokeMethod","options":["自然排烟","排烟机排烟","水雾排烟"]}},
+{"type":"fireUnits","key":"taskList","data1":"火场供水","data2":5,"config":{"uiType":"select-collection","actionKey":"supplyTarget","source":{"type":"fireUnits","key":"fireUnit"}}}
+]

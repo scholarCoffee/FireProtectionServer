@@ -1,0 +1,268 @@
+{
+  "configVersion": "1.0.0",
+  "configName": "单位消防安全三色评分表",
+  "description": "动态配置的消防安全评分系统",
+  "scoreConfig": {
+    "maxScore": 100,
+    "safetyLevels": [
+      {
+        "levelId": 1,
+        "level": "优秀",
+        "minScore": 90,
+        "maxScore": 100,
+        "minPercentage": 90
+      },
+      {
+        "levelId": 2,
+        "level": "一般",
+        "minScore": 70,
+        "maxScore": 89,
+        "minPercentage": 70
+      },
+      {
+        "levelId": 3,
+        "level": "较差",
+        "minScore": 0,
+        "maxScore": 69,
+        "minPercentage": 0
+      }
+    ]
+  },
+  "scoreItems": [
+    {
+      "id": "naturalWaterSource",
+      "name": "单位周边100m范围内有无天然水源",
+      "type": "binary",
+      "weight": 10,
+      "category": "水源配置",
+      "description": "检查单位周边100米范围内是否有河流、湖泊等天然水源",
+      "options": [
+        {
+          "text": "有",
+          "score": 10,
+          "value": "yes"
+        },
+        {
+          "text": "无",
+          "score": 0,
+          "value": "no"
+        }
+      ]
+    },
+    {
+      "id": "outdoorHydrant",
+      "name": "单位周边50m内有无室外消火栓",
+      "type": "binary",
+      "weight": 10,
+      "category": "水源配置",
+      "description": "检查单位周边50米范围内是否有室外消火栓",
+      "options": [
+        {
+          "text": "有",
+          "score": 10,
+          "value": "yes"
+        },
+        {
+          "text": "无",
+          "score": 0,
+          "value": "no"
+        }
+      ]
+    },
+    {
+      "id": "vehicleAccess",
+      "name": "单位内部车辆是否能通行",
+      "type": "ternary",
+      "weight": 10,
+      "category": "道路通行",
+      "description": "检查单位内部道路是否满足消防车辆通行要求",
+      "options": [
+        {
+          "text": "重型消防车能通行",
+          "score": 10,
+          "value": "heavy"
+        },
+        {
+          "text": "小型消防车能通行",
+          "score": 5,
+          "value": "light"
+        },
+        {
+          "text": "都不能通行",
+          "score": 0,
+          "value": "none"
+        }
+      ]
+    },
+    {
+      "id": "buildingHydrant",
+      "name": "单位内部建筑消火栓是否都有水",
+      "type": "ternary",
+      "weight": 10,
+      "category": "消防设施",
+      "description": "检查单位内部建筑消火栓的水压和水量是否满足要求",
+      "options": [
+        {
+          "text": "都有水",
+          "score": 10,
+          "value": "all"
+        },
+        {
+          "text": "部分有水",
+          "score": 5,
+          "value": "partial"
+        },
+        {
+          "text": "都没水",
+          "score": 0,
+          "value": "none"
+        }
+      ]
+    },
+    {
+      "id": "outdoorHydrantWater",
+      "name": "单位内部户外消火栓是否有水",
+      "type": "ternary",
+      "weight": 10,
+      "category": "消防设施",
+      "description": "检查单位内部户外消火栓的水压和水量是否满足要求",
+      "options": [
+        {
+          "text": "全部有水",
+          "score": 10,
+          "value": "all"
+        },
+        {
+          "text": "部分有水",
+          "score": 5,
+          "value": "partial"
+        },
+        {
+          "text": "全部没水",
+          "score": 0,
+          "value": "none"
+        }
+      ]
+    },
+    {
+      "id": "controlRoom",
+      "name": "单位消防控制室使用情况",
+      "type": "ternary",
+      "weight": 10,
+      "category": "控制系统",
+      "description": "检查消防控制室设备运行状态",
+      "options": [
+        {
+          "text": "排烟机和水泵都能启动",
+          "score": 10,
+          "value": "both"
+        },
+        {
+          "text": "只能启动1个",
+          "score": 5,
+          "value": "one"
+        },
+        {
+          "text": "都不能启动",
+          "score": 0,
+          "value": "none"
+        }
+      ]
+    },
+    {
+      "id": "fireElevator",
+      "name": "单位内部消防电梯情况",
+      "type": "ternary",
+      "weight": 10,
+      "category": "疏散设施",
+      "description": "检查消防电梯配置和运行状态",
+      "options": [
+        {
+          "text": "都是消防电梯",
+          "score": 10,
+          "value": "all"
+        },
+        {
+          "text": "部分消防电梯",
+          "score": 5,
+          "value": "partial"
+        },
+        {
+          "text": "都不是消防电梯",
+          "score": 0,
+          "value": "none"
+        }
+      ]
+    },
+    {
+      "id": "stairwellType",
+      "name": "单位内部楼梯间类型",
+      "type": "ternary",
+      "weight": 10,
+      "category": "疏散设施",
+      "description": "检查楼梯间防烟设计",
+      "options": [
+        {
+          "text": "都是防烟楼梯间",
+          "score": 10,
+          "value": "all"
+        },
+        {
+          "text": "部分防烟楼梯间",
+          "score": 5,
+          "value": "partial"
+        },
+        {
+          "text": "都不是防烟楼梯间",
+          "score": 0,
+          "value": "none"
+        }
+      ]
+    },
+    {
+      "id": "unitConnection",
+      "name": "单位各单元之间贯通情况",
+      "type": "ternary",
+      "weight": 10,
+      "category": "建筑布局",
+      "description": "检查各建筑单元之间的连通性",
+      "options": [
+        {
+          "text": "都能贯通",
+          "score": 10,
+          "value": "all"
+        },
+        {
+          "text": "部分贯通",
+          "score": 5,
+          "value": "partial"
+        },
+        {
+          "text": "都不能贯通",
+          "score": 0,
+          "value": "none"
+        }
+      ]
+    },
+    {
+      "id": "emergencyTeam",
+      "name": "单位是否存在处置小分队",
+      "type": "binary",
+      "weight": 10,
+      "category": "应急管理",
+      "description": "检查单位是否配备应急处理人员",
+      "options": [
+        {
+          "text": "是",
+          "score": 10,
+          "value": "yes"
+        },
+        {
+          "text": "否",
+          "score": 0,
+          "value": "no"
+        }
+      ]
+    }
+  ]
+} 

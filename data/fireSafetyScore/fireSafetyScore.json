@@ -1,0 +1,1477 @@
+[{
+  "_id": {
+    "$oid": "65f3d731a63046e5b2cc8003"
+  },
+  "safeId": "SAFE003",
+  "addressId": "789012",
+  "addressName": "江苏省苏州市姑苏区平江路历史街区",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 0,
+      "option": "无",
+      "itemId": "naturalWaterSource"
+    },
+    "outdoorHydrant": {
+      "score": 10,
+      "option": "有",
+      "itemId": "outdoorHydrant"
+    },
+    "vehicleAccess": {
+      "score": 0,
+      "option": "都不能通行",
+      "itemId": "vehicleAccess"
+    },
+    "buildingHydrant": {
+      "score": 5,
+      "option": "部分有水",
+      "itemId": "buildingHydrant"
+    },
+    "outdoorHydrantWater": {
+      "score": 5,
+      "option": "部分有水",
+      "itemId": "outdoorHydrantWater"
+    },
+    "controlRoom": {
+      "score": 5,
+      "option": "只能启动1个",
+      "itemId": "controlRoom"
+    },
+    "fireElevator": {
+      "score": 0,
+      "option": "都不是消防电梯",
+      "itemId": "fireElevator"
+    },
+    "stairwellType": {
+      "score": 5,
+      "option": "部分防烟楼梯间",
+      "itemId": "stairwellType"
+    },
+    "unitConnection": {
+      "score": 5,
+      "option": "部分贯通",
+      "itemId": "unitConnection"
+    },
+    "emergencyTeam": {
+      "score": 10,
+      "option": "是",
+      "itemId": "emergencyTeam"
+    }
+  },
+  "totalScore": 45,
+  "maxPossibleScore": 100,
+  "scorePercentage": 45,
+  "safeLevelId": 3,
+  "safeLevelName": "较差",
+  "createTime": {
+    "$date": "2024-01-15T10:00:00.000Z"
+  },
+  "updateTime": {
+    "$date": "2024-01-15T10:00:00.000Z"
+  }
+},
+{
+  "_id": {
+    "$oid": "6899a79b3a974311ee9a00f7"
+  },
+  "safeId": "SAFE013",
+  "addressId": "234567",
+  "addressName": "江苏省苏州市高新区狮子中心",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 0,
+      "option": "无",
+      "itemId": "naturalWaterSource",
+      "remark": "测试",
+      "_id": {
+        "$oid": "68a31aa71b0a1e952969ab00"
+      }
+    },
+    "outdoorHydrant": {
+      "score": 0,
+      "option": "无",
+      "itemId": "outdoorHydrant",
+      "remark": "测试",
+      "_id": {
+        "$oid": "68a31aa71b0a1e952969ab01"
+      }
+    },
+    "vehicleAccess": {
+      "score": 0,
+      "option": "消防车不通行",
+      "itemId": "vehicleAccess",
+      "remark": "",
+      "_id": {
+        "$oid": "68a31aa71b0a1e952969ab02"
+      }
+    },
+    "outdoorHydrantWater": {
+      "score": 0,
+      "option": "无水",
+      "itemId": "outdoorHydrantWater",
+      "remark": "",
+      "_id": {
+        "$oid": "6899a79b3a974311ee9a00fb"
+      }
+    },
+    "controlRoom": {
+      "score": 5,
+      "option": "只启泵",
+      "itemId": "controlRoom",
+      "remark": "",
+      "_id": {
+        "$oid": "68a196011b0a1e952969a42f"
+      }
+    },
+    "buildingHydrant": {
+      "score": 10,
+      "option": "都有水",
+      "itemId": "buildingHydrant",
+      "remark": "",
+      "_id": {
+        "$oid": "6899a79b3a974311ee9a00fd"
+      }
+    },
+    "fireElevator": {
+      "score": 10,
+      "option": "全部有",
+      "itemId": "fireElevator",
+      "remark": "",
+      "_id": {
+        "$oid": "6899a79b3a974311ee9a00fe"
+      }
+    },
+    "stairwellType": {
+      "score": 10,
+      "option": "都是防烟楼梯间",
+      "itemId": "stairwellType",
+      "remark": "",
+      "_id": {
+        "$oid": "6899a79b3a974311ee9a00ff"
+      }
+    },
+    "unitConnection": {
+      "score": 0,
+      "option": "全不贯通",
+      "itemId": "unitConnection",
+      "remark": "",
+      "_id": {
+        "$oid": "68a31aa71b0a1e952969ab08"
+      }
+    },
+    "emergencyTeam": {
+      "score": 0,
+      "option": "无",
+      "itemId": "emergencyTeam",
+      "remark": "",
+      "_id": {
+        "$oid": "68a31aa71b0a1e952969ab09"
+      }
+    }
+  },
+  "totalScore": 35,
+  "maxPossibleScore": 100,
+  "scorePercentage": 35,
+  "createTime": {
+    "$date": "2025-08-11T08:19:39.400Z"
+  },
+  "updateTime": {
+    "$date": "2025-08-22T08:37:44.564Z"
+  },
+  "__v": 0,
+  "safeLevelId": 1,
+  "safeLevelName": "一般"
+},
+{
+  "_id": {
+    "$oid": "689aba9a7c4a83c5298a4552"
+  },
+  "safeId": "SAFE012",
+  "addressId": "123789",
+  "addressName": "江苏省苏州市相城区阳澄湖度假区",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 10,
+      "option": "有",
+      "itemId": "naturalWaterSource",
+      "remark": "猜猜猜",
+      "_id": {
+        "$oid": "689aba9a7c4a83c5298a4553"
+      }
+    },
+    "outdoorHydrant": {
+      "score": 10,
+      "option": "有",
+      "itemId": "outdoorHydrant",
+      "remark": "ces",
+      "_id": {
+        "$oid": "689aba9a7c4a83c5298a4554"
+      }
+    },
+    "vehicleAccess": {
+      "score": 10,
+      "option": "云梯通行",
+      "itemId": "vehicleAccess",
+      "remark": "",
+      "_id": {
+        "$oid": "689aba9a7c4a83c5298a4555"
+      }
+    },
+    "outdoorHydrantWater": {
+      "score": 10,
+      "option": "有水",
+      "itemId": "outdoorHydrantWater",
+      "remark": "",
+      "_id": {
+        "$oid": "689aba9a7c4a83c5298a4556"
+      }
+    },
+    "controlRoom": {
+      "score": 10,
+      "option": "能启泵排烟",
+      "itemId": "controlRoom",
+      "remark": "",
+      "_id": {
+        "$oid": "689aba9a7c4a83c5298a4557"
+      }
+    },
+    "buildingHydrant": {
+      "score": 10,
+      "option": "都有水",
+      "itemId": "buildingHydrant",
+      "remark": "",
+      "_id": {
+        "$oid": "689aba9a7c4a83c5298a4558"
+      }
+    },
+    "fireElevator": {
+      "score": 10,
+      "option": "全部有",
+      "itemId": "fireElevator",
+      "remark": "",
+      "_id": {
+        "$oid": "689aba9a7c4a83c5298a4559"
+      }
+    },
+    "stairwellType": {
+      "score": 10,
+      "option": "都是防烟楼梯间",
+      "itemId": "stairwellType",
+      "remark": "",
+      "_id": {
+        "$oid": "689aba9a7c4a83c5298a455a"
+      }
+    },
+    "unitConnection": {
+      "score": 10,
+      "option": "都贯通",
+      "itemId": "unitConnection",
+      "remark": "",
+      "_id": {
+        "$oid": "689aba9a7c4a83c5298a455b"
+      }
+    },
+    "emergencyTeam": {
+      "score": 10,
+      "option": "有",
+      "itemId": "emergencyTeam",
+      "remark": "",
+      "_id": {
+        "$oid": "689aba9a7c4a83c5298a455c"
+      }
+    }
+  },
+  "totalScore": 100,
+  "maxPossibleScore": 100,
+  "scorePercentage": 100,
+  "safeLevelId": 1,
+  "safeLevelName": "一般",
+  "createTime": {
+    "$date": "2025-08-12T03:52:58.607Z"
+  },
+  "updateTime": {
+    "$date": "2025-09-15T07:29:24.376Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68a0af1251c0b1956304703c"
+  },
+  "safeId": "SAFE175536104192673",
+  "addressId": "312312321",
+  "addressName": "222222222222",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 10,
+      "option": "有",
+      "itemId": "naturalWaterSource",
+      "_id": {
+        "$oid": "68a0af1251c0b1956304703d"
+      }
+    },
+    "outdoorHydrant": {
+      "score": 10,
+      "option": "有",
+      "itemId": "outdoorHydrant",
+      "_id": {
+        "$oid": "68a0af1251c0b1956304703e"
+      }
+    },
+    "vehicleAccess": {
+      "score": 10,
+      "option": "云梯通行",
+      "itemId": "vehicleAccess",
+      "_id": {
+        "$oid": "68a0af1251c0b1956304703f"
+      }
+    },
+    "outdoorHydrantWater": {
+      "score": 10,
+      "option": "有水",
+      "itemId": "outdoorHydrantWater",
+      "_id": {
+        "$oid": "68a0af1251c0b19563047040"
+      }
+    },
+    "controlRoom": {
+      "score": 10,
+      "option": "能启泵排烟",
+      "itemId": "controlRoom",
+      "_id": {
+        "$oid": "68a0af1251c0b19563047041"
+      }
+    },
+    "buildingHydrant": {
+      "score": 10,
+      "option": "都有水",
+      "itemId": "buildingHydrant",
+      "_id": {
+        "$oid": "68a0af1251c0b19563047042"
+      }
+    },
+    "fireElevator": {
+      "score": 10,
+      "option": "全部有",
+      "itemId": "fireElevator",
+      "_id": {
+        "$oid": "68a0af1251c0b19563047043"
+      }
+    },
+    "stairwellType": {
+      "score": 10,
+      "option": "都是防烟楼梯间",
+      "itemId": "stairwellType",
+      "_id": {
+        "$oid": "68a0af1251c0b19563047044"
+      }
+    },
+    "unitConnection": {
+      "score": 10,
+      "option": "都贯通",
+      "itemId": "unitConnection",
+      "_id": {
+        "$oid": "68a0af1251c0b19563047045"
+      }
+    },
+    "emergencyTeam": {
+      "score": 10,
+      "option": "有",
+      "itemId": "emergencyTeam",
+      "_id": {
+        "$oid": "68a0af1251c0b19563047046"
+      }
+    }
+  },
+  "totalScore": 100,
+  "maxPossibleScore": 100,
+  "scorePercentage": 100,
+  "safeLevelId": 1,
+  "safeLevelName": "一般",
+  "createTime": {
+    "$date": "2025-08-16T16:17:22.241Z"
+  },
+  "updateTime": {
+    "$date": "2025-08-16T16:17:22.241Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68a0b25871c55a60e9f39ef4"
+  },
+  "safeId": "SAFE1755361880381976",
+  "addressId": "21321312",
+  "addressName": "123213",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 10,
+      "option": "有",
+      "itemId": "naturalWaterSource",
+      "_id": {
+        "$oid": "68a0b25871c55a60e9f39ef5"
+      }
+    },
+    "outdoorHydrant": {
+      "score": 10,
+      "option": "有",
+      "itemId": "outdoorHydrant",
+      "_id": {
+        "$oid": "68a0b25871c55a60e9f39ef6"
+      }
+    },
+    "vehicleAccess": {
+      "score": 10,
+      "option": "云梯通行",
+      "itemId": "vehicleAccess",
+      "_id": {
+        "$oid": "68a0b25871c55a60e9f39ef7"
+      }
+    },
+    "outdoorHydrantWater": {
+      "score": 10,
+      "option": "有水",
+      "itemId": "outdoorHydrantWater",
+      "_id": {
+        "$oid": "68a0b25871c55a60e9f39ef8"
+      }
+    },
+    "controlRoom": {
+      "score": 10,
+      "option": "能启泵排烟",
+      "itemId": "controlRoom",
+      "_id": {
+        "$oid": "68a0b25871c55a60e9f39ef9"
+      }
+    },
+    "buildingHydrant": {
+      "score": 10,
+      "option": "都有水",
+      "itemId": "buildingHydrant",
+      "_id": {
+        "$oid": "68a0b25871c55a60e9f39efa"
+      }
+    },
+    "fireElevator": {
+      "score": 10,
+      "option": "全部有",
+      "itemId": "fireElevator",
+      "_id": {
+        "$oid": "68a0b25871c55a60e9f39efb"
+      }
+    },
+    "stairwellType": {
+      "score": 10,
+      "option": "都是防烟楼梯间",
+      "itemId": "stairwellType",
+      "_id": {
+        "$oid": "68a0b25871c55a60e9f39efc"
+      }
+    },
+    "unitConnection": {
+      "score": 10,
+      "option": "都贯通",
+      "itemId": "unitConnection",
+      "_id": {
+        "$oid": "68a0b25871c55a60e9f39efd"
+      }
+    },
+    "emergencyTeam": {
+      "score": 10,
+      "option": "有",
+      "itemId": "emergencyTeam",
+      "_id": {
+        "$oid": "68a0b25871c55a60e9f39efe"
+      }
+    }
+  },
+  "totalScore": 100,
+  "maxPossibleScore": 100,
+  "scorePercentage": 100,
+  "safeLevelId": 1,
+  "safeLevelName": "一般",
+  "createTime": {
+    "$date": "2025-08-16T16:31:20.638Z"
+  },
+  "updateTime": {
+    "$date": "2025-08-16T16:31:20.638Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68a198211b0a1e952969a4d4"
+  },
+  "safeId": "SAFE009",
+  "addressId": "890123",
+  "addressName": "江苏省苏州市姑苏区留园",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 0,
+      "option": "无",
+      "itemId": "naturalWaterSource",
+      "_id": {
+        "$oid": "68a198211b0a1e952969a4d5"
+      }
+    },
+    "outdoorHydrant": {
+      "score": 0,
+      "option": "无",
+      "itemId": "outdoorHydrant",
+      "_id": {
+        "$oid": "68a198211b0a1e952969a4d6"
+      }
+    },
+    "vehicleAccess": {
+      "score": 0,
+      "option": "都不能通行",
+      "itemId": "vehicleAccess",
+      "_id": {
+        "$oid": "68a198211b0a1e952969a4d7"
+      }
+    },
+    "buildingHydrant": {
+      "score": 0,
+      "option": "都没水",
+      "itemId": "buildingHydrant",
+      "_id": {
+        "$oid": "68a198211b0a1e952969a4d8"
+      }
+    },
+    "outdoorHydrantWater": {
+      "score": 0,
+      "option": "全部没水",
+      "itemId": "outdoorHydrantWater",
+      "_id": {
+        "$oid": "68a198211b0a1e952969a4d9"
+      }
+    },
+    "controlRoom": {
+      "score": 0,
+      "option": "都不能启动",
+      "itemId": "controlRoom",
+      "_id": {
+        "$oid": "68a198211b0a1e952969a4da"
+      }
+    },
+    "fireElevator": {
+      "score": 0,
+      "option": "都不是消防电梯",
+      "itemId": "fireElevator",
+      "_id": {
+        "$oid": "68a198211b0a1e952969a4db"
+      }
+    },
+    "stairwellType": {
+      "score": 0,
+      "option": "都不是防烟楼梯间",
+      "itemId": "stairwellType",
+      "_id": {
+        "$oid": "68a198211b0a1e952969a4dc"
+      }
+    },
+    "unitConnection": {
+      "score": 0,
+      "option": "都不能贯通",
+      "itemId": "unitConnection",
+      "_id": {
+        "$oid": "68a198211b0a1e952969a4dd"
+      }
+    },
+    "emergencyTeam": {
+      "score": 0,
+      "option": "否",
+      "itemId": "emergencyTeam",
+      "_id": {
+        "$oid": "68a198211b0a1e952969a4de"
+      }
+    }
+  },
+  "totalScore": 0,
+  "maxPossibleScore": 100,
+  "scorePercentage": 0,
+  "safeLevelId": 3,
+  "safeLevelName": "较差",
+  "createTime": {
+    "$date": "2025-08-17T08:51:45.290Z"
+  },
+  "updateTime": {
+    "$date": "2025-08-17T08:51:45.290Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68a198541b0a1e952969a4ed"
+  },
+  "safeId": "SAFE007",
+  "addressId": "678901",
+  "addressName": "江苏省苏州市姑苏区寒山寺",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 0,
+      "option": "无",
+      "itemId": "naturalWaterSource",
+      "remark": "",
+      "_id": {
+        "$oid": "68a198541b0a1e952969a4ee"
+      }
+    },
+    "outdoorHydrant": {
+      "score": 0,
+      "option": "无",
+      "itemId": "outdoorHydrant",
+      "remark": "",
+      "_id": {
+        "$oid": "68a198541b0a1e952969a4ef"
+      }
+    },
+    "vehicleAccess": {
+      "score": 0,
+      "option": "都不能通行",
+      "itemId": "vehicleAccess",
+      "remark": "",
+      "_id": {
+        "$oid": "68a198541b0a1e952969a4f0"
+      }
+    },
+    "buildingHydrant": {
+      "score": 0,
+      "option": "都没水",
+      "itemId": "buildingHydrant",
+      "remark": "",
+      "_id": {
+        "$oid": "68a198541b0a1e952969a4f1"
+      }
+    },
+    "outdoorHydrantWater": {
+      "score": 0,
+      "option": "全部没水",
+      "itemId": "outdoorHydrantWater",
+      "remark": "",
+      "_id": {
+        "$oid": "68a198541b0a1e952969a4f2"
+      }
+    },
+    "controlRoom": {
+      "score": 0,
+      "option": "都不能启动",
+      "itemId": "controlRoom",
+      "remark": "",
+      "_id": {
+        "$oid": "68a198541b0a1e952969a4f3"
+      }
+    },
+    "fireElevator": {
+      "score": 0,
+      "option": "都不是消防电梯",
+      "itemId": "fireElevator",
+      "remark": "",
+      "_id": {
+        "$oid": "68a198541b0a1e952969a4f4"
+      }
+    },
+    "stairwellType": {
+      "score": 0,
+      "option": "都不是防烟楼梯间",
+      "itemId": "stairwellType",
+      "remark": "",
+      "_id": {
+        "$oid": "68a198541b0a1e952969a4f5"
+      }
+    },
+    "unitConnection": {
+      "score": 0,
+      "option": "都不能贯通",
+      "itemId": "unitConnection",
+      "remark": "",
+      "_id": {
+        "$oid": "68a198541b0a1e952969a4f6"
+      }
+    },
+    "emergencyTeam": {
+      "score": 0,
+      "option": "否",
+      "itemId": "emergencyTeam",
+      "remark": "",
+      "_id": {
+        "$oid": "68a198541b0a1e952969a4f7"
+      }
+    }
+  },
+  "totalScore": 0,
+  "maxPossibleScore": 100,
+  "scorePercentage": 0,
+  "safeLevelId": 1,
+  "safeLevelName": "一般",
+  "createTime": {
+    "$date": "2025-08-17T08:52:36.909Z"
+  },
+  "updateTime": {
+    "$date": "2025-08-22T05:54:51.537Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68a199061b0a1e952969a532"
+  },
+  "safeId": "SAFE004",
+  "addressId": "345678",
+  "addressName": "江苏省苏州市姑苏区金鸡湖景区",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 0,
+      "option": "无",
+      "itemId": "naturalWaterSource",
+      "_id": {
+        "$oid": "68a199061b0a1e952969a533"
+      }
+    },
+    "outdoorHydrant": {
+      "score": 0,
+      "option": "无",
+      "itemId": "outdoorHydrant",
+      "_id": {
+        "$oid": "68a199061b0a1e952969a534"
+      }
+    },
+    "vehicleAccess": {
+      "score": 0,
+      "option": "都不能通行",
+      "itemId": "vehicleAccess",
+      "_id": {
+        "$oid": "68a199061b0a1e952969a535"
+      }
+    },
+    "buildingHydrant": {
+      "score": 0,
+      "option": "都没水",
+      "itemId": "buildingHydrant",
+      "_id": {
+        "$oid": "68a199061b0a1e952969a536"
+      }
+    },
+    "outdoorHydrantWater": {
+      "score": 0,
+      "option": "全部没水",
+      "itemId": "outdoorHydrantWater",
+      "_id": {
+        "$oid": "68a199061b0a1e952969a537"
+      }
+    },
+    "controlRoom": {
+      "score": 0,
+      "option": "都不能启动",
+      "itemId": "controlRoom",
+      "_id": {
+        "$oid": "68a199061b0a1e952969a538"
+      }
+    },
+    "fireElevator": {
+      "score": 0,
+      "option": "都不是消防电梯",
+      "itemId": "fireElevator",
+      "_id": {
+        "$oid": "68a199061b0a1e952969a539"
+      }
+    },
+    "stairwellType": {
+      "score": 0,
+      "option": "都不是防烟楼梯间",
+      "itemId": "stairwellType",
+      "_id": {
+        "$oid": "68a199061b0a1e952969a53a"
+      }
+    },
+    "unitConnection": {
+      "score": 0,
+      "option": "都不能贯通",
+      "itemId": "unitConnection",
+      "_id": {
+        "$oid": "68a199061b0a1e952969a53b"
+      }
+    },
+    "emergencyTeam": {
+      "score": 0,
+      "option": "否",
+      "itemId": "emergencyTeam",
+      "_id": {
+        "$oid": "68a199061b0a1e952969a53c"
+      }
+    }
+  },
+  "totalScore": 0,
+  "maxPossibleScore": 100,
+  "scorePercentage": 0,
+  "safeLevelId": 3,
+  "safeLevelName": "较差",
+  "createTime": {
+    "$date": "2025-08-17T08:55:34.613Z"
+  },
+  "updateTime": {
+    "$date": "2025-08-17T08:55:34.613Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68a199a31b0a1e952969a584"
+  },
+  "safeId": "SAFE010",
+  "addressId": "901234",
+  "addressName": "江苏省苏州市工业园区独墅湖高教区",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 0,
+      "option": "无",
+      "itemId": "naturalWaterSource",
+      "remark": "",
+      "_id": {
+        "$oid": "68a199a31b0a1e952969a585"
+      }
+    },
+    "outdoorHydrant": {
+      "score": 0,
+      "option": "无",
+      "itemId": "outdoorHydrant",
+      "remark": "",
+      "_id": {
+        "$oid": "68a199a31b0a1e952969a586"
+      }
+    },
+    "vehicleAccess": {
+      "score": 0,
+      "option": "都不能通行",
+      "itemId": "vehicleAccess",
+      "remark": "",
+      "_id": {
+        "$oid": "68a199a31b0a1e952969a587"
+      }
+    },
+    "buildingHydrant": {
+      "score": 0,
+      "option": "都没水",
+      "itemId": "buildingHydrant",
+      "remark": "",
+      "_id": {
+        "$oid": "68a199a31b0a1e952969a588"
+      }
+    },
+    "outdoorHydrantWater": {
+      "score": 0,
+      "option": "全部没水",
+      "itemId": "outdoorHydrantWater",
+      "remark": "",
+      "_id": {
+        "$oid": "68a199a31b0a1e952969a589"
+      }
+    },
+    "controlRoom": {
+      "score": 0,
+      "option": "都不能启动",
+      "itemId": "controlRoom",
+      "remark": "",
+      "_id": {
+        "$oid": "68a199a31b0a1e952969a58a"
+      }
+    },
+    "fireElevator": {
+      "score": 0,
+      "option": "都不是消防电梯",
+      "itemId": "fireElevator",
+      "remark": "",
+      "_id": {
+        "$oid": "68a199a31b0a1e952969a58b"
+      }
+    },
+    "stairwellType": {
+      "score": 0,
+      "option": "都不是防烟楼梯间",
+      "itemId": "stairwellType",
+      "remark": "",
+      "_id": {
+        "$oid": "68a199a31b0a1e952969a58c"
+      }
+    },
+    "unitConnection": {
+      "score": 0,
+      "option": "都不能贯通",
+      "itemId": "unitConnection",
+      "remark": "",
+      "_id": {
+        "$oid": "68a199a31b0a1e952969a58d"
+      }
+    },
+    "emergencyTeam": {
+      "score": 0,
+      "option": "否",
+      "itemId": "emergencyTeam",
+      "remark": "",
+      "_id": {
+        "$oid": "68a199a31b0a1e952969a58e"
+      }
+    }
+  },
+  "totalScore": 0,
+  "maxPossibleScore": 100,
+  "scorePercentage": 0,
+  "safeLevelId": 1,
+  "safeLevelName": "一般",
+  "createTime": {
+    "$date": "2025-08-17T08:58:11.971Z"
+  },
+  "updateTime": {
+    "$date": "2025-08-22T07:05:06.451Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68a19a561b0a1e952969a5fa"
+  },
+  "safeId": "SAFE005",
+  "addressId": "456789",
+  "addressName": "江苏省苏州市姑苏区拙政园",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 0,
+      "option": "无",
+      "itemId": "naturalWaterSource",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a561b0a1e952969a5fb"
+      }
+    },
+    "outdoorHydrant": {
+      "score": 0,
+      "option": "无",
+      "itemId": "outdoorHydrant",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a561b0a1e952969a5fc"
+      }
+    },
+    "vehicleAccess": {
+      "score": 0,
+      "option": "都不能通行",
+      "itemId": "vehicleAccess",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a561b0a1e952969a5fd"
+      }
+    },
+    "buildingHydrant": {
+      "score": 0,
+      "option": "都没水",
+      "itemId": "buildingHydrant",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a561b0a1e952969a5fe"
+      }
+    },
+    "outdoorHydrantWater": {
+      "score": 0,
+      "option": "全部没水",
+      "itemId": "outdoorHydrantWater",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a561b0a1e952969a5ff"
+      }
+    },
+    "controlRoom": {
+      "score": 0,
+      "option": "都不能启动",
+      "itemId": "controlRoom",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a561b0a1e952969a600"
+      }
+    },
+    "fireElevator": {
+      "score": 0,
+      "option": "都不是消防电梯",
+      "itemId": "fireElevator",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a561b0a1e952969a601"
+      }
+    },
+    "stairwellType": {
+      "score": 0,
+      "option": "都不是防烟楼梯间",
+      "itemId": "stairwellType",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a561b0a1e952969a602"
+      }
+    },
+    "unitConnection": {
+      "score": 0,
+      "option": "都不能贯通",
+      "itemId": "unitConnection",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a561b0a1e952969a603"
+      }
+    },
+    "emergencyTeam": {
+      "score": 0,
+      "option": "否",
+      "itemId": "emergencyTeam",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a561b0a1e952969a604"
+      }
+    }
+  },
+  "totalScore": 0,
+  "maxPossibleScore": 100,
+  "scorePercentage": 0,
+  "safeLevelId": 1,
+  "safeLevelName": "一般",
+  "createTime": {
+    "$date": "2025-08-17T09:01:10.531Z"
+  },
+  "updateTime": {
+    "$date": "2025-08-23T02:29:54.504Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68a19a651b0a1e952969a612"
+  },
+  "safeId": "SAFE011",
+  "addressId": "012345",
+  "addressName": "江苏省苏州市吴中区木渎古镇",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 10,
+      "option": "有",
+      "itemId": "naturalWaterSource",
+      "remark": "1232132132132",
+      "_id": {
+        "$oid": "68a6ff60dda6712c54bda91a"
+      }
+    },
+    "outdoorHydrant": {
+      "score": 0,
+      "option": "无",
+      "itemId": "outdoorHydrant",
+      "remark": "132132132112",
+      "_id": {
+        "$oid": "68a19a651b0a1e952969a614"
+      }
+    },
+    "vehicleAccess": {
+      "score": 0,
+      "option": "都不能通行",
+      "itemId": "vehicleAccess",
+      "remark": "32131232132131212",
+      "_id": {
+        "$oid": "68a19a651b0a1e952969a615"
+      }
+    },
+    "buildingHydrant": {
+      "score": 10,
+      "option": "都有水",
+      "itemId": "buildingHydrant",
+      "remark": "31231321321",
+      "_id": {
+        "$oid": "68a6ff60dda6712c54bda91d"
+      }
+    },
+    "outdoorHydrantWater": {
+      "score": 0,
+      "option": "全部没水",
+      "itemId": "outdoorHydrantWater",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a651b0a1e952969a617"
+      }
+    },
+    "controlRoom": {
+      "score": 0,
+      "option": "都不能启动",
+      "itemId": "controlRoom",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a651b0a1e952969a618"
+      }
+    },
+    "fireElevator": {
+      "score": 0,
+      "option": "都不是消防电梯",
+      "itemId": "fireElevator",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a651b0a1e952969a619"
+      }
+    },
+    "stairwellType": {
+      "score": 0,
+      "option": "都不是防烟楼梯间",
+      "itemId": "stairwellType",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a651b0a1e952969a61a"
+      }
+    },
+    "unitConnection": {
+      "score": 0,
+      "option": "都不能贯通",
+      "itemId": "unitConnection",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a651b0a1e952969a61b"
+      }
+    },
+    "emergencyTeam": {
+      "score": 0,
+      "option": "否",
+      "itemId": "emergencyTeam",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19a651b0a1e952969a61c"
+      }
+    }
+  },
+  "totalScore": 20,
+  "maxPossibleScore": 100,
+  "scorePercentage": 20,
+  "safeLevelId": 3,
+  "safeLevelName": "较差",
+  "createTime": {
+    "$date": "2025-08-17T09:01:25.997Z"
+  },
+  "updateTime": {
+    "$date": "2025-08-21T11:50:20.903Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68a19a7d1b0a1e952969a624"
+  },
+  "safeId": "SAFE006",
+  "addressId": "567890",
+  "addressName": "江苏省苏州市姑苏区狮子林",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 0,
+      "option": "无",
+      "itemId": "naturalWaterSource",
+      "_id": {
+        "$oid": "68a19a7d1b0a1e952969a625"
+      }
+    },
+    "outdoorHydrant": {
+      "score": 0,
+      "option": "无",
+      "itemId": "outdoorHydrant",
+      "_id": {
+        "$oid": "68a19a7d1b0a1e952969a626"
+      }
+    },
+    "vehicleAccess": {
+      "score": 0,
+      "option": "都不能通行",
+      "itemId": "vehicleAccess",
+      "_id": {
+        "$oid": "68a19a7d1b0a1e952969a627"
+      }
+    },
+    "buildingHydrant": {
+      "score": 0,
+      "option": "都没水",
+      "itemId": "buildingHydrant",
+      "_id": {
+        "$oid": "68a19a7d1b0a1e952969a628"
+      }
+    },
+    "outdoorHydrantWater": {
+      "score": 0,
+      "option": "全部没水",
+      "itemId": "outdoorHydrantWater",
+      "_id": {
+        "$oid": "68a19a7d1b0a1e952969a629"
+      }
+    },
+    "controlRoom": {
+      "score": 0,
+      "option": "都不能启动",
+      "itemId": "controlRoom",
+      "_id": {
+        "$oid": "68a19a7d1b0a1e952969a62a"
+      }
+    },
+    "fireElevator": {
+      "score": 0,
+      "option": "都不是消防电梯",
+      "itemId": "fireElevator",
+      "_id": {
+        "$oid": "68a19a7d1b0a1e952969a62b"
+      }
+    },
+    "stairwellType": {
+      "score": 0,
+      "option": "都不是防烟楼梯间",
+      "itemId": "stairwellType",
+      "_id": {
+        "$oid": "68a19a7d1b0a1e952969a62c"
+      }
+    },
+    "unitConnection": {
+      "score": 0,
+      "option": "都不能贯通",
+      "itemId": "unitConnection",
+      "_id": {
+        "$oid": "68a19a7d1b0a1e952969a62d"
+      }
+    },
+    "emergencyTeam": {
+      "score": 0,
+      "option": "否",
+      "itemId": "emergencyTeam",
+      "_id": {
+        "$oid": "68a19a7d1b0a1e952969a62e"
+      }
+    }
+  },
+  "totalScore": 0,
+  "maxPossibleScore": 100,
+  "scorePercentage": 0,
+  "safeLevelId": 3,
+  "safeLevelName": "较差",
+  "createTime": {
+    "$date": "2025-08-17T09:01:49.920Z"
+  },
+  "updateTime": {
+    "$date": "2025-08-17T09:01:49.920Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68a19b2c1b0a1e952969a678"
+  },
+  "safeId": "SAFE1755421484953962",
+  "addressId": "cx123456",
+  "addressName": "湖南长沙市",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 0,
+      "option": "无",
+      "itemId": "naturalWaterSource",
+      "remark": "1111",
+      "_id": {
+        "$oid": "68a9274e0ebfd69467796bfd"
+      }
+    },
+    "outdoorHydrant": {
+      "score": 10,
+      "option": "有",
+      "itemId": "outdoorHydrant",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19b2c1b0a1e952969a67a"
+      }
+    },
+    "vehicleAccess": {
+      "score": 10,
+      "option": "云梯通行",
+      "itemId": "vehicleAccess",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19b2c1b0a1e952969a67b"
+      }
+    },
+    "outdoorHydrantWater": {
+      "score": 10,
+      "option": "有水",
+      "itemId": "outdoorHydrantWater",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19b2c1b0a1e952969a67c"
+      }
+    },
+    "controlRoom": {
+      "score": 10,
+      "option": "能启泵排烟",
+      "itemId": "controlRoom",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19b2c1b0a1e952969a67d"
+      }
+    },
+    "buildingHydrant": {
+      "score": 10,
+      "option": "都有水",
+      "itemId": "buildingHydrant",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19b2c1b0a1e952969a67e"
+      }
+    },
+    "fireElevator": {
+      "score": 10,
+      "option": "全部有",
+      "itemId": "fireElevator",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19b2c1b0a1e952969a67f"
+      }
+    },
+    "stairwellType": {
+      "score": 10,
+      "option": "都是防烟楼梯间",
+      "itemId": "stairwellType",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19b2c1b0a1e952969a680"
+      }
+    },
+    "unitConnection": {
+      "score": 10,
+      "option": "都贯通",
+      "itemId": "unitConnection",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19b2c1b0a1e952969a681"
+      }
+    },
+    "emergencyTeam": {
+      "score": 10,
+      "option": "有",
+      "itemId": "emergencyTeam",
+      "remark": "",
+      "_id": {
+        "$oid": "68a19b2c1b0a1e952969a682"
+      }
+    }
+  },
+  "totalScore": 90,
+  "maxPossibleScore": 100,
+  "scorePercentage": 90,
+  "safeLevelId": 1,
+  "safeLevelName": "一般",
+  "createTime": {
+    "$date": "2025-08-17T09:04:44.973Z"
+  },
+  "updateTime": {
+    "$date": "2025-09-15T08:33:42.570Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68a3f7d81b0a1e952969af58"
+  },
+  "safeId": "SAFE175557628055830",
+  "addressId": "1",
+  "addressName": "金诚护理院",
+  "scoreItems": {
+    "naturalWaterSource": {
+      "score": 10,
+      "option": "有",
+      "itemId": "naturalWaterSource",
+      "remark": "",
+      "_id": {
+        "$oid": "68a3f7d81b0a1e952969af59"
+      }
+    },
+    "outdoorHydrant": {
+      "score": 10,
+      "option": "有",
+      "itemId": "outdoorHydrant",
+      "remark": "",
+      "_id": {
+        "$oid": "68a3f7d81b0a1e952969af5a"
+      }
+    },
+    "vehicleAccess": {
+      "score": 5,
+      "option": "消防车通行",
+      "itemId": "vehicleAccess",
+      "remark": "",
+      "_id": {
+        "$oid": "68a3f7d81b0a1e952969af5b"
+      }
+    },
+    "outdoorHydrantWater": {
+      "score": 10,
+      "option": "有水",
+      "itemId": "outdoorHydrantWater",
+      "remark": "",
+      "_id": {
+        "$oid": "68a3f7d81b0a1e952969af5c"
+      }
+    },
+    "controlRoom": {
+      "score": 10,
+      "option": "能启泵排烟",
+      "itemId": "controlRoom",
+      "remark": "",
+      "_id": {
+        "$oid": "68a3f7d81b0a1e952969af5d"
+      }
+    },
+    "buildingHydrant": {
+      "score": 10,
+      "option": "都有水",
+      "itemId": "buildingHydrant",
+      "remark": "",
+      "_id": {
+        "$oid": "68a3f7d81b0a1e952969af5e"
+      }
+    },
+    "fireElevator": {
+      "score": 0,
+      "option": "都没有",
+      "itemId": "fireElevator",
+      "remark": "",
+      "_id": {
+        "$oid": "68a3f7d81b0a1e952969af5f"
+      }
+    },
+    "stairwellType": {
+      "score": 0,
+      "option": "都不是",
+      "itemId": "stairwellType",
+      "remark": "",
+      "_id": {
+        "$oid": "68a3f7d81b0a1e952969af60"
+      }
+    },
+    "unitConnection": {
+      "score": 10,
+      "option": "都贯通",
+      "itemId": "unitConnection",
+      "remark": "",
+      "_id": {
+        "$oid": "68a3f7d81b0a1e952969af61"
+      }
+    },
+    "emergencyTeam": {
+      "score": 10,
+      "option": "有",
+      "itemId": "emergencyTeam",
+      "remark": "",
+      "_id": {
+        "$oid": "68a3f7d81b0a1e952969af62"
+      }
+    }
+  },
+  "totalScore": 75,
+  "maxPossibleScore": 100,
+  "scorePercentage": 75,
+  "safeLevelId": 1,
+  "safeLevelName": "一般",
+  "createTime": {
+    "$date": "2025-08-19T04:04:40.574Z"
+  },
+  "updateTime": {
+    "$date": "2025-09-14T04:03:07.773Z"
+  },
+  "__v": 0
+}]
