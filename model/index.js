@@ -109,6 +109,9 @@ const LocationSchema = new Schema({
 		value: { type: String, default: '' },
 		data: { type: String, default: '' }
 	}],
+	// 经纬度信息
+	latitude: { type: Number }, // 纬度
+	longitude: { type: Number }, // 经度
 	createTime: { type: Date, default: Date.now },
 	updateTime: { type: Date, default: Date.now }
 });

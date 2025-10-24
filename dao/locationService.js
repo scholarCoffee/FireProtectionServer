@@ -198,6 +198,9 @@ exports.getLocationDetail = async (req, res) => {
             phoneList: detail.phoneList || [],
             enterGateList: detail.enterGateList || [],
             fireUnitDeploymentMap: Array.isArray(detail.fireUnitDeploymentMap) ? detail.fireUnitDeploymentMap : [],
+            // 经纬度信息
+            latitude: detail.latitude || null,
+            longitude: detail.longitude || null,
             ownerInfo: {
                 total: ownerStats.length > 0 ? ownerStats[0].total : 0,
                 count: ownerStats.length > 0 ? ownerStats[0].count : 0
@@ -241,7 +244,9 @@ exports.getLocationById = async (addressId) => {
         // 确保新增字段存在（向后兼容）
         return {
             ...location.toObject(),
-            fireUnitDeploymentMap: Array.isArray(location.fireUnitDeploymentMap) ? location.fireUnitDeploymentMap : []
+            fireUnitDeploymentMap: Array.isArray(location.fireUnitDeploymentMap) ? location.fireUnitDeploymentMap : [],
+            latitude: location.latitude || null,
+            longitude: location.longitude || null
         };
     } catch (err) {
         console.error('根据ID查询地址失败:', err);
