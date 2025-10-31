@@ -105,6 +105,7 @@ exports.getLocationList = async (req, res) => {
                         ...locationObj,
                         // 确保新增字段存在（向后兼容）
                         fireUnitDeploymentMap: Array.isArray(locationObj.fireUnitDeploymentMap) ? locationObj.fireUnitDeploymentMap : [],
+                        keywordType: locationObj.keywordType || null,
                         fireSafetyScore: fireSafetyScore || null
                     };
                 } catch (err) {
@@ -114,6 +115,7 @@ exports.getLocationList = async (req, res) => {
                         ...locationObj,
                         // 确保新增字段存在（向后兼容）
                         fireUnitDeploymentMap: Array.isArray(locationObj.fireUnitDeploymentMap) ? locationObj.fireUnitDeploymentMap : [],
+                        keywordType: locationObj.keywordType || null,
                         fireSafetyScore: null
                     };
                 }
@@ -201,6 +203,8 @@ exports.getLocationDetail = async (req, res) => {
             // 经纬度信息
             latitude: detail.latitude || null,
             longitude: detail.longitude || null,
+            // 队站辖区关键字类型字段
+            keywordType: detail.keywordType || null,
             ownerInfo: {
                 total: ownerStats.length > 0 ? ownerStats[0].total : 0,
                 count: ownerStats.length > 0 ? ownerStats[0].count : 0
@@ -242,11 +246,13 @@ exports.getLocationById = async (addressId) => {
         if (!location) return null;
         
         // 确保新增字段存在（向后兼容）
+        const locationObj = location.toObject();
         return {
-            ...location.toObject(),
-            fireUnitDeploymentMap: Array.isArray(location.fireUnitDeploymentMap) ? location.fireUnitDeploymentMap : [],
-            latitude: location.latitude || null,
-            longitude: location.longitude || null
+            ...locationObj,
+            fireUnitDeploymentMap: Array.isArray(locationObj.fireUnitDeploymentMap) ? locationObj.fireUnitDeploymentMap : [],
+            latitude: locationObj.latitude || null,
+            longitude: locationObj.longitude || null,
+            keywordType: locationObj.keywordType || null
         };
     } catch (err) {
         console.error('根据ID查询地址失败:', err);
@@ -261,6 +267,14 @@ exports.addLocation = async (req, res) => {
         // 统一收敛：字段清理与默认值
         if (!Array.isArray(locationData.fireUnitDeploymentMap)) {
             locationData.fireUnitDeploymentMap = [];
+        }
+        
+        // 处理队站辖区的 keywordType 字段（type=3）
+        if (locationData.type === 3) {
+            // 如果传入 keywordType，保存到数据库
+            if (locationData.keywordType !== undefined) {
+                locationData.keywordType = locationData.keywordType;
+            }
         }
         
         // 检查addressId是否已存在
@@ -292,7 +306,7 @@ exports.addLocation = async (req, res) => {
                 case 2: // 重点单位
                     locationData.defaultImg = '/static/icons/location/factory.png';
                     break;
-                case 3: // 沿街商铺
+                case 3: // 队站辖区
                     locationData.defaultImg = '/static/icons/location/showShop.png';
                     break;
                 default:
@@ -363,11 +377,19 @@ exports.updateLocation = async (req, res) => {
                     case 2: // 重点单位
                         updateData.defaultImg = '/static/icons/location/factory.png';
                         break;
-                    case 3: // 沿街商铺
+                    case 3: // 队站辖区
                         updateData.defaultImg = '/static/icons/location/showShop.png';
                         break;
                     default:
                         updateData.defaultImg = '/static/icons/location/showLocation.png';
+                }
+            }
+
+            // 处理队站辖区的 keywordType 字段（type=3）
+            if (updateData.type === 3) {
+                // 如果传入 keywordType，保存到数据库
+                if (updateData.keywordType !== undefined) {
+                    updateData.keywordType = updateData.keywordType;
                 }
             }
 
@@ -418,6 +440,20 @@ exports.updateLocation = async (req, res) => {
             updateData.safeId = `SAFE${timestamp}${randomNum}`;
         }
 
+        // 处理队站辖区的 keywordType 字段（type=3）
+        const targetType = updateData.type !== undefined ? updateData.type : existingLocation.type;
+        if (targetType === 3) {
+            // 队站辖区类型，如果传入 keywordType，保存到数据库
+            if (updateData.keywordType !== undefined) {
+                updateData.keywordType = updateData.keywordType;
+            }
+        } else {
+            // 非队站辖区类型，清除该字段（设置为 null 以便 MongoDB 可以更新）
+            if (updateData.type !== undefined) {
+                updateData.keywordType = null;
+            }
+        }
+
         // 如果类型发生变化且没有提供defaultImg，自动更新defaultImg
         if (updateData.type && updateData.type !== existingLocation.type && !updateData.defaultImg) {
             switch (updateData.type) {
@@ -427,7 +463,7 @@ exports.updateLocation = async (req, res) => {
                 case 2: // 重点单位
                     updateData.defaultImg = '/static/icons/location/factory.png';
                     break;
-                case 3: // 沿街商铺
+                case 3: // 队站辖区
                     updateData.defaultImg = '/static/icons/location/showShop.png';
                     break;
                 default:

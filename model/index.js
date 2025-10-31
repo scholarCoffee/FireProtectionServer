@@ -96,7 +96,7 @@ const LocationSchema = new Schema({
 	addressName: { type: String, required: true }, // 地址名称
 	addressExt: { type: String, required: true }, // 地址扩展信息
 	allSenceLink: { type: String }, // 全景链接
-	type: { type: Number, required: true }, // 1-高层小区 2-重点单位 3-沿街商铺
+	type: { type: Number, required: true }, // 1-高层小区 2-重点单位 3-队站辖区
 	safeId: { type: String, ref: 'FireSafetyScore', required: true }, // 关联消防安全评分的safeId
 	defaultImg: { type: String }, // 默认图片
 	description: { type: String, default: '' }, // 地址描述
@@ -112,6 +112,8 @@ const LocationSchema = new Schema({
 	// 经纬度信息
 	latitude: { type: Number }, // 纬度
 	longitude: { type: Number }, // 经度
+	// 队站辖区关键字类型字段（type=3时使用）
+	keywordType: { type: String }, // 关键字类型，如 "all"
 	createTime: { type: Date, default: Date.now },
 	updateTime: { type: Date, default: Date.now }
 });
