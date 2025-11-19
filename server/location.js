@@ -28,6 +28,11 @@ const deleteLocation = function (req, res) {
 // 校验地址编号是否唯一且格式正确（仅允许填写一个）
 const checkAddressId = function (req, res) {
     dbServer.checkAddressId(req, res); // 调用校验地址编号函数
+}
+
+// 反向地理编码（根据经纬度获取地址信息）
+const reverseGeocode = function (req, res) {
+    dbServer.reverseGeocode(req, res); // 调用反向地理编码函数
 }       
 
 module.exports = {
@@ -37,4 +42,5 @@ module.exports = {
     updateLocation,
     deleteLocation,
     checkAddressId,
+    reverseGeocode,
 }

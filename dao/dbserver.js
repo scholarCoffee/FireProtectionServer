@@ -50,6 +50,7 @@ module.exports = {
 	deleteLocation: locationService.deleteLocation,
 	getLocationStats: locationService.getLocationStats,
 	checkAddressId: locationService.checkAddressId,
+	reverseGeocode: locationService.reverseGeocode,
 
 	// 户主信息相关服务
 	getOwnerList: ownerService.getOwnerList,

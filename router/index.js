@@ -108,6 +108,11 @@ module.exports = function (app) {
         location.checkAddressId(req, res);
     });
 
+    // 反向地理编码（根据经纬度获取地址信息）
+    app.get('/location/reverseGeocode', function (req, res) {
+        location.reverseGeocode(req, res);
+    });
+
     // 新增地址信息
     app.post('/location/add', function (req, res) {
         location.addLocation(req, res); // 调用新增地址函数

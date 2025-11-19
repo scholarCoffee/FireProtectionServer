@@ -1,6 +1,7 @@
 const dbmodel = require('../model/index.js');
 const Location = dbmodel.Location;
 const { getFireSafetyScoreByAddressId, createDefaultFireSafetyScore, deleteFireSafetyScoreByAddressId } = require('./fireSafetyScoreService.js');
+const axios = require('axios');
 
 // 新增：处理消防安全评分数据的辅助函数
 const createFireSafetyScoreFromData = async (fireSafetyScoreData, addressId, addressName, safeId) => {
@@ -660,5 +661,130 @@ exports.checkAddressId = async (req, res) => {
     } catch (err) {
         console.error('检查地址编号失败:', err);
         res.send({ code: 500, msg: '检查失败', error: err.message });
+    }
+};
+
+// 腾讯地图API配置（建议通过环境变量配置）
+const TENCENT_MAP_CONFIG = {
+    key: process.env.TENCENT_MAP_KEY || 'OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77' // 默认key，建议使用环境变量
+};
+
+// 反向地理编码（根据经纬度获取地址信息）
+exports.reverseGeocode = async (req, res) => {
+    try {
+        // 从查询参数获取经纬度
+        const latitude = parseFloat(req.query.latitude);
+        const longitude = parseFloat(req.query.longitude);
+
+        // 参数验证
+        if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+            return res.send({
+                code: 400,
+                msg: '缺少必要的参数：latitude 和 longitude',
+                data: {
+                    name: null,
+                    address: null,
+                    fullAddress: null
+                }
+            });
+        }
+
+        // 验证经纬度范围
+        if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+            return res.send({
+                code: 400,
+                msg: '经纬度范围无效',
+                data: {
+                    name: null,
+                    address: null,
+                    fullAddress: null
+                }
+            });
+        }
+
+        // 调用腾讯地图反向地理编码API
+        const apiUrl = 'https://apis.map.qq.com/ws/geocoder/v1/';
+        const params = {
+            location: `${latitude},${longitude}`,
+            key: TENCENT_MAP_CONFIG.key,
+            get_poi: 0 // 不返回周边POI
+        };
+
+        try {
+            const response = await axios.get(apiUrl, { params });
+            const result = response.data;
+
+            // 检查API返回状态
+            if (result.status !== 0) {
+                console.error('腾讯地图API错误:', result.message);
+                // API调用失败时，返回经纬度信息
+                return res.send({
+                    code: 200,
+                    msg: '获取地址信息失败，返回经纬度',
+                    data: {
+                        name: null,
+                        address: null,
+                        fullAddress: null,
+                        latitude: latitude,
+                        longitude: longitude
+                    }
+                });
+            }
+
+            // 解析腾讯地图返回的数据
+            const addressComponent = result.result?.address_component || {};
+            const formattedAddress = result.result?.formatted_addresses?.recommend || result.result?.address || '';
+            const address = result.result?.address || '';
+
+            // 构建返回数据
+            const responseData = {
+                name: addressComponent.street || addressComponent.street_number || addressComponent.district || '',
+                address: address || formattedAddress,
+                fullAddress: formattedAddress || address,
+                // 腾讯地图返回的详细地址组件
+                province: addressComponent.province || '',
+                city: addressComponent.city || '',
+                district: addressComponent.district || '',
+                street: addressComponent.street || '',
+                streetNumber: addressComponent.street_number || '',
+                // 原始经纬度
+                latitude: latitude,
+                longitude: longitude
+            };
+
+            return res.send({
+                code: 200,
+                msg: 'success',
+                data: responseData
+            });
+
+        } catch (apiError) {
+            console.error('调用腾讯地图API失败:', apiError.message);
+            // API调用异常时，返回经纬度信息
+            return res.send({
+                code: 200,
+                msg: '获取地址信息失败，返回经纬度',
+                data: {
+                    name: null,
+                    address: null,
+                    fullAddress: null,
+                    latitude: latitude,
+                    longitude: longitude
+                }
+            });
+        }
+
+    } catch (err) {
+        console.error('反向地理编码失败:', err);
+        res.send({
+            code: 500,
+            msg: '处理失败',
+            error: err.message,
+            data: {
+                name: null,
+                address: null,
+                fullAddress: null
+            }
+        });
     }
 };
