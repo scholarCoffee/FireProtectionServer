@@ -7,6 +7,7 @@ const static = require('../server/static.js'); // 引入静态配置与作战部
 const fireSafetyScore = require('./fireSafetyScore.js'); // 引入消防安全评分模块
 const owner = require('./owner.js'); // 引入户主信息模块
 const taskRouter = require('../server/task.js');
+const ai = require('../server/ai.js'); // 引入 AI 模块
 
 module.exports = function (app) {
     // 用户信息修改
@@ -142,5 +143,10 @@ module.exports = function (app) {
 
     // 作战任务相关路由
     app.use('/task', taskRouter);
+
+    // AI 对话接口
+    app.post('/ai/chat', function (req, res) {
+        ai.chat(req, res);
+    });
     
 }

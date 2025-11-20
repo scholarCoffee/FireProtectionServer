@@ -5,6 +5,7 @@ const messageService = require('./messageService.js');
 const groupService = require('./groupService.js');
 const locationService = require('./locationService.js');
 const ownerService = require('./ownerService.js');
+const aiService = require('./aiService.js');
 
 // 导出所有服务方法
 module.exports = {
@@ -58,5 +59,8 @@ module.exports = {
 	createOwner: ownerService.createOwner,
 	updateOwner: ownerService.updateOwner,
 	deleteOwner: ownerService.deleteOwner,
+
+	// AI 相关服务
+	chat: aiService.chat,
 
 };
