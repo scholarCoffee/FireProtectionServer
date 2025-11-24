@@ -3,6 +3,82 @@ const Location = dbmodel.Location;
 const { getFireSafetyScoreByAddressId, createDefaultFireSafetyScore, deleteFireSafetyScoreByAddressId } = require('./fireSafetyScoreService.js');
 const axios = require('axios');
 
+// 关键字类型映射表
+const KEYWORD_TYPE_MAP = {
+    'yushanForestPanorama': 'panorama',
+    'yushanCityPanorama': 'panorama',
+    'yushanForestHydrant': 'hydrant',
+    'yushanCityHydrant': 'hydrant'
+};
+
+// 根据 keywordType 获取 category
+const getCategoryByKeywordType = (keywordType) => {
+    return KEYWORD_TYPE_MAP[keywordType] || null;
+};
+
+// 验证队站辖区（type=3）的字段
+const validateLocationData = (locationData, isUpdate = false) => {
+    const errors = [];
+    
+    // 如果是队站辖区（type=3）
+    if (locationData.type === 3) {
+        const category = getCategoryByKeywordType(locationData.keywordType);
+        if (!category) {
+            errors.push(`无效的关键字类型：${locationData.keywordType}`);
+            return { valid: false, errors };
+        }
+        
+        // 全景云模式验证
+        if (category === 'panorama') {
+            if (!locationData.addressName || !locationData.addressName.trim()) {
+                errors.push('地址名称为必填项');
+            }
+            if (!locationData.addressId || !locationData.addressId.trim()) {
+                errors.push('全景云编号为必填项');
+            }
+            if (!locationData.allSenceLink || !locationData.allSenceLink.trim()) {
+                errors.push('全景云地址为必填项');
+            }
+            // 全景云模式下，addressExt 不验证，如果为空则设置为空字符串
+            if (!locationData.addressExt) {
+                locationData.addressExt = '';
+            }
+        }
+        
+        // 消火栓模式验证
+        if (category === 'hydrant') {
+            if (!locationData.addressName || !locationData.addressName.trim()) {
+                errors.push('地址名称为必填项');
+            }
+            if (!locationData.addressId || !locationData.addressId.trim()) {
+                errors.push('消火栓编号为必填项');
+            }
+            if (!locationData.addressExt || !locationData.addressExt.trim()) {
+                errors.push('详细地址为必填项');
+            }
+            if (!locationData.hydrantPressure || !locationData.hydrantPressure.trim()) {
+                errors.push('消火栓压力为必填项');
+            }
+            if (!locationData.hydrantFlow || !locationData.hydrantFlow.trim()) {
+                errors.push('消火栓流量为必填项');
+            }
+            
+            // 验证压力和流量格式（应为数字字符串）
+            if (locationData.hydrantPressure && isNaN(parseFloat(locationData.hydrantPressure))) {
+                errors.push('消火栓压力必须是数字');
+            }
+            if (locationData.hydrantFlow && isNaN(parseFloat(locationData.hydrantFlow))) {
+                errors.push('消火栓流量必须是数字');
+            }
+        }
+    }
+    
+    return {
+        valid: errors.length === 0,
+        errors
+    };
+};
+
 // 新增：处理消防安全评分数据的辅助函数
 const createFireSafetyScoreFromData = async (fireSafetyScoreData, addressId, addressName, safeId) => {
     try {
@@ -107,6 +183,8 @@ exports.getLocationList = async (req, res) => {
                         // 确保新增字段存在（向后兼容）
                         fireUnitDeploymentMap: Array.isArray(locationObj.fireUnitDeploymentMap) ? locationObj.fireUnitDeploymentMap : [],
                         keywordType: locationObj.keywordType || null,
+                        hydrantPressure: locationObj.hydrantPressure || null,
+                        hydrantFlow: locationObj.hydrantFlow || null,
                         fireSafetyScore: fireSafetyScore || null
                     };
                 } catch (err) {
@@ -117,6 +195,8 @@ exports.getLocationList = async (req, res) => {
                         // 确保新增字段存在（向后兼容）
                         fireUnitDeploymentMap: Array.isArray(locationObj.fireUnitDeploymentMap) ? locationObj.fireUnitDeploymentMap : [],
                         keywordType: locationObj.keywordType || null,
+                        hydrantPressure: locationObj.hydrantPressure || null,
+                        hydrantFlow: locationObj.hydrantFlow || null,
                         fireSafetyScore: null
                     };
                 }
@@ -206,6 +286,9 @@ exports.getLocationDetail = async (req, res) => {
             longitude: detail.longitude || null,
             // 队站辖区关键字类型字段
             keywordType: detail.keywordType || null,
+            // 消火栓性能参数（仅消火栓模式返回）
+            hydrantPressure: detail.hydrantPressure || null,
+            hydrantFlow: detail.hydrantFlow || null,
             ownerInfo: {
                 total: ownerStats.length > 0 ? ownerStats[0].total : 0,
                 count: ownerStats.length > 0 ? ownerStats[0].count : 0
@@ -253,7 +336,9 @@ exports.getLocationById = async (addressId) => {
             fireUnitDeploymentMap: Array.isArray(locationObj.fireUnitDeploymentMap) ? locationObj.fireUnitDeploymentMap : [],
             latitude: locationObj.latitude || null,
             longitude: locationObj.longitude || null,
-            keywordType: locationObj.keywordType || null
+            keywordType: locationObj.keywordType || null,
+            hydrantPressure: locationObj.hydrantPressure || null,
+            hydrantFlow: locationObj.hydrantFlow || null
         };
     } catch (err) {
         console.error('根据ID查询地址失败:', err);
@@ -272,9 +357,19 @@ exports.addLocation = async (req, res) => {
         
         // 处理队站辖区的 keywordType 字段（type=3）
         if (locationData.type === 3) {
-            // 如果传入 keywordType，保存到数据库
-            if (locationData.keywordType !== undefined) {
-                locationData.keywordType = locationData.keywordType;
+            // 如果没有提供 keywordType，设置默认值
+            if (!locationData.keywordType) {
+                locationData.keywordType = 'yushanForestPanorama';
+            }
+            
+            // 验证队站辖区数据
+            const validation = validateLocationData(locationData);
+            if (!validation.valid) {
+                return res.send({
+                    code: 400,
+                    msg: validation.errors.join('; '),
+                    data: null
+                });
             }
         }
         
@@ -388,9 +483,19 @@ exports.updateLocation = async (req, res) => {
 
             // 处理队站辖区的 keywordType 字段（type=3）
             if (updateData.type === 3) {
-                // 如果传入 keywordType，保存到数据库
-                if (updateData.keywordType !== undefined) {
-                    updateData.keywordType = updateData.keywordType;
+                // 如果没有提供 keywordType，设置默认值
+                if (!updateData.keywordType) {
+                    updateData.keywordType = 'yushanForestPanorama';
+                }
+                
+                // 验证队站辖区数据
+                const validation = validateLocationData(updateData);
+                if (!validation.valid) {
+                    return res.send({
+                        code: 400,
+                        msg: validation.errors.join('; '),
+                        data: null
+                    });
                 }
             }
 
@@ -447,11 +552,32 @@ exports.updateLocation = async (req, res) => {
             // 队站辖区类型，如果传入 keywordType，保存到数据库
             if (updateData.keywordType !== undefined) {
                 updateData.keywordType = updateData.keywordType;
+            } else if (!existingLocation.keywordType) {
+                // 如果现有数据没有 keywordType，设置默认值
+                updateData.keywordType = 'yushanForestPanorama';
+            }
+            
+            // 合并现有数据用于验证（如果某些字段未更新）
+            const dataForValidation = {
+                ...existingLocation.toObject(),
+                ...updateData
+            };
+            
+            // 验证队站辖区数据
+            const validation = validateLocationData(dataForValidation);
+            if (!validation.valid) {
+                return res.send({
+                    code: 400,
+                    msg: validation.errors.join('; '),
+                    data: null
+                });
             }
         } else {
-            // 非队站辖区类型，清除该字段（设置为 null 以便 MongoDB 可以更新）
+            // 非队站辖区类型，清除相关字段（设置为 null 以便 MongoDB 可以更新）
             if (updateData.type !== undefined) {
                 updateData.keywordType = null;
+                updateData.hydrantPressure = null;
+                updateData.hydrantFlow = null;
             }
         }
 

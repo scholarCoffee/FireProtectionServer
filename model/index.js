@@ -113,7 +113,10 @@ const LocationSchema = new Schema({
 	latitude: { type: Number }, // 纬度
 	longitude: { type: Number }, // 经度
 	// 队站辖区关键字类型字段（type=3时使用）
-	keywordType: { type: String }, // 关键字类型，如 "all"
+	keywordType: { type: String }, // 关键字类型值，如 "yushanForestPanorama"
+	// 消火栓性能参数（仅消火栓模式使用）
+	hydrantPressure: { type: String }, // 消火栓压力（单位：mpa，如："0.3"）
+	hydrantFlow: { type: String }, // 消火栓流量（单位：L/s，如："15"）
 	createTime: { type: Date, default: Date.now },
 	updateTime: { type: Date, default: Date.now }
 });
