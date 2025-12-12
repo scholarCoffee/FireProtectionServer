@@ -8,7 +8,7 @@ const TaskAssign = dbmodel.TaskAssign;
 // 上传火灾情况数据（新版：支持 assignedUnits 结构，支持更新）
 router.post('/upload', async (req, res) => {
     try {
-        const {
+        let {
             // 新增：situationId（非必填，用于更新）
             situationId,
             // 新版必填
@@ -25,8 +25,16 @@ router.post('/upload', async (req, res) => {
         } = req.body || {};
 
         // 基础必填校验（新版）
-        if (!addressId || !addressName || typeof locationType === 'undefined' || !Array.isArray(assignedUnits) || assignedUnits.length === 0 || !issuePersonId || !issuePersonName || !issueTime) {
+        if (!addressId || !addressName || (locationType === undefined || locationType === null || locationType === '') || !Array.isArray(assignedUnits) || assignedUnits.length === 0 || !issuePersonId || !issuePersonName || !issueTime) {
             return res.send({ code: 400, msg: '缺少必填字段（addressId/addressName/locationType/assignedUnits/issuePersonId/issuePersonName/issueTime）' });
+        }
+        
+        // 转换 locationType 为 Number（如果传入的是 String）
+        if (typeof locationType === 'string') {
+            const parsedType = parseInt(locationType);
+            if (!isNaN(parsedType)) {
+                locationType = parsedType;
+            }
         }
 
         // 细项校验 assignedUnits
@@ -37,13 +45,45 @@ router.post('/upload', async (req, res) => {
             if (!Array.isArray(unit.carInfo)) {
                 return res.send({ code: 400, msg: 'assignedUnits.carInfo 必须为数组' });
             }
+            // 验证 carInfo 结构（新格式：carId, carName）
+            for (const car of unit.carInfo) {
+                if (!car.carId || !car.carName) {
+                    // 兼容旧格式（label, value）
+                    if (car.label && car.value) {
+                        car.carId = car.value;
+                        car.carName = car.label;
+                        delete car.label;
+                        delete car.value;
+                        delete car.index;
+                    } else {
+                        return res.send({ code: 400, msg: 'assignedUnits.carInfo 中车辆信息缺少 carId 或 carName' });
+                    }
+                }
+            }
+            // 验证 taskGroups（如果存在）
+            if (unit.taskGroups && Array.isArray(unit.taskGroups)) {
+                for (const taskGroup of unit.taskGroups) {
+                    if (!taskGroup.taskType) {
+                        return res.send({ code: 400, msg: 'assignedUnits.taskGroups 中任务组缺少 taskType' });
+                    }
+                    if (!Array.isArray(taskGroup.carIds) || !Array.isArray(taskGroup.carNames)) {
+                        return res.send({ code: 400, msg: 'assignedUnits.taskGroups 中任务组缺少 carIds 或 carNames 数组' });
+                    }
+                    // 验证备注长度
+                    if (taskGroup.description && taskGroup.description.length > 200) {
+                        return res.send({ code: 400, msg: 'assignedUnits.taskGroups 中任务组的 description 不能超过200字' });
+                    }
+                }
+            }
+        }
+        
+        // 验证备注长度
+        if (remark && remark.length > 500) {
+            return res.send({ code: 400, msg: '备注信息不能超过500字' });
         }
 
          // 逻辑整理：判断是新建火灾情况还是支援任务
          if (!situationId) {
-             // 情况1：没有situationId，说明是新的火灾上传，直接新增FireSituation
-             console.log('新建火灾情况');
-             
              // 生成新的唯一情况ID
              const currentSituationId = 'SITUATION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
              
@@ -104,11 +144,13 @@ router.post('/upload', async (req, res) => {
                  );
              }
  
-             return res.send({ 
-                 code: 200, 
-                 msg: '火灾情况创建成功', 
-                 data: fireSituation
-             });
+            return res.send({ 
+                code: 200, 
+                msg: '提交成功', 
+                data: {
+                    situationId: currentSituationId
+                }
+            });
          } else {
              // 情况2：有situationId，说明是火灾需要支援，新增TaskAssign任务
              console.log(`为火灾情况 ${situationId} 添加支援任务`);
@@ -187,16 +229,13 @@ router.post('/upload', async (req, res) => {
                  );
              }
              
-             return res.send({ 
-                 code: 200, 
-                 msg: '支援任务创建成功', 
-                 data: {
-                     situationId,
-                     taskAssign,
-                     updatedAssignedUnits,
-                     count: updatedAssignedUnits.length
-                 }
-             });
+            return res.send({ 
+                code: 200, 
+                msg: '提交成功', 
+                data: {
+                    situationId: situationId
+                }
+            });
          }
 
     } catch (err) {
@@ -528,6 +567,7 @@ router.get('/detail', async (req, res) => {
 });
 
 // 查询单位占用状态
+// 查询单位占用状态（已废弃，请使用 /fire/unitAndCarStatus）
 router.get('/unitStatus', async (req, res) => {
     try {
         const { unitId, status } = req.query;
@@ -540,6 +580,179 @@ router.get('/unitStatus', async (req, res) => {
 
         res.send({ code: 200, msg: '查询成功', data: units });
     } catch (err) {
+        res.send({ code: 500, msg: '查询失败', error: err.message });
+    }
+});
+
+// 查询上一次记录接口
+router.get('/lastRecord', async (req, res) => {
+    try {
+        const { issuePersonId } = req.query;
+        
+        if (!issuePersonId) {
+            return res.send({ 
+                code: 400, 
+                msg: '缺少必填参数：issuePersonId' 
+            });
+        }
+        
+        // 查询该用户最近一次提交的火灾情况记录
+        const lastSituation = await FireSituation.findOne({ 
+            issuePersonId: issuePersonId 
+        })
+        .sort({ issueTime: -1 }) // 按发布时间倒序，获取最新的一条
+        .lean();
+        
+        if (!lastSituation) {
+            return res.send({
+                code: 200,
+                msg: '获取成功',
+                data: null
+            });
+        }
+        
+        // 提取救援楼层（从 taskGroups 中获取第一个任务的 floor）
+        let rescueFloor = '';
+        if (lastSituation.assignedUnits && lastSituation.assignedUnits.length > 0) {
+            const firstUnit = lastSituation.assignedUnits[0];
+            if (firstUnit.taskGroups && firstUnit.taskGroups.length > 0) {
+                const firstTaskGroup = firstUnit.taskGroups[0];
+                rescueFloor = firstTaskGroup.floor || '';
+            }
+        }
+        
+        // 转换 locationType 为 String（如果模型中是 Number）
+        let locationType = lastSituation.locationType;
+        if (typeof locationType === 'number') {
+            // 可以根据需要映射数字到字符串，这里直接转换为字符串
+            locationType = locationType.toString();
+        }
+        
+        return res.send({
+            code: 200,
+            msg: '获取成功',
+            data: {
+                addressId: lastSituation.addressId,
+                addressName: lastSituation.addressName,
+                rescueFloor: rescueFloor,
+                locationType: locationType
+            }
+        });
+        
+    } catch (err) {
+        console.error('查询上一次记录失败:', err);
+        res.send({ 
+            code: 500, 
+            msg: '查询失败', 
+            error: err.message 
+        });
+    }
+});
+
+// 单位和车辆状态查询接口（合并接口）
+router.get('/unitAndCarStatus', async (req, res) => {
+    try {
+        const StaticData = dbmodel.StaticData;
+        
+        // 获取所有正在使用的车辆（从 FireSituation 中提取）
+        // 状态说明：
+        // 2 - 救援中（全部）：所有车辆都在使用，无法选择救援单位
+        // 3 - 需要支援
+        // 4 - 正在支援
+        // 5 - 救援中（局部）：部分车辆空闲，可以选择救援单位
+        const allSituations = await FireSituation.find({
+            taskStatus: { $in: [2, 3, 4, 5] }
+        }).lean();
+        
+        // 收集所有正在使用的车辆ID
+        const usingCarIds = new Set();
+        const unitCarMap = {}; // 单位-车辆映射关系
+        
+        for (const situation of allSituations) {
+            if (situation.assignedUnits && Array.isArray(situation.assignedUnits)) {
+                for (const unit of situation.assignedUnits) {
+                    const unitId = unit.unitId;
+                    
+                    // 初始化单位车辆列表
+                    if (!unitCarMap[unitId]) {
+                        unitCarMap[unitId] = [];
+                    }
+                    
+                    // 从 carInfo 中提取车辆ID
+                    if (unit.carInfo && Array.isArray(unit.carInfo)) {
+                        for (const car of unit.carInfo) {
+                            const carId = car.carId || car.value; // 兼容新旧格式
+                            if (carId) {
+                                usingCarIds.add(carId);
+                                if (!unitCarMap[unitId].includes(carId)) {
+                                    unitCarMap[unitId].push(carId);
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 从 taskGroups 中提取车辆ID
+                    if (unit.taskGroups && Array.isArray(unit.taskGroups)) {
+                        for (const taskGroup of unit.taskGroups) {
+                            if (taskGroup.carIds && Array.isArray(taskGroup.carIds)) {
+                                for (const carId of taskGroup.carIds) {
+                                    if (carId) {
+                                        usingCarIds.add(carId);
+                                        if (!unitCarMap[unitId].includes(carId)) {
+                                            unitCarMap[unitId].push(carId);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 构建 usingCars 数组
+        const usingCars = Array.from(usingCarIds).map(carId => ({
+            carId: carId,
+            id: carId // 兼容字段
+        }));
+        
+        // 如果静态资源中有单位-车辆映射关系，也添加到 unitCarMap
+        try {
+            const fireUnits = await StaticData.find({ type: 'fireUnits', key: 'unitList' }).lean();
+            const fireCars = await StaticData.find({ type: 'fireUnits', key: 'carList' }).lean();
+            
+            // 尝试从静态资源构建映射关系（如果数据中有 unitId 或 unitCode 字段）
+            // 这里假设车辆通过 data2 或其他字段关联到单位
+            // 如果静态资源中没有明确的关联字段，则使用上面从 FireSituation 中提取的映射关系
+            for (const car of fireCars) {
+                // 如果车辆数据中有 unitId 或 unitCode 字段，添加到映射
+                const carId = car.data2 || car.value;
+                const unitId = car.unitId || car.unitCode;
+                
+                if (carId && unitId) {
+                    if (!unitCarMap[unitId]) {
+                        unitCarMap[unitId] = [];
+                    }
+                    if (!unitCarMap[unitId].includes(carId)) {
+                        unitCarMap[unitId].push(carId);
+                    }
+                }
+            }
+        } catch (staticErr) {
+            console.warn('从静态资源构建单位-车辆映射关系失败:', staticErr.message);
+            // 继续使用从 FireSituation 中提取的映射关系
+        }
+        
+        res.send({
+            code: 200,
+            msg: '获取成功',
+            data: {
+                usingCars: usingCars,
+                unitCarMap: unitCarMap
+            }
+        });
+    } catch (err) {
+        console.error('查询单位和车辆状态失败:', err);
         res.send({ code: 500, msg: '查询失败', error: err.message });
     }
 });

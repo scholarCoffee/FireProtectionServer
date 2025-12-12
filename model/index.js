@@ -176,26 +176,34 @@ const FireSituationSchema = new mongoose.Schema({
     addressId: { type: String, required: true }, // 地址ID
     addressName: { type: String, required: true }, // 地址名称
     locationType: { type: Number, required: true }, // 位置类型
-    taskStatus: { type: Number, enum: [1, 2, 3, 4], default: 2 }, // 任务状态：1-已完成 2-救援中 3-需要支援 4-正在支援
+    taskStatus: { type: Number, enum: [1, 2, 3, 4, 5], default: 2 }, // 任务状态：1-已完成 2-救援中（全部） 3-需要支援 4-正在支援 5-救援中（局部）
     remark: { type: String, default: '' }, // 备注
     assignedUnits: [{
         unitId: { type: String, required: true }, // 单位ID
         unitName: { type: String, required: true }, // 单位名称
-        rescueFloor: { type: String, default: '' }, // 救援楼层（可选）
-        direction: { type: Number, default: 0 }, // 方向（枚举数字，前端定义）
-        taskType: { type: String, default: '' }, // 任务类型（字符串/枚举编码）
-        taskExtra: { type: Schema.Types.Mixed, default: {} }, // 任务额外信息（根据任务类型动态存储）
-        // 单位状态：rescue-首次救援单位，support-支援单位
-        unitStatus: { type: String, enum: ['rescue', 'support'], default: 'rescue' },
-        // 救援时间
-        rescueTime: { type: Date, default: Date.now },
-		// taskId
-		taskId: { type: String, default: '' }, // 任务ID
-        carInfo: [{
-            label: { type: String, required: true },
-            value: { type: String, required: true },
-            index: { type: Number, required: true }
-        }]
+        carInfo: [{ // 参战车辆信息列表
+            carId: { type: String, required: true }, // 车辆ID
+            carName: { type: String, required: true } // 车辆名称
+        }],
+        taskGroups: [{ // 任务组列表
+            carIds: [{ type: String }], // 任务组使用的车辆ID列表
+            carNames: [{ type: String }], // 任务组使用的车辆名称列表
+            floor: { type: String, default: '' }, // 层数（0-99，正整数）
+            direction: { type: Schema.Types.Mixed, default: null }, // 方位（String/Number，根据任务类型）
+            description: { type: String, default: '' }, // 描述信息（最大200字）
+            searchPower: { type: String, default: '' }, // 搜救力量（搜救任务）
+            searchResult: { type: String, default: '' }, // 搜救结果（搜救任务）
+            smokePower: { type: String, default: '' }, // 排烟力量（排烟任务）
+            targetCars: [{ // 目标车辆列表（供水任务）
+                carId: { type: String, required: true }, // 目标车辆ID
+                carName: { type: String, required: true } // 目标车辆名称
+            }],
+            taskType: { type: String, required: true }, // 任务类型
+            taskExtra: { type: Schema.Types.Mixed, default: {} } // 任务额外配置（动态内容，如灭火力量、堵截力量、目标中队等）
+        }],
+        unitStatus: { type: String, enum: ['rescue', 'support'], default: 'rescue' }, // 单位状态：rescue-首次救援单位，support-支援单位
+        rescueTime: { type: Date, default: Date.now }, // 救援时间
+        taskId: { type: String, default: '' } // 任务ID（兼容字段）
     }],
     issuePersonId: { type: String, required: true }, // 下达人ID
     issuePersonName: { type: String, required: true }, // 下达人姓名
