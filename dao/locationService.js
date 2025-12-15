@@ -799,11 +799,11 @@ const TENCENT_MAP_CONFIG = {
 exports.reverseGeocode = async (req, res) => {
     try {
         // 从查询参数获取经纬度
-        const latitude = parseFloat(req.query.latitude);
-        const longitude = parseFloat(req.query.longitude);
+        let latitude = parseFloat(req.query.latitude);
+        let longitude = parseFloat(req.query.longitude);
 
         // 参数验证
-        if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+        if (isNaN(latitude) || isNaN(longitude)) {
             return res.send({
                 code: 400,
                 msg: '缺少必要的参数：latitude 和 longitude',
@@ -815,7 +815,20 @@ exports.reverseGeocode = async (req, res) => {
             });
         }
 
-        // 验证经纬度范围
+        // 自动检测并纠正经纬度顺序
+        // 如果 latitude 超出纬度范围（-90 到 90），可能是经度
+        // 如果 longitude 超出经度范围（-180 到 180），可能是纬度
+        if ((latitude < -90 || latitude > 90) && (longitude >= -90 && longitude <= 90)) {
+            // latitude 超出范围，longitude 在范围内，说明顺序反了
+            console.log('检测到经纬度顺序可能颠倒，自动纠正');
+            [latitude, longitude] = [longitude, latitude];
+        } else if ((longitude < -180 || longitude > 180) && (latitude >= -180 && latitude <= 180)) {
+            // longitude 超出范围，latitude 在范围内，说明顺序反了
+            console.log('检测到经纬度顺序可能颠倒，自动纠正');
+            [latitude, longitude] = [longitude, latitude];
+        }
+
+        // 验证经纬度范围（纠正后）
         if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
             return res.send({
                 code: 400,
