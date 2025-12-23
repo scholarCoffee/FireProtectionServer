@@ -178,6 +178,7 @@ const FireSituationSchema = new mongoose.Schema({
     locationType: { type: Number, required: true }, // 位置类型
     taskStatus: { type: Number, enum: [1, 2, 3, 4, 5], default: 2 }, // 任务状态：1-已完成 2-救援中（全部） 3-需要支援 4-正在支援 5-救援中（局部）
     remark: { type: String, default: '' }, // 备注
+    supportContent: { type: String, default: '', maxlength: 500 }, // 支援内容（最大500字）
     assignedUnits: [{
         unitId: { type: String, required: true }, // 单位ID
         unitName: { type: String, required: true }, // 单位名称
@@ -216,7 +217,7 @@ const TaskAssignSchema = new mongoose.Schema({
 	taskId: { type: String, required: true, unique: true }, // 任务唯一ID
 	// 关联火情
 	situationId: { type: String, required: true }, // 关联的火灾情况ID
-	status: { type: Number, enum: [1, 2], default: 1 }, // 任务状态：1-未接收, 2-已接收
+	status: { type: Number, enum: [1, 2, 3], default: 1 }, // 任务状态：1-未接收, 2-已接收, 3-已执行
 	remark: { type: String, default: '' }, // 备注
 	feedbackPersonId: { type: String, required: true }, // 下达人ID
     feedbackPersonName: { type: String, required: true }, // 下达人姓名
@@ -228,7 +229,8 @@ const TaskAssignSchema = new mongoose.Schema({
 const FireUnitStatusSchema = new mongoose.Schema({
 	unitId: { type: String, required: true, unique: true }, // 单位ID
 	unitName: { type: String, required: true }, // 单位名称
-	status: { type: String, required: true, enum: ['idle', 'occupied'], default: 'idle' }, // 占用状态：idle-空闲，occupied-占用中
+	status: { type: String, required: true, enum: ['idle', 'occupied', 'full'], default: 'idle' }, // 占用状态：idle-空闲，occupied-占用中（有空余车辆），full-占满中（无空余车辆）
+	usingCars: [{ type: String }], // 当前使用的车辆ID列表
 	currentTaskId: { type: String, default: '' }, // 当前任务ID
 	currentSituationId: { type: String, default: '' }, // 当前火情ID
 	occupyTime: { type: Date }, // 占用时间
