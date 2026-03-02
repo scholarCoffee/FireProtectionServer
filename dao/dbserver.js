@@ -52,6 +52,7 @@ module.exports = {
 	getLocationStats: locationService.getLocationStats,
 	checkAddressId: locationService.checkAddressId,
 	reverseGeocode: locationService.reverseGeocode,
+	updateIdleStatus: locationService.updateIdleStatus,
 
 	// 户主信息相关服务
 	getOwnerList: ownerService.getOwnerList,
