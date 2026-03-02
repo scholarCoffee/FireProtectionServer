@@ -117,6 +117,8 @@ const LocationSchema = new Schema({
 	// 消火栓性能参数（仅消火栓模式使用）
 	hydrantPressure: { type: String }, // 消火栓压力（单位：mpa，如："0.3"）
 	hydrantFlow: { type: String }, // 消火栓流量（单位：L/s，如："15"）
+	// 空闲状态（仅消火栓类型有效：type=3 且 keywordType 为消火栓类型）
+	idleStatus: { type: Number, default: 1 }, // 空闲状态：1=空闲，0=使用中（仅消火栓类型有效）
 	createTime: { type: Date, default: Date.now },
 	updateTime: { type: Date, default: Date.now }
 });

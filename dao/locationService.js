@@ -11,9 +11,17 @@ const KEYWORD_TYPE_MAP = {
     'yushanCityHydrant': 'hydrant'
 };
 
+// 消火栓关键字类型列表
+const HYDRANT_KEYWORD_TYPES = ['yushanForestHydrant', 'yushanCityHydrant'];
+
 // 根据 keywordType 获取 category
 const getCategoryByKeywordType = (keywordType) => {
     return KEYWORD_TYPE_MAP[keywordType] || null;
+};
+
+// 判断是否为消火栓类型
+const isHydrantType = (type, keywordType) => {
+    return type === 3 && keywordType && HYDRANT_KEYWORD_TYPES.includes(keywordType);
 };
 
 // 验证队站辖区（type=3）的字段
@@ -297,6 +305,15 @@ exports.getLocationDetail = async (req, res) => {
             updateTime: detail.updateTime
         };
 
+        // 如果是消火栓类型，包含空闲状态
+        if (isHydrantType(detail.type, detail.keywordType)) {
+            // idleStatus: 1=空闲(true), 0=使用中(false), null/undefined=默认空闲(true)
+            filteredDetail.idleStatus = detail.idleStatus === 0 ? false : true;
+        } else {
+            // 非消火栓类型，不返回空闲状态字段（或返回null）
+            filteredDetail.idleStatus = null;
+        }
+
         // 查询关联的消防安全评分信息
         let fireSafetyScore = null;
         try {
@@ -371,6 +388,19 @@ exports.addLocation = async (req, res) => {
                     data: null
                 });
             }
+        }
+
+        // 处理空闲状态（仅消火栓类型有效）
+        if (isHydrantType(locationData.type, locationData.keywordType)) {
+            // 如果传入了空闲状态，使用传入的值；否则默认为true（空闲）
+            if (locationData.idleStatus !== undefined) {
+                locationData.idleStatus = locationData.idleStatus === true || locationData.idleStatus === 1 ? 1 : 0;
+            } else {
+                locationData.idleStatus = 1; // 默认空闲
+            }
+        } else {
+            // 非消火栓类型，不保存空闲状态（设置为null或删除该字段）
+            delete locationData.idleStatus;
         }
         
         // 检查addressId是否已存在
@@ -499,6 +529,19 @@ exports.updateLocation = async (req, res) => {
                 }
             }
 
+            // 处理空闲状态（仅消火栓类型有效）
+            if (isHydrantType(updateData.type, updateData.keywordType)) {
+                // 如果传入了空闲状态，使用传入的值；否则默认为true（空闲）
+                if (updateData.idleStatus !== undefined) {
+                    updateData.idleStatus = updateData.idleStatus === true || updateData.idleStatus === 1 ? 1 : 0;
+                } else {
+                    updateData.idleStatus = 1; // 默认空闲
+                }
+            } else {
+                // 非消火栓类型，不保存空闲状态（设置为null或删除该字段）
+                delete updateData.idleStatus;
+            }
+
             // 创建新地址
             const newLocation = new Location(updateData);
             const result = await newLocation.save();
@@ -578,6 +621,29 @@ exports.updateLocation = async (req, res) => {
                 updateData.keywordType = null;
                 updateData.hydrantPressure = null;
                 updateData.hydrantFlow = null;
+                updateData.idleStatus = null; // 清除空闲状态
+            }
+        }
+
+        // 处理空闲状态（仅消火栓类型有效）
+        const finalType = updateData.type !== undefined ? updateData.type : existingLocation.type;
+        const finalKeywordType = updateData.keywordType !== undefined ? updateData.keywordType : existingLocation.keywordType;
+        if (isHydrantType(finalType, finalKeywordType)) {
+            // 如果传入了空闲状态，使用传入的值；否则保持现有值或默认为true（空闲）
+            if (updateData.idleStatus !== undefined) {
+                updateData.idleStatus = updateData.idleStatus === true || updateData.idleStatus === 1 ? 1 : 0;
+            } else if (existingLocation.idleStatus === undefined || existingLocation.idleStatus === null) {
+                // 如果现有数据没有空闲状态，默认设置为空闲
+                updateData.idleStatus = 1;
+            }
+            // 如果现有数据已有空闲状态且未传入新值，保持现有值（不更新该字段）
+        } else {
+            // 非消火栓类型，清除空闲状态
+            if (updateData.type !== undefined || updateData.keywordType !== undefined) {
+                updateData.idleStatus = null;
+            } else {
+                // 如果类型和关键字类型都没变化，删除空闲状态字段（不更新）
+                delete updateData.idleStatus;
             }
         }
 
@@ -796,6 +862,80 @@ const TENCENT_MAP_CONFIG = {
 };
 
 // 反向地理编码（根据经纬度获取地址信息）
+// 更新空闲状态接口
+exports.updateIdleStatus = async (req, res) => {
+    try {
+        const { addressId, idleStatus } = req.body;
+        
+        // 参数验证
+        if (!addressId) {
+            return res.send({ 
+                code: 400, 
+                msg: 'addressId不能为空', 
+                data: null 
+            });
+        }
+        
+        if (typeof idleStatus !== 'boolean') {
+            return res.send({ 
+                code: 400, 
+                msg: 'idleStatus必须为布尔值', 
+                data: null 
+            });
+        }
+        
+        // 查询位置信息
+        const location = await Location.findOne({ addressId });
+        if (!location) {
+            return res.send({ 
+                code: 404, 
+                msg: '位置信息不存在', 
+                data: null 
+            });
+        }
+        
+        // 验证是否为消火栓类型
+        if (location.type !== 3) {
+            return res.send({ 
+                code: 400, 
+                msg: '该位置类型不支持空闲状态（仅队站辖区支持）', 
+                data: null 
+            });
+        }
+        
+        // 判断关键字类型是否为消火栓
+        if (!isHydrantType(location.type, location.keywordType)) {
+            return res.send({ 
+                code: 400, 
+                msg: '该位置类型不支持空闲状态（仅消火栓类型支持）', 
+                data: null 
+            });
+        }
+        
+        // 更新空闲状态
+        location.idleStatus = idleStatus ? 1 : 0;
+        location.updateTime = new Date();
+        await location.save();
+        
+        res.send({
+            code: 200,
+            msg: '更新成功',
+            data: {
+                addressId,
+                idleStatus: idleStatus,
+                updateTime: location.updateTime
+            }
+        });
+    } catch (error) {
+        console.error('更新空闲状态失败:', error);
+        res.send({ 
+            code: 500, 
+            msg: '服务器内部错误', 
+            data: null 
+        });
+    }
+};
+
 exports.reverseGeocode = async (req, res) => {
     try {
         // 从查询参数获取经纬度

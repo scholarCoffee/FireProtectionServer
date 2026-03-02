@@ -33,6 +33,11 @@ const checkAddressId = function (req, res) {
 // 反向地理编码（根据经纬度获取地址信息）
 const reverseGeocode = function (req, res) {
     dbServer.reverseGeocode(req, res); // 调用反向地理编码函数
+}
+
+// 更新空闲状态
+const updateIdleStatus = function (req, res) {
+    dbServer.updateIdleStatus(req, res); // 调用更新空闲状态函数
 }       
 
 module.exports = {
@@ -43,4 +48,5 @@ module.exports = {
     deleteLocation,
     checkAddressId,
     reverseGeocode,
+    updateIdleStatus,
 }

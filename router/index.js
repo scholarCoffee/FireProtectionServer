@@ -124,6 +124,11 @@ module.exports = function (app) {
         location.updateLocation(req, res); // 调用更新地址函数
     });
     
+    // 更新空闲状态（仅消火栓类型）
+    app.post('/location/updateIdleStatus', function (req, res) {
+        location.updateIdleStatus(req, res); // 调用更新空闲状态函数
+    });
+    
     // 删除地址信息
     app.post('/location/delete', function (req, res) {
         location.deleteLocation(req, res); // 调用删除地址函数
