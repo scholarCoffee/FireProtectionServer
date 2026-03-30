@@ -2,8 +2,43 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const ip = require('ip');
-const ipAddress = ip.address();
+const os = require('os');
 const bodyParser = require('body-parser');
+
+// 获取本机 IP 地址（更可靠的方式）
+function getLocalIPAddress() {
+    try {
+        // 方法1: 使用 ip 包
+        const ipAddress = ip.address();
+        // 验证 IP 地址是否有效（排除异常值如 2.0.0.1）
+        if (ipAddress && ipAddress !== '127.0.0.1' && ipAddress !== '::1' && 
+            !ipAddress.startsWith('2.0.0.') && ipAddress.split('.').length === 4) {
+            return ipAddress;
+        }
+    } catch (err) {
+        console.warn('使用 ip 包获取 IP 地址失败:', err.message);
+    }
+    
+    // 方法2: 从网络接口获取
+    try {
+        const interfaces = os.networkInterfaces();
+        for (const name of Object.keys(interfaces)) {
+            for (const iface of interfaces[name]) {
+                // 跳过内部（即 127.0.0.1）和非 IPv4 地址
+                if (iface.family === 'IPv4' && !iface.internal) {
+                    return iface.address;
+                }
+            }
+        }
+    } catch (err) {
+        console.warn('从网络接口获取 IP 地址失败:', err.message);
+    }
+    
+    // 回退到 localhost
+    return '127.0.0.1';
+}
+
+const ipAddress = getLocalIPAddress();
 
 app.use(bodyParser.urlencoded({
     extended: true,

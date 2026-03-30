@@ -8,6 +8,7 @@ const fireSafetyScore = require('./fireSafetyScore.js'); // 引入消防安全�
 const owner = require('./owner.js'); // 引入户主信息模块
 const taskRouter = require('../server/task.js');
 const ai = require('../server/ai.js'); // 引入 AI 模块
+const mapCombat = require('../server/mapCombat.js'); // 引入地图作战模块
 
 module.exports = function (app) {
     // 用户信息修改
@@ -142,6 +143,9 @@ module.exports = function (app) {
 
     // 静态配置与作战部署素材
     app.use('/fire', fire);
+
+    // 地图作战信息相关路由
+    app.use('/mapCombat', mapCombat);
 
     // 户主信息管理相关路由
     app.use('/owner', owner);

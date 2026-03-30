@@ -5,6 +5,7 @@ const FireSituation = dbmodel.FireSituation;
 const FireUnitStatus = dbmodel.FireUnitStatus;
 const TaskAssign = dbmodel.TaskAssign;
 const StaticData = dbmodel.StaticData;
+const Location = dbmodel.Location;
 
 // ========== 辅助函数 ==========
 
@@ -871,13 +872,32 @@ router.get('/list', async (req, res) => {
             ];
         }
         
-        // 分页查询
-        const skip = (parseInt(page) - 1) * parseInt(pageSize);
-        const situations = await FireSituation.find(query)
-            .sort({ issueTime: -1 })
-            .skip(skip)
-            .limit(parseInt(pageSize))
-            .lean();
+        // 分页查询（按任务状态优先级排序：需要支援 > 正在支援 > 救援中 > 已完成）
+        const pageNum = parseInt(page);
+        const pageSizeNum = parseInt(pageSize);
+        const skip = (pageNum - 1) * pageSizeNum;
+
+        const situations = await FireSituation.aggregate([
+            { $match: query },
+            {
+                $addFields: {
+                    taskStatusOrder: {
+                        $switch: {
+                            branches: [
+                                { case: { $eq: ['$taskStatus', 3] }, then: 0 }, // 需要支援
+                                { case: { $eq: ['$taskStatus', 4] }, then: 1 }, // 正在支援
+                                { case: { $in: ['$taskStatus', [2, 5]] }, then: 2 }, // 救援中（全部/局部）
+                                { case: { $eq: ['$taskStatus', 1] }, then: 3 }, // 已完成
+                            ],
+                            default: 99
+                        }
+                    }
+                }
+            },
+            { $sort: { taskStatusOrder: 1, issueTime: -1 } },
+            { $skip: skip },
+            { $limit: pageSizeNum }
+        ]);
         
         const total = await FireSituation.countDocuments(query);
         
@@ -990,6 +1010,13 @@ router.get('/detail', async (req, res) => {
             return res.send({ code: 404, msg: '未找到相关火灾情况记录' });
         }
 
+        // 查询地址经纬度信息
+        const location = situation.addressId
+            ? await Location.findOne({ addressId: situation.addressId })
+                .select('latitude longitude -_id')
+                .lean()
+            : null;
+
         // 返回详情数据
         res.send({
             code: 200,
@@ -998,6 +1025,8 @@ router.get('/detail', async (req, res) => {
                 situationId: situation.situationId,
                 addressId: situation.addressId,
                 addressName: situation.addressName,
+                latitude: location && location.latitude !== undefined ? location.latitude : null,
+                longitude: location && location.longitude !== undefined ? location.longitude : null,
                 locationType: situation.locationType,
                 taskStatus: situation.taskStatus,
                 remark: situation.remark || '',

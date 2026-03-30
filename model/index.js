@@ -202,7 +202,8 @@ const FireSituationSchema = new mongoose.Schema({
                 carName: { type: String, required: true } // 目标车辆名称
             }],
             taskType: { type: String, required: true }, // 任务类型
-            taskExtra: { type: Schema.Types.Mixed, default: {} } // 任务额外配置（动态内容，如灭火力量、堵截力量、目标中队等）
+            taskExtra: { type: Schema.Types.Mixed, default: {} }, // 任务额外配置（动态内容，如灭火力量、堵截力量、目标中队等）
+            taskLocation: { type: Schema.Types.Mixed, default: null } // 任务位置信息（包含经纬度、地址等）
         }],
         unitStatus: { type: String, enum: ['rescue', 'support'], default: 'rescue' }, // 单位状态：rescue-首次救援单位，support-支援单位
         rescueTime: { type: Date, default: Date.now }, // 救援时间
